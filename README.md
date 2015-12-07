@@ -12,3 +12,12 @@ Packages for paper writing for the group.
 \note[<who>]{bla bla}
 \placeholder[<who>]{bla bla}
    ```
+   Want to define new note commands? Sure:
+   ```latex
+\makeatletter
+  % \zebr@newnote{<note name>}{<xcolor color>}
+  \zebr@newnote{question}{red!80}
+\makeatother
+
+\question{what's this?}
+   ```
