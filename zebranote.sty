@@ -1,0 +1,103 @@
+\ProvidesPackage{zebranote}[2015/12/07 0.2 Easy to add revise notes.]
+
+% comment this if you do not need.
+\RequirePackage{microtype}
+\RequirePackage[table]{xcolor}
+\RequirePackage{tikzpagenodes}
+\RequirePackage{marginnote}
+\RequirePackage{manfnt}
+
+\newif\ifzebr@show\zebr@showfalse
+\DeclareOption{show}{%
+  \zebr@showtrue}
+\DeclareOption{hide}{%
+  \zebr@showfalse}
+\ExecuteOptions{show}
+\ProcessOptions\relax
+
+% From: http://tex.stackexchange.com/questions/247449/making-marginnote-to-appear-either-side-of-twocolumn-twoside-document-part-ii
+% I did a little edit.
+\newlength{\zebr@tempdima}
+\newcount{\zebr@tikzpage}
+
+\newcommand*{\zebr@marginnote}[1]{%
+  \begin{tikzpicture}[remember picture, overlay]%
+    \pgfextractx{\zebr@tempdima}{\pgfpointanchor{current page text area}{center}}%
+    \global\zebr@tempdima=\zebr@tempdima
+    \global\zebr@tikzpage=\oddpage@page
+  \end{tikzpicture}%
+  \begingroup
+    \ifdim\zebr@tempdima>0pt \reversemarginpar\fi
+    \marginnote{#1}%
+  \endgroup% resets \reversemarginpar
+}
+
+\def\zebr@note{%
+  \ifzebr@show\expandafter\zebr@note@\else\expandafter\@gobblefour\fi}
+
+% #1: note name
+% #2: color
+% #3: assignee
+% #4: note text
+\newcommand{\zebr@note@}[4]{%
+  \zebr@marginnote{\textcolor{#2}{\dbend}}%
+  \expandafter\stepcounter{zebr@num@#1}%
+  \textcolor{#2}{[\textbf{\MakeUppercase{#1}\textit{#3}:} #4]}}
+
+\newcommand{\zebr@prepend}[2]{%
+  \ifx\relax#2\relax\relax\else#1#2\fi}
+
+\global\def\zebr@noteslist{}
+\def\zebr@newnote#1#2{%
+  \g@addto@macro\zebr@noteslist{,#1}%
+  \expandafter\newcounter\expandafter{zebr@num@#1}
+  \expandafter\newcommand\csname zebr@color@#1\endcsname{#2}
+  \expandafter\newcommand\csname #1\endcsname[2][]{%
+    \zebr@note{#1}{#2}{\zebr@prepend{@}{##1}}{##2}}}
+
+\def\zebr@listnotes{%
+  \ifzebr@show\zebr@listnotes@\fi}
+
+\def\zebr@listnotes@{%
+  \def\temp@a{}
+  \@for\temp@b:=\zebr@noteslist\do{%
+    \ifx\temp@b\@empty\else%
+      \expandafter\ifnum\expandafter\value\expandafter{zebr@num@\temp@b} > 0%
+        \def\temp@c{\expandafter\csname thezebr@num@\temp@b\endcsname}
+        \edef\temp@d{\noexpand\textcolor{\expandafter\csname zebr@color@\temp@b\endcsname}{\temp@b} \noexpand &  \temp@c \noexpand\\}
+        \expandafter\g@addto@macro\expandafter\temp@a\expandafter{\temp@d}%
+      \fi%
+    \fi}
+  \ifx\temp@a\@empty\else%
+    \noindent\dotfill\par
+    \section*{Zebra Notes}
+    \par \medskip
+    \begin{center}
+      \rowcolors{1}{gray!10}{white}
+      \begin{tabular}{lr}
+        \hline
+        Type & Number \\\hline
+        \temp@a
+        \hline
+      \end{tabular}
+      \par \medskip
+      \textbf{Do fix all of them before submitting.}
+    \end{center}
+  \fi}
+
+\AtEndDocument{\zebr@listnotes}
+
+\definecolor{zebrablue}{HTML}{4F81BD}
+\definecolor{zebrared}{HTML}{C0504D}
+\definecolor{zebragreen}{HTML}{9BBB00}
+\definecolor{zebrapurple}{HTML}{9F4C7C}
+\definecolor{zebrayellow}{HTML}{D9CD2E}
+\definecolor{zebragreen2}{HTML}{00E000}
+
+\zebr@newnote{todo}{purple}
+\zebr@newnote{fixed}{teal}
+\zebr@newnote{comment}{blue}
+\zebr@newnote{note}{violet}
+\zebr@newnote{placeholder}{gray}
+
+\endinput
