@@ -1,4 +1,4 @@
-\ProvidesPackage{zebranote}[2015/12/07 0.2 Easy to add revise notes.]
+\ProvidesPackage{zebra-latex-goodies}[2015/12/07 0.2 LaTeX goodies for paper writing.]
 
 % comment this if you do not need.
 \RequirePackage{microtype}
@@ -7,13 +7,17 @@
 \RequirePackage{marginnote}
 \RequirePackage{manfnt}
 
-\newif\ifzebr@show\zebr@showfalse
+\newif\ifzebr@noteshow\zebr@noteshowfalse
 \DeclareOption{show}{%
-  \zebr@showtrue}
+  \zebr@noteshowtrue}
 \DeclareOption{hide}{%
-  \zebr@showfalse}
+  \zebr@noteshowfalse}
 \ExecuteOptions{show}
 \ProcessOptions\relax
+
+%%%%%%%%%%%%%%%%%%
+% zebra-note
+%%%%%%%%%%%%%%%%%%
 
 % From: http://tex.stackexchange.com/questions/247449/making-marginnote-to-appear-either-side-of-twocolumn-twoside-document-part-ii
 % I did a little edit.
@@ -33,7 +37,7 @@
 }
 
 \def\zebr@note{%
-  \ifzebr@show\expandafter\zebr@note@\else\expandafter\@gobblefour\fi}
+  \ifzebr@noteshow\expandafter\zebr@note@\else\expandafter\@gobblefour\fi}
 
 % #1: note name
 % #2: color
@@ -56,7 +60,7 @@
     \zebr@note{#1}{#2}{\zebr@prepend{@}{##1}}{##2}}}
 
 \def\zebr@listnotes{%
-  \ifzebr@show\zebr@listnotes@\fi}
+  \ifzebr@noteshow\zebr@listnotes@\fi}
 
 \def\zebr@listnotes@{%
   \def\temp@a{}
@@ -87,17 +91,20 @@
 
 \AtEndDocument{\zebr@listnotes}
 
+\zebr@newnote{todo}{purple}
+\zebr@newnote{fixed}{teal}
+\zebr@newnote{comment}{blue}
+\zebr@newnote{note}{violet}
+\zebr@newnote{placeholder}{gray}
+
+%%%%%%%%%%%%%%
+% zebra-color
+%%%%%%%%%%%%%%
 \definecolor{zebrablue}{HTML}{4F81BD}
 \definecolor{zebrared}{HTML}{C0504D}
 \definecolor{zebragreen}{HTML}{9BBB00}
 \definecolor{zebrapurple}{HTML}{9F4C7C}
 \definecolor{zebrayellow}{HTML}{D9CD2E}
 \definecolor{zebragreen2}{HTML}{00E000}
-
-\zebr@newnote{todo}{purple}
-\zebr@newnote{fixed}{teal}
-\zebr@newnote{comment}{blue}
-\zebr@newnote{note}{violet}
-\zebr@newnote{placeholder}{gray}
 
 \endinput
