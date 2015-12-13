@@ -1,6 +1,15 @@
 # zebra-latex-goodies
 Packages for paper writing for the group.
 
+## Options
+
+* `show`: boolean option, whether to show the notes. Enabled by default. Example to disable it:
+
+  ```latex
+\usepackage[show=false]{zebra-latex-goodies}
+  ```
+
+
 ## Take Notes
 
    Add comments, todos, anything you like during revise in a colorful way. The package also summarizes the revise note by the end of the document. Predefined commands are as follows:
