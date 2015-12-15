@@ -1,4 +1,4 @@
-# zebra-latex-goodies.sty
+# zebra.sty
 
   An all-in-one package for paper writing for the group.
 
@@ -7,7 +7,7 @@
 * `show`: boolean option, whether to show the notes. Enabled by default. Example to disable it:
 
   ```latex
-\usepackage[show=false]{zebra-latex-goodies}
+\usepackage[show=false]{zebra}
   ```
 
 
