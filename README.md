@@ -1,5 +1,6 @@
-# zebra-latex-goodies
-Packages for paper writing for the group.
+# zebra-latex-goodies.sty
+
+  An all-in-one package for paper writing for the group.
 
 ## Options
 
@@ -33,3 +34,7 @@ Packages for paper writing for the group.
 
 ## Use Colors 
    Several colors is provided via `xcolor` for ploting: `zebrablue`, `zebrared`, `zebrayellow`, `zebrapurple`, and `zebragreen`.
+
+# zebra.bib
+
+  An all-in-one bib file for all references.
