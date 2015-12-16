@@ -2,16 +2,16 @@
 
 # These variables are self-explanation. Mostly, you do not need to edit them.
 
-## Paper's entry point. 
-# MAIN     = 
+## Paper's entry point.
+# MAIN     =
 
 ## All figures includes in the paper.
-# FIGURES  = 
+# FIGURES  =
 
 ## Bibfile except our all-in-one bib.
-# BIBFILES = 
+# BIBFILES =
 
 ## Any dependencies else.
-# OTHER    = 
+# OTHER    =
 
 include zebra-latex-goodies/Makefile
