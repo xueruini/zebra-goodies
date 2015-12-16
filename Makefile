@@ -1,9 +1,11 @@
-MAIN    = $(shell find ./ -maxdepth 1 -type f -name "*.tex" -exec basename {} \;)
-PICS    = $(shell ls figures/*.pdf figures/*.tex)
-BIBFILE = zebra-latex-goodies/zebra.bib
-OTHER   = zebra-latex-goodies/zebra.sty
-DEP     = $(PICS) $(BIBFILE) $(OTHER)
-TRG     = $(MAIN:%.tex=%.pdf)
+ifndef MAIN
+	MAIN= $(shell find ./ -maxdepth 1 -type f -name "*.tex" -exec basename {} \;)
+endif
+FIGURES  += $(shell ls figures/*.pdf figures/*.tex)
+BIBFILES += zebra-latex-goodies/zebra.bib
+OTHER += zebra-latex-goodies/zebra.sty
+DEP = $(FIGURES) $(BIBFILES) $(OTHER)
+TRG = $(MAIN:%.tex=%.pdf)
 
 LATEXMK = latexmk
 # use pdflatex
