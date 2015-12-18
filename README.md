@@ -1,3 +1,7 @@
+# Makefile.template
+
+  A template for creating your own Makefile to compile LaTeX source.
+
 # zebra.sty
 
   An all-in-one package for paper writing for the group.
