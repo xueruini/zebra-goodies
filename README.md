@@ -28,10 +28,8 @@
    ```
    Want to define new note commands? Sure:
    ```latex
-\makeatletter
-  % \zebr@newnote{<note name>}{<xcolor color>}
-  \zebr@newnote{question}{red!80}
-\makeatother
+% \zebranewnote{<note name>}{<xcolor color>}
+\zebranewnote{question}{red!80}
 
 \question{what's this?}
    ```

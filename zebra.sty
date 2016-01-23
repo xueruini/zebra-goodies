@@ -56,6 +56,10 @@
 \newcommand{\zebr@prepend}[2]{%
   \ifx\relax#2\relax\relax\else#1#2\fi}
 
+\def\zebranewnote#1#2{%
+  \@ifundefined{#1}{\zebr@newnote{#1}{#2}}{%
+    \PackageError{zebra}{zebra already defines note: '#1'}{%
+      Current note types: \expandafter\@gobble\zebr@noteslist}}}
 \global\def\zebr@noteslist{}
 \def\zebr@newnote#1#2{%
   \g@addto@macro\zebr@noteslist{,#1}%
@@ -69,13 +73,12 @@
 
 \def\zebr@listnotes@{%
   \def\temp@a{}
-  \@for\temp@b:=\zebr@noteslist\do{%
-    \ifx\temp@b\@empty\else%
-      \expandafter\ifnum\expandafter\value\expandafter{zebr@num@\temp@b} > 0%
-        \def\temp@c{\expandafter\csname thezebr@num@\temp@b\endcsname}
-        \edef\temp@d{\noexpand\textcolor{\expandafter\csname zebr@color@\temp@b\endcsname}{\temp@b} \noexpand &  \temp@c \noexpand\\}
-        \expandafter\g@addto@macro\expandafter\temp@a\expandafter{\temp@d}%
-      \fi%
+  \edef\temp@noteslist{\expandafter\@gobble\zebr@noteslist}
+  \@for\temp@b:=\temp@noteslist\do{%
+    \expandafter\ifnum\expandafter\value\expandafter{zebr@num@\temp@b} > 0%
+      \def\temp@c{\expandafter\csname thezebr@num@\temp@b\endcsname}
+      \edef\temp@d{\noexpand\textcolor{\expandafter\csname zebr@color@\temp@b\endcsname}{\temp@b} \noexpand &  \temp@c \noexpand\\}
+      \expandafter\g@addto@macro\expandafter\temp@a\expandafter{\temp@d}%
     \fi}
   \ifx\temp@a\@empty\else%
     \noindent\dotfill\par
@@ -96,11 +99,11 @@
 
 \AtEndDocument{\zebr@listnotes}
 
-\zebr@newnote{todo}{purple}
-\zebr@newnote{fixed}{teal}
-\zebr@newnote{comment}{blue}
-\zebr@newnote{note}{violet}
-\zebr@newnote{placeholder}{gray}
+\zebranewnote{todo}{purple}
+\zebranewnote{fixed}{teal}
+\zebranewnote{comment}{blue}
+\zebranewnote{note}{violet}
+\zebranewnote{placeholder}{gray}
 
 %%%%%%%%%%%%%%
 % zebra-color
