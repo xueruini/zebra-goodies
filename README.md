@@ -13,7 +13,7 @@
   ```latex
 \usepackage[show=false]{zebra}
   ```
-
+* `microtype`: boolean option, whether to load package `microtype`. Enabled by default.
 
 ## Take Notes
 
