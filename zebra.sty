@@ -4,13 +4,17 @@
 \RequirePackage{kvoptions}
 \SetupKeyvalOptions{
   family=zebra,
-  prefix=zebr@}
+  prefix=zebr@,
+  setkeys=\kvsetkeys}
 \DeclareBoolOption{show}
-\setkeys{zebra}{show}
+\DeclareBoolOption{microtype}
+\setkeys{zebra}{show,microtype}
 \ProcessKeyvalOptions{zebra}
 
 % comment this if you do not need.
-\RequirePackage{microtype}
+\ifzebr@microtype
+  \RequirePackage{microtype}
+\fi
 \RequirePackage[table]{xcolor}
 \RequirePackage{tikzpagenodes}
 \RequirePackage{marginnote}
