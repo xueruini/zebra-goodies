@@ -1,7 +1,7 @@
 ifndef MAIN
 	MAIN= $(shell find ./ -maxdepth 1 -type f -name "*.tex" -exec basename {} \;)
 endif
-FIGURES  += $(shell ls figures/*.pdf figures/*.tex)
+FIGURES  += $(shell find figures/ -name '*.tex' -o -name '*.pdf')
 BIBFILES += zebra-latex-goodies/zebra.bib
 OTHER += zebra-latex-goodies/zebra.sty
 DEP = $(FIGURES) $(BIBFILES) $(OTHER)
