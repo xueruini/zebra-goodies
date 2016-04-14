@@ -58,8 +58,7 @@
 
 \def\zebranewnote#1#2{%
   \@ifundefined{#1}{\zebr@newnote{#1}{#2}}{%
-    \PackageError{zebra}{zebra already defines note: '#1'}{%
-      Current note types: \expandafter\@gobble\zebr@noteslist}}}
+    \PackageWarning{zebra}{zebra already defines note: '#1'}}}
 \global\def\zebr@noteslist{}
 \def\zebr@newnote#1#2{%
   \g@addto@macro\zebr@noteslist{,#1}%
