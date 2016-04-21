@@ -36,7 +36,3 @@
 
 ## Use Colors 
    Several colors is provided via `xcolor` for ploting: `zebrablue`, `zebrared`, `zebrayellow`, `zebrapurple`, and `zebragreen`.
-
-# zebra.bib
-
-  An all-in-one bib file for all references.
