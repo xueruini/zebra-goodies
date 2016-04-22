@@ -6,9 +6,9 @@
   family=zebra,
   prefix=zebr@,
   setkeys=\kvsetkeys}
-\DeclareBoolOption{show}
+\DeclareBoolOption{draft}
 \DeclareBoolOption{microtype}
-\setkeys{zebra}{show,microtype}
+\setkeys{zebra}{draft,microtype}
 \ProcessKeyvalOptions{zebra}
 
 % comment this if you do not need.
@@ -42,7 +42,7 @@
 }
 
 \def\zebr@note{%
-  \ifzebr@show\expandafter\zebr@note@\else\expandafter\@gobblefour\fi}
+  \ifzebr@draft\expandafter\zebr@note@\else\expandafter\@gobblefour\fi}
 
 % #1: note name
 % #2: color
@@ -68,7 +68,7 @@
     \zebr@note{#1}{#2}{\zebr@prepend{@}{##1}}{##2}}}
 
 \def\zebr@listnotes{%
-  \ifzebr@show\zebr@listnotes@\fi}
+  \ifzebr@draft\zebr@listnotes@\fi}
 
 \def\zebr@listnotes@{%
   \def\temp@a{}

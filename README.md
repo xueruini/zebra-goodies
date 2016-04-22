@@ -8,10 +8,10 @@
 
 ## Options
 
-* `show`: boolean option, whether to show the notes. Enabled by default. Example to disable it:
+* `draft`: boolean option, whether to show the notes. Enabled by default. Example to disable it:
 
   ```latex
-\usepackage[show=false]{zebra}
+\usepackage[draft=false]{zebra}
   ```
 * `microtype`: boolean option, whether to load package `microtype`. Enabled by default.
 
@@ -26,7 +26,7 @@
 \note[<who>]{bla bla}
 \placeholder[<who>]{bla bla}
    ```
-   Want to define new note commands? Sure:
+   To define new note commands:
    ```latex
 % \zebranewnote{<note name>}{<xcolor color>}
 \zebranewnote{question}{red!80}
