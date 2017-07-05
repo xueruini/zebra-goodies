@@ -1,4 +1,8 @@
-An all-in-one package for paper writing for the group.
+# zebra-goodies
+
+A collection of handy macros for paper writing, such as taking notes for collaboration. Do remove this package once the paper is finished.
+
+**NOTE**: This is not intended for general note taking. Use it at your own risk.
 
 ## Options
 
@@ -33,4 +37,9 @@ To define new note commands:
 
 ## Use Colors 
 
-Several colors are provided via `xcolor` for ploting: `zebrablue`, `zebrared`, `zebrayellow`, `zebrapurple`, and `zebragreen`.
+Several colors are provided via `xcolor` for ploting:
+- `zebrablue`
+- `zebrared`
+- `zebrayellow`
+- `zebrapurple`
+- `zebragreen`
