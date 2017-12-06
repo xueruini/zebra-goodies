@@ -17,7 +17,17 @@ This is not intended for general cases. Use it at your own risk.
 
 ## Take Notes
 
-Add comments, todos, anything you like during revise in a colorful way. The package also summarizes the revise notes at the end of the document. Predefined commands are as follows:
+Add comments, todos, notes anything you like during revise in a colorful way. The package also summarizes the revise notes at the end of the document. Predefined commands are as follows:
+
+```latex
+\zebratodo[<who>]{bla bla}
+\zebrafixed[<who>]{bla bla}
+\zebracomment[<who>]{bla bla}
+\zebranote[<who>]{bla bla}
+\zebraplaceholder[<who>]{bla bla}
+```
+
+If the macros without `zebra` prefix have not been defiend yet, you can simplify the invocation like this:
 
 ```latex
 \todo[<who>]{bla bla}

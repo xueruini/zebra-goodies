@@ -66,16 +66,15 @@
 \newcommand{\zebr@prepend}[2]{%
   \ifx\relax#2\relax\relax\else#1#2\fi}
 
-\def\zebranewnote#1#2{%
-  \@ifundefined{#1}{\zebr@newnote{#1}{#2}}{%
-    \PackageWarning{zebra}{'\#1' has been taken}}}
 \global\def\zebr@noteslist{}
-\def\zebr@newnote#1#2{%
+\def\zebranewnote#1#2{%
   \g@addto@macro\zebr@noteslist{,#1}%
   \expandafter\newcounter\expandafter{zebr@num@#1}
   \expandafter\newcommand\csname zebr@color@#1\endcsname{#2}
-  \expandafter\newcommand\csname #1\endcsname[2][]{%
-    \zebr@note{#1}{#2}{\zebr@prepend{@}{##1}}{##2}}}
+  \expandafter\newcommand\csname zebra#1\endcsname[2][]{% we suppose it is not defined yet
+    \zebr@note{#1}{#2}{\zebr@prepend{@}{##1}}{##2}}
+  \@ifundefined{#1}{\expandafter\def\csname #1\endcsname{\csname zebra#1\endcsname}}{%
+    \PackageWarning{zebra}{'\textbackslash{#1}' has been taken. Use '\textbackslash{zebra#1}' instead.}}}
 
 \def\zebr@listnotes{%
   \ifzebr@draft\zebr@listnotes@\fi}
@@ -86,7 +85,7 @@
   \@for\temp@b:=\temp@noteslist\do{%
     \expandafter\ifnum\expandafter\value\expandafter{zebr@num@\temp@b} > 0%
       \def\temp@c{\expandafter\csname thezebr@num@\temp@b\endcsname}
-      \edef\temp@d{\noexpand\textcolor{\expandafter\csname zebr@color@\temp@b\endcsname}{\temp@b} \noexpand &  \temp@c \noexpand\\}
+      \edef\temp@d{\noexpand\textcolor{\expandafter\csname zebr@color@\temp@b\endcsname}{\temp@b} \noexpand &  \temp@c\noexpand\\}
       \expandafter\g@addto@macro\expandafter\temp@a\expandafter{\temp@d}%
     \fi}
   \ifx\temp@a\@empty\else%
