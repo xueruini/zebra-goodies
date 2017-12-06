@@ -68,7 +68,7 @@
 
 \def\zebranewnote#1#2{%
   \@ifundefined{#1}{\zebr@newnote{#1}{#2}}{%
-    \PackageWarning{zebra}{zebra already defines note: '#1'}}}
+    \PackageWarning{zebra}{'\#1' has been taken}}}
 \global\def\zebr@noteslist{}
 \def\zebr@newnote#1#2{%
   \g@addto@macro\zebr@noteslist{,#1}%
