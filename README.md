@@ -27,7 +27,7 @@ Add comments, todos, notes anything you like during revise in a colorful way. Th
 \placeholder[<who>]{bla bla}
 ```
 
-If any of them does not work, it is probaboly it has been defined by other packages. We will not override the definition, so you have to turn to its full version as follows:
+If any of them does not work, it is very likely that it has been defined by other packages. We will not override the definition, so you have to turn to its full version as follows:
 
 ```latex
 \zebratodo[<who>]{bla bla}

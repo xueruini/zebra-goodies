@@ -1,4 +1,4 @@
-%% Copyright (C) 2017 by Ruini Xue <xueruini@gmail.com>
+%% Copyright (C) 2017-2019 by Ruini Xue <xueruini@gmail.com>
 %%
 %% This file may be distributed and/or modified under the
 %% conditions of the LaTeX Project Public License, either version 1.3a
@@ -9,7 +9,7 @@
 %%
 %% and version 1.3c or later is part of all distributions of LaTeX
 %% version 2008/05/04 or later.
-\ProvidesPackage{zebra-goodies}[2017/12/6 0.3.0 LaTeX goodies for paper writing.]
+\ProvidesPackage{zebra-goodies}[2019/06/29 0.4.0 LaTeX goodies for paper writing.]
 
 \RequirePackage{kvoptions}
 \SetupKeyvalOptions{
@@ -61,7 +61,7 @@
 \newcommand{\zebr@note@}[4]{%
   \zebr@marginnote{\textcolor{#2}{\dbend}}%
   \expandafter\stepcounter{zebr@num@#1}%
-  \textcolor{#2}{[\textbf{\MakeUppercase{#1}\textit{#3}:} #4]}}
+  \textcolor{#2}{[{\textsc{\MakeLowercase{\MakeUppercase#1}} {\expandafter\csname thezebr@num@#1\endcsname}\texttt{#3}:} #4]}}
 
 \newcommand{\zebr@prepend}[2]{%
   \ifx\relax#2\relax\relax\else#1#2\fi}
