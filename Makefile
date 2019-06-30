@@ -1,15 +1,22 @@
 TARGET = zebra-goodies
-SOURCE = README.md zebra-goodies.sty
+DESTFS = README.md $(TARGET).sty $(TARGET).pdf
 
-all: ctan
+all: $(TARGET).pdf
 
-ctan: clean
+sty: FORCE_MAKE
+	tex $(TARGET).dtx
+
+$(TARGET).pdf: FORCE_MAKE
+	latexmk $(TARGET).dtx
+
+ctan: clean all
 	@mkdir -p $(TARGET)
-	@ln $(SOURCE) $(TARGET)
+	@ln $(DESTFS) $(TARGET)
 	@zip -r $(TARGET) $(TARGET)
 	@rm -rf $(TARGET)
 
 clean:
 	@rm -rf $(TARGET) $(TARGET).zip
+	latexmk -c $(TARGET).dtx
 
-.PHONY: all ctan clean
+.PHONY: all ctan clean FORCE_MAKE

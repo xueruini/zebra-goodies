@@ -1,0 +1,555 @@
+% \iffalse meta-comment
+%<*internal>
+\iffalse
+%</internal>
+%<*dummy>
+I'd like to keep this part here for later use.
+%</dummy>
+%<*internal>
+\fi
+\def\nameofplainTeX{plain}
+\ifx\fmtname\nameofplainTeX\else
+  \expandafter\begingroup
+\fi
+%</internal>
+%<*install>
+\input l3docstrip.tex
+\keepsilent
+\askforoverwritefalse
+\preamble
+Copyright (C) 2016-2019, Ruini Xue <xueruini@gmail.com>
+
+It may be distributed and/or modified under the conditions of
+the LaTeX Project Public License (LPPL), either version 1.3c of
+this license or (at your option) any later version.  The latest
+version of this license is in the file:
+
+   http://www.latex-project.org/lppl.txt
+\endpreamble
+\postamble
+
+This work is "maintained" (as per LPPL maintenance status) by
+  Ruini Xue.
+
+This work consists of the file  zebra-goodies.dtx
+          and the derived files zebra-goodies.ins,
+                                zebra-goodies.pdf and
+                                zebra-goodies.sty.
+
+\endpostamble
+\usedir{tex/latex/zebra-goodies}
+\generate{
+  \file{\jobname.sty}{\from{\jobname.dtx}{package}}
+}
+%</install>
+%<install>\endbatchfile
+%<*internal>
+\usedir{source/latex/zebra-goodies}
+\generate{
+  \file{\jobname.ins}{\from{\jobname.dtx}{install}}
+}
+%\nopreamble\nopostamble
+%\usedir{doc/latex/zebra-goodies}
+%\generate{
+%  \file{README.md}{\from{\jobname.dtx}{dummy}}
+%}
+\ifx\fmtname\nameofplainTeX
+  \expandafter\endbatchfile
+\else
+  \expandafter\endgroup
+\fi
+%</internal>
+%<*driver|package>
+%\RequirePackage{xparse}
+%</driver|package>
+%<*driver>
+\documentclass[full]{l3doc}
+\usepackage[scaled=0.93]{helvet}
+\usepackage[final]{listings}
+\usepackage{zebra-goodies}
+\EnableCrossrefs
+\CodelineIndex
+\RecordChanges
+\begin{document}
+  \DocInput{\jobname.dtx}
+\end{document}
+%</driver>
+% \fi
+% 
+%\makeatletter 
+% 
+%^^A For creating examples with nice highlighting of code, and so
+%^^A on; based on the system used in the listings source (lstsample).
+%\lst@RequireAspects{writefile}
+%\newsavebox{\LaTeXdemo@box}
+%\lstnewenvironment{LaTeXdemo}[1][code and example]{^^A
+%  \global\let\lst@intname\@empty
+%  \expandafter\let\expandafter\LaTeXdemo@end
+%    \csname LaTeXdemo@#1@end\endcsname
+%  \@nameuse{LaTeXdemo@#1}^^A
+%}{^^A
+%  \LaTeXdemo@end
+%}
+%\newcommand*\LaTeXdemo@new[3]{^^A
+%  \expandafter\newcommand\expandafter*\expandafter
+%    {\csname LaTeXdemo@#1\endcsname}{#2}^^A
+%  \expandafter\newcommand\expandafter*\expandafter
+%    {\csname LaTeXdemo@#1@end\endcsname}{#3}^^A
+%}
+%\newcommand*\LaTeXdemo@common{^^A
+%  \setkeys{lst}{
+%    basicstyle      = \small\ttfamily,
+%    %basewidth       = 0.51em,
+%    frame           = l,
+%    backgroundcolor = \color{gray!5},
+%    gobble          = 3,
+%    keywordstyle    = \bfseries\color{blue},
+%    language        = [LaTeX]{TeX},
+%    moretexcs       = {
+%      todo            ,
+%      note            ,
+%      comment         ,
+%      fixed           ,
+%      placeholder     ,
+%      zebratodo       ,
+%      zebranote       ,
+%      zebracomment    ,
+%      zebrafixed      ,
+%      zebraplaceholder,
+%      zebranewnote
+%    }
+%  }^^A 
+%}
+%\newcommand*\LaTeXdemo@input{^^A
+%  \MakePercentComment
+%  \catcode`\^^M=10\relax
+%  \small
+%  \begingroup
+%    \setkeys{lst}{
+%      SelectCharTable=\lst@ReplaceInput{\^\^I}{\lst@ProcessTabulator}
+%    }^^A
+%    \leavevmode 
+%      \input{\jobname.tmp}^^A
+%  \endgroup
+%  \MakePercentIgnore
+%}
+%\LaTeXdemo@new{code and example}{^^A
+%  \setbox\LaTeXdemo@box=\hbox\bgroup
+%    \lst@BeginAlsoWriteFile{\jobname.tmp}^^A
+%    \LaTeXdemo@common
+%}{^^A
+%    \lst@EndWriteFile
+%  \egroup
+%  \begin{center}
+%    \ifdim\wd\LaTeXdemo@box>0.48\linewidth\relax
+%      \hbox to\linewidth{\box\LaTeXdemo@box\hss}^^A
+%        \begin{minipage}{\linewidth}
+%          \LaTeXdemo@input
+%        \end{minipage}
+%    \else
+%      \begin{minipage}{0.48\linewidth}
+%        \LaTeXdemo@input
+%      \end{minipage}
+%      \hfill
+%      \begin{minipage}{0.48\linewidth}
+%        \hbox to\linewidth{\box\LaTeXdemo@box\hss}^^A
+%      \end{minipage}
+%    \fi
+%  \end{center}
+%}
+%\LaTeXdemo@new{code only}{^^A
+%  \LaTeXdemo@common
+%}{^^A
+%}
+%
+%\providecommand*\opt[1]{\texttt{#1}}
+%
+%\makeatother
+% 
+%\GetFileInfo{\jobname.sty} 
+% 
+%\changes{v0.1.0}{2017/07/05}{Initial public release}
+%\changes{v0.2.0}{2017/11/26}{Fix \pkg{xcolor} conflict}
+%\changes{v0.3.0}{2017/12/06}{Detect command conflicts}
+%\changes{v0.4.0}{2019/06/29}{Show note number for easy reference}
+%\changes{v0.5.0}{2019/06/29}{Use darker color for label}
+%\changes{v0.6.0}{2019/06/30}{Use gray background for label}
+%
+%\title{^^A
+%  \pkg{zebra-goodies} --- Easy Notes for Documents^^A
+%    \thanks{^^A
+%      This file describes version \fileversion, last revised 
+%      \filedate.^^A
+%    }^^A
+%}
+%\author{^^A
+%  Ruini Xue\thanks{E-mail: xueruini@gmail.com}^^A
+%}
+%\date{Released \filedate}
+%
+%\maketitle
+%
+%\begin{abstract}
+%  The \pkg{zebra-goodies} package defines a collection of handy macros for
+%  taking notes during document writing. It is designed to be very simple and
+%  good enough for writing common documents indpendently or collaboratively.
+%  Several commands, \cs{todo}, \cs{comment}, \cs{note}, \cs{fixed} and
+%  \cs{placeholder}, are provided for quick start. It is also possible to add
+%  new note taking commands with \cs{zebranewnote}.
+%\end{abstract}
+%
+%\tableofcontents
+%
+%\begin{documentation}
+%
+%\section{Introduction}
+%
+% There are quite a few note taking and todo packages available. However, I do
+% not like the interfaces they provided. Some of them create a huge, complex
+% and complicated feature set trying to fit all use cases, while others abuse
+% the margin par to show too many colorful boxes and long text, even worse, some
+% packages link the annotations and the original text with arrows, which results
+% in a really unreadable document.
+%
+% So, I need a simple and good enough note taking package. With ``simple'', I
+% want the commands to be intuitive and equipped with just necessary arguments.
+% With ``good enough'', the document's appearance could be changed a bit to
+% present the notes for easy reading but not too much. Additionally, all notes
+% should be addressed once the file is in final state. As a kind reminder, a
+% summary table presents the notes statistics according to note types at the end
+% of the document.
+%
+% With these objectives in mind, \pkg{zebra-goodies} is created and improved
+% along with my writing activities. Appearntly, this package is designed with a
+% heavy personal bias. It is not supposed to general and perfect.
+%
+%\section{Installation}
+%
+%\changes{v0.7.0}{2019/07/01}{Move to docstrip}
+%
+% The package is supplied in \file{dtx} format and as a pre-extracted zip file,
+% \file{\jobname.tds.zip}. The later is most convenient for most users: simply
+% unzip this in your local texmf directory and run \texttt{texhash} to update
+% the database of file locations. If you want to unpack the \file{dtx} yourself,
+% running \texttt{tex \jobname.dtx} will extract the package whereas
+% \texttt{latex \jobname.dtx} will extract it and also typeset the
+% documentation\footnote{Actually, \texttt{latexmk \jobname.dtx} is much
+% better.}.
+%
+%\section{Using the package}
+%
+% The package should be loaded as normal in the preamble. The package 
+% recognises a number of options, which can also be used in teh document
+% body. These are described later in this document.
+%\begin{LaTeXdemo}[code only]
+%  \usepackage[<options>]{zebra-goodies}
+%\end{LaTeXdemo}
+%
+%\DescribeMacro {\todo}
+%\begin{syntax}
+%  \cs{todo}\oarg{name}\marg{note content}
+%\end{syntax}
+% The basic function provided by \pkg{zebra-goodies} is the \cs{todo} macro.
+% This is used to insert a piece of \texttt{todo} note right here, taking a
+% mandatory argument, the \meta{note content} of the \texttt{todo}, and an
+% optional argument, the \meta{name} who should be responsible for this note.
+% For example, the author wants \meta{name} to address this todo. This is very
+% helpful during collaboration. \marginpar{\dbend} The todo note will be
+% typesetted in a predefined color and quoted in the current paragraph along
+% with the famous symbol in margin par.
+%
+%\begin{LaTeXdemo}
+%  A very simple example of a todo note \todo{how should we go to the lake?} and
+%  the result will be presented right below the code snippet. Please compare the
+%  code and the result. Another one with an assignee is like \todo[tom]{you
+%  should buy the ticket}, and you will find the same type of notes are
+%  numbered. And the assignees are being \texttt{@} right before the text. And
+%  another one with many assignees \todo[lucy,jessie]{prepare the foo}.
+%\end{LaTeXdemo}
+%
+% Since \pkg{zebra-goodies} uses running texts, so \cs{todo} also works in title
+% macros like \cs{section} and \cs{caption}.
+%
+%\begin{LaTeXdemo}[code only]
+%  \section{Introduction\todo[jerry]{please figure out a better name}}
+%  \begin{figure}
+%    \centering
+%    \caption{Speed vs distance. \todo[need to insert the figure]}
+%  \end{figure}
+%\end{LaTeXdemo}
+%
+%\DescribeMacro {\note}
+%\DescribeMacro {\comment}
+%\DescribeMacro {\fixed}
+%\DescribeMacro {\placeholder}
+%\begin{syntax}
+%  \cs{note}\oarg{name}\marg{note text}
+%  \cs{comment}\oarg{name}\marg{comment text}
+%  \cs{fixed}\oarg{name}\marg{fixed text}
+%  \cs{placeholder}\oarg{name}\marg{placeholder text}
+%\end{syntax}
+% All these commands share the same syntax as \cs{todo}, so do the behaviour.
+% They are defined just for convenience for different cases. Nothing magic are
+% behind.
+%
+% If any of them does not work, it is very likely that they are defined by other
+% packages. In order to avoid unnecessary confusion, \cs{zebra-goodies} will not
+% \cs{renewcommand} them in case they are defined. So, it comes to their
+% internal counterparts.
+%
+%\begin{LaTeXdemo}
+%  A very simple example of a todo note \note{how should we go to the lake?} and
+%  another one with an assignee is like \zebracomment[tom]{you should buy the
+%  ticket}. As you noticed, \cs{zebracomment} is used instead \cs{comment} here
+%  is because \cs{comment} has been defined by \pkg{l3doc}. Let's move on to
+%  other macros. and another one with many assignees
+%  \placeholder[lucy,jessie]{prepare the foo} and the issue has been
+%  \fixed[John]{good job!}. We'd like to add more lines to separate the bend
+%  symbols. Finally, let's try to use the full version like this, I am going to
+%  add a \todo{a new todo} and a extended note to be put in another line with
+%  useless words as you known like this, this and that and eventually we come to
+%  the \note[who]{note}.
+%\end{LaTeXdemo}
+%
+% Appearntly, it is very simple to good enough for note taking.
+%
+%\DescribeMacro {\zebratodo}
+%\DescribeMacro {\zebranote}
+%\DescribeMacro {\zebracomment}
+%\DescribeMacro {\zebrafixed}
+%\DescribeMacro {\zebraplaceholder}
+%
+%\begin{syntax}
+%  \cs{zebratodo}\oarg{name}\marg{note text} 
+%  \cs{zebranote}\oarg{name}\marg{note text} 
+%  \cs{zebracomment}\oarg{name}\marg{comment text}
+%  \cs{zebrafixed}\oarg{name}\marg{fixed text}
+%  \cs{zebraplaceholder} \oarg{name} \marg{placeholder text}
+%\end{syntax}
+%
+% If \cs{todo} is not defined, it is actually the alias of \cs{zebratodo}
+% internally. Otherwise, it is necessary to invoke the full version,
+% \cs{zebratodo}. This is how the other notes macros are defined.
+%
+%\DescribeMacro {\zebranewnote}
+%\begin{syntax}
+%  \cs{zebranewnote}\marg{note name}\marg{xcolor color spec}
+%\end{syntax}
+% You will eventually need a new note type for whatever reasons.
+% \cs{zebranewnote} needs two arguments to create a new note type. \meta{note
+% name} will be used as the note's macro as \cs{todo}, while the \meta{xcolor
+% color spec} defines in what color the new note show be. The color is defined
+% with \pkg{xcolor}.
+%\begin{LaTeXdemo}
+%  \zebranewnote{question}{red!80}
+%  When it moves to the next step, we should be fine. %\question[who]{what's this?}
+%\end{LaTeXdemo}
+%
+%\subsection{Package Options}
+%
+%\DescribeOption {draft}
+% When no explicit mode is given, \opt{draft} is \texttt{true}, in which case
+% all notes will be typesetted as well as the the summary table at end of the
+% document. By setting to \texttt{false}, notes will not be presented in the
+% document.
+% 
+%\DescribeOption {microtype} 
+% Enable the great \pkg{microtype} package or not. Default: \texttt{true}. I
+% personally love this package very much.
+%
+%\section{Predefined Colors}
+%
+% This is for personal use. I often use \pkg{pgfplots} to create plots, however,
+% I do not like the default color. So several are define:
+% \begin{itemize}
+% \item \texttt{zebrablue}
+% \item \texttt{zebrared}
+% \item \texttt{zebrayellow}
+% \item \texttt{zebrapurple}
+% \item \texttt{zebragreen}
+% \end{itemize}
+%
+%\end{documentation}
+%
+%\begin{implementation}
+%
+%\section{Implementation}
+%
+%    \begin{macrocode}
+%<*package>
+%    \end{macrocode}
+%    
+%    \begin{macrocode}
+%<@@=zebra_goodies>
+%    \end{macrocode}
+%
+% Version data to start with.
+%    \begin{macrocode}
+\ProvidesPackage{zebra-goodies}
+[2019/07/01 0.7.0 Easy Notes for Documents]
+%\ProvidesExplPackage{zebra-goodies}{2019/07/01}{0.7.0}{Easy Notes for Documents}
+%    \end{macrocode} 
+%    
+%\subsection{Package options}
+%
+% Two package options \opt{draft} and \opt{microtype} are created. 
+%    \begin{macrocode}
+\RequirePackage{kvoptions}
+\SetupKeyvalOptions{
+  family=zebra,
+  prefix=zebr@,
+  setkeys=\kvsetkeys}
+\DeclareBoolOption{draft}
+\DeclareComplementaryOption{final}{draft}
+\DeclareBoolOption{microtype}
+\setkeys{zebra}{draft,microtype}
+\ProcessKeyvalOptions{zebra}
+\ifzebr@microtype
+  \RequirePackage{microtype}
+\fi
+\RequirePackage{xcolor}
+\RequirePackage{tikzpagenodes}
+\RequirePackage{marginnote}
+\@ifundefined{dbend}{\RequirePackage{manfnt}}{}
+%    \end{macrocode}
+%
+% \subsection{Main notes macros}
+% Various helper macros are defined before reaching out the \cs{todo} commands.
+%
+%    \begin{macro}{\zebr@marginnote}
+% First, the margin note code is from
+% \href{http://tex.stackexchange.com/questions/247449/making-marginnote-to-appear-either-side-of-twocolumn-twoside-document-part-ii}{StackExchage.com} with a bit modification.
+%    \begin{macrocode}
+\newlength{\zebr@tempdima}
+\newcount{\zebr@tikzpage}
+\newcommand*{\zebr@marginnote}[1]{%
+  \begin{tikzpicture}[remember picture, overlay]%
+    \pgfextractx{\zebr@tempdima}{\pgfpointanchor{current page text area}{center}}%
+    \global\zebr@tempdima=\zebr@tempdima
+    \global\zebr@tikzpage=\oddpage@page
+  \end{tikzpicture}%
+  \begingroup
+    \ifdim\zebr@tempdima>0pt \reversemarginpar\fi
+    \marginnote{#1}%
+  \endgroup% resets \reversemarginpar
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\zebr@note}
+% Then, two meta macros are used to create any new type of note.
+%    \begin{macrocode}
+\def\zebr@note{%
+  \ifzebr@draft\expandafter\zebr@note@\else\expandafter\@gobblefour\fi}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\zebr@note@}
+% \cs{zebr@note@} is the core macro to typeset the note. The syntax is:
+% \begin{syntax}
+%    \cs{zebr@note@}\marg{note name}\marg{color}\marg{assignee}\marg{note text}
+% \end{syntax}
+%    \begin{macrocode}
+\newcommand{\zebr@note@}[4]{%
+  \zebr@marginnote{\textcolor{#2}{\dbend}}%
+  \expandafter\stepcounter{zebr@num@#1}%
+  \textcolor{#2}{[\colorbox[gray]{0.97}{%
+      \textcolor{#2!70!black}{%
+        \textsc{\MakeLowercase{\MakeUppercase#1}}
+        {\expandafter\csname thezebr@num@#1\endcsname}\texttt{#3}:}} #4]}}
+\newcommand{\zebr@prepend}[2]{%
+  \ifx\relax#2\relax\relax\else#1#2\fi}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\zebranewnote}
+% All note types are created with \cs{zebranewnote}.
+%    \begin{macrocode}
+\global\def\zebr@noteslist{}
+\def\zebranewnote#1#2{%
+  \g@addto@macro\zebr@noteslist{,#1}%
+  \expandafter\newcounter\expandafter{zebr@num@#1}
+  \expandafter\newcommand\csname zebr@color@#1\endcsname{#2}
+  \expandafter\newcommand\csname zebra#1\endcsname[2][]{%
+    \zebr@note{#1}{#2}{\zebr@prepend{@}{##1}}{##2}}
+  \@ifundefined{#1}{%
+    \expandafter\def\csname #1\endcsname{\csname zebra#1\endcsname}}{%
+    \PackageWarning{zebra}{'\textbackslash{#1}' has been taken.
+      Use '\textbackslash{zebra#1}' instead.}}}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\todo}
+% \begin{macro}{\note}
+% \begin{macro}{\fixed}
+% \begin{macro}{\comment}
+% \begin{macro}{\placeholder}
+% They are defined with \cs{zebranewnote}. The colors are picked up from the default
+% ones from \pkg{xcolor}.
+%    \begin{macrocode}
+\zebranewnote{todo}{purple}
+\zebranewnote{fixed}{teal}
+\zebranewnote{comment}{blue}
+\zebranewnote{note}{violet}
+\zebranewnote{placeholder}{gray}    
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+% \end{macro}
+% \end{macro}
+% \end{macro}
+%
+%\subsection{Print summary at end of the document}
+%
+% A summary table will be inserted automatically at end of the document for easy
+% checking. Each note type is presend in a line with its associated color.
+%
+%    \begin{macrocode}
+\def\zebr@listnotes{%
+  \ifzebr@draft\zebr@listnotes@\fi}
+\def\zebr@listnotes@{%
+  \def\temp@a{}
+  \edef\temp@noteslist{\expandafter\@gobble\zebr@noteslist}
+  \@for\temp@b:=\temp@noteslist\do{%
+    \expandafter\ifnum\expandafter\value\expandafter{zebr@num@\temp@b} > 0%
+      \def\temp@c{\expandafter\csname thezebr@num@\temp@b\endcsname}
+      \edef\temp@d{\noexpand\textcolor{%
+          \expandafter\csname zebr@color@\temp@b\endcsname}{\temp@b}%
+        \noexpand &  \temp@c\noexpand\\}
+      \expandafter\g@addto@macro\expandafter\temp@a\expandafter{\temp@d}%
+    \fi}
+  \ifx\temp@a\@empty\else%
+    \noindent\dotfill\par
+    \section*{Zebra Notes}
+    \par \medskip
+    \begin{center}
+      \begin{tabular}{lr}
+        \hline
+        \textbf{Type} & \textbf{Number} \\\hline
+        \temp@a
+        \hline
+      \end{tabular}
+    \end{center}
+  \fi}
+\AtEndDocument{\zebr@listnotes}
+%    \end{macrocode}
+%
+%\subsection{Peronal Colors}
+%\label{sec:colors}
+% For colors are defined for plots.
+%    \begin{macrocode}
+\definecolor{zebrablue}{HTML}{4F81BD}
+\definecolor{zebrared}{HTML}{C0504D}
+\definecolor{zebragreen}{HTML}{9BBB00}
+\definecolor{zebrapurple}{HTML}{9F4C7C}
+\definecolor{zebrayellow}{HTML}{D9CD2E}
+\definecolor{zebragreen2}{HTML}{00E000}
+%    \end{macrocode}
+%    \begin{macrocode}
+%</package>
+%    \end{macrocode}
+%
+%\end{implementation}
+%
+%\PrintChanges
+%\PrintIndex
