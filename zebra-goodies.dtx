@@ -75,9 +75,9 @@ This work consists of the file  zebra-goodies.dtx
 \end{document}
 %</driver>
 % \fi
-% 
-%\makeatletter 
-% 
+%
+%\makeatletter
+%
 %^^A For creating examples with nice highlighting of code, and so
 %^^A on; based on the system used in the listings source (lstsample).
 %\lst@RequireAspects{writefile}
@@ -118,7 +118,7 @@ This work consists of the file  zebra-goodies.dtx
 %      zebraplaceholder,
 %      zebranewnote
 %    }
-%  }^^A 
+%  }^^A
 %}
 %\newcommand*\LaTeXdemo@input{^^A
 %  \MakePercentComment
@@ -128,7 +128,7 @@ This work consists of the file  zebra-goodies.dtx
 %    \setkeys{lst}{
 %      SelectCharTable=\lst@ReplaceInput{\^\^I}{\lst@ProcessTabulator}
 %    }^^A
-%    \leavevmode 
+%    \leavevmode
 %      \input{\jobname.tmp}^^A
 %  \endgroup
 %  \MakePercentIgnore
@@ -165,9 +165,9 @@ This work consists of the file  zebra-goodies.dtx
 %\providecommand*\opt[1]{\texttt{#1}}
 %
 %\makeatother
-% 
-%\GetFileInfo{\jobname.sty} 
-% 
+%
+%\GetFileInfo{\jobname.sty}
+%
 %\changes{v0.1.0}{2017/07/05}{Initial public release}
 %\changes{v0.2.0}{2017/11/26}{Fix \pkg{xcolor} conflict}
 %\changes{v0.3.0}{2017/12/06}{Detect command conflicts}
@@ -178,7 +178,7 @@ This work consists of the file  zebra-goodies.dtx
 %\title{^^A
 %  \pkg{zebra-goodies} --- Easy Notes for Documents^^A
 %    \thanks{^^A
-%      This file describes version \fileversion, last revised 
+%      This file describes version \fileversion, last revised
 %      \filedate.^^A
 %    }^^A
 %}
@@ -192,7 +192,7 @@ This work consists of the file  zebra-goodies.dtx
 %\begin{abstract}
 %  The \pkg{zebra-goodies} package defines a collection of handy macros for
 %  taking notes during document writing. It is designed to be very simple and
-%  good enough for writing common documents indpendently or collaboratively.
+%  good enough for writing common documents independently or collaboratively.
 %  Several commands, \cs{todo}, \cs{comment}, \cs{note}, \cs{fixed} and
 %  \cs{placeholder}, are provided for quick start. It is also possible to add
 %  new note taking commands with \cs{zebranewnote}.
@@ -220,140 +220,170 @@ This work consists of the file  zebra-goodies.dtx
 % of the document.
 %
 % With these objectives in mind, \pkg{zebra-goodies} is created and improved
-% along with my writing activities. Appearntly, this package is designed with a
+% along with my writing activities. Apparently, this package is designed with a
 % heavy personal bias. It is not supposed to general and perfect.
 %
 %\section{Installation}
 %
 %\changes{v0.7.0}{2019/07/01}{Move to docstrip}
 %
-% The package is supplied in \file{dtx} format and as a pre-extracted zip file,
-% \file{\jobname.tds.zip}. The later is most convenient for most users: simply
-% unzip this in your local texmf directory and run \texttt{texhash} to update
-% the database of file locations. If you want to unpack the \file{dtx} yourself,
-% running \texttt{tex \jobname.dtx} will extract the package whereas
-% \texttt{latex \jobname.dtx} will extract it and also typeset the
-% documentation\footnote{Actually, \texttt{latexmk \jobname.dtx} is much
-% better.}.
+% The package is supplied in \file{dtx} format and as a pre-extracted zip file.
+% The later is most convenient for most users: simply unzip this in your local
+% texmf directory and run \texttt{texhash} to update the database of file
+% locations. If you want to unpack the \file{dtx} yourself, running \texttt{tex
+% \jobname.dtx} will extract the package whereas \texttt{latex \jobname.dtx}
+% will extract it and also typeset the documentation\footnote{Actually,
+% \texttt{latexmk \jobname.dtx} is much better.}.
 %
 %\section{Using the package}
 %
-% The package should be loaded as normal in the preamble. The package 
-% recognises a number of options, which can also be used in teh document
+% The package should be loaded as normal in the preamble. The package
+% recognises a number of options, which can also be used in the document
 % body. These are described later in this document.
 %\begin{LaTeXdemo}[code only]
 %  \usepackage[<options>]{zebra-goodies}
 %\end{LaTeXdemo}
 %
-%\DescribeMacro {\todo}
-%\begin{syntax}
-%  \cs{todo}\oarg{name}\marg{note content}
-%\end{syntax}
-% The basic function provided by \pkg{zebra-goodies} is the \cs{todo} macro.
-% This is used to insert a piece of \texttt{todo} note right here, taking a
-% mandatory argument, the \meta{note content} of the \texttt{todo}, and an
-% optional argument, the \meta{name} who should be responsible for this note.
-% For example, the author wants \meta{name} to address this todo. This is very
-% helpful during collaboration. \marginpar{\dbend} The todo note will be
-% typesetted in a predefined color and quoted in the current paragraph along
-% with the famous symbol in margin par.
+%\begin{function}{\todo}
+%  \begin{syntax}
+%    \cs{todo}\oarg{name}\marg{note content}
+%  \end{syntax}
+%\end{function}
 %
-%\begin{LaTeXdemo}
-%  A very simple example of a todo note \todo{how should we go to the lake?} and
-%  the result will be presented right below the code snippet. Please compare the
-%  code and the result. Another one with an assignee is like \todo[tom]{you
-%  should buy the ticket}, and you will find the same type of notes are
-%  numbered. And the assignees are being \texttt{@} right before the text. And
-%  another one with many assignees \todo[lucy,jessie]{prepare the foo}.
-%\end{LaTeXdemo}
+%  The basic function provided by \pkg{zebra-goodies} is the \cs{todo} macro.
+%  This is used to insert a piece of \texttt{todo} note right here, taking a
+%  mandatory argument, the \meta{note content} of the \texttt{todo}, and an
+%  optional argument, the \meta{name} who should be responsible for this note.
+%  For example, the author wants \meta{name} to address this todo. This is very
+%  helpful during collaboration. The todo note will be typesetted in a
+%  predefined color and quoted in the current paragraph along with the famous
+%  symbol in margin par.
 %
-% Since \pkg{zebra-goodies} uses running texts, so \cs{todo} also works in title
-% macros like \cs{section} and \cs{caption}.
+% \begin{LaTeXdemo}
+%   A very simple example of a todo note \todo{how should we go to the lake?},
+%   and the result will be presented right below the code snippet. Please
+%   compare the code and the result.
+% \end{LaTeXdemo}
 %
-%\begin{LaTeXdemo}[code only]
-%  \section{Introduction\todo[jerry]{please figure out a better name}}
-%  \begin{figure}
-%    \centering
-%    \caption{Speed vs distance. \todo[need to insert the figure]}
-%  \end{figure}
-%\end{LaTeXdemo}
+% And, the following example shows how to set the assignees:
 %
-%\DescribeMacro {\note}
-%\DescribeMacro {\comment}
-%\DescribeMacro {\fixed}
-%\DescribeMacro {\placeholder}
-%\begin{syntax}
-%  \cs{note}\oarg{name}\marg{note text}
-%  \cs{comment}\oarg{name}\marg{comment text}
-%  \cs{fixed}\oarg{name}\marg{fixed text}
-%  \cs{placeholder}\oarg{name}\marg{placeholder text}
-%\end{syntax}
-% All these commands share the same syntax as \cs{todo}, so do the behaviour.
-% They are defined just for convenience for different cases. Nothing magic are
-% behind.
+% \begin{LaTeXdemo}
+%   Another one with an assignee is like \todo[tom]{you should buy the ticket},
+%   and you will find the same type of notes are numbered. And the assignees are
+%   being \texttt{@}-ed right before the text. And another one with many
+%   assignees \todo[lucy,jessie]{prepare the foo}.
+% \end{LaTeXdemo}
+
+%  Since \pkg{zebra-goodies} uses running texts, so \cs{todo} also works in
+%  title macros like \cs{section} and \cs{caption}.
 %
-% If any of them does not work, it is very likely that they are defined by other
-% packages. In order to avoid unnecessary confusion, \cs{zebra-goodies} will not
-% \cs{renewcommand} them in case they are defined. So, it comes to their
-% internal counterparts.
+%  \begin{LaTeXdemo}[code only]
+%    \section{Introduction\todo[jerry]{please figure out a better name}}
+%    \begin{figure}
+%      \centering
+%      \caption{Speed vs distance. \todo[need to insert the figure]}
+%    \end{figure}
+%  \end{LaTeXdemo}
 %
-%\begin{LaTeXdemo}
-%  A very simple example of a todo note \note{how should we go to the lake?} and
-%  another one with an assignee is like \zebracomment[tom]{you should buy the
-%  ticket}. As you noticed, \cs{zebracomment} is used instead \cs{comment} here
-%  is because \cs{comment} has been defined by \pkg{l3doc}. Let's move on to
-%  other macros. and another one with many assignees
-%  \placeholder[lucy,jessie]{prepare the foo} and the issue has been
-%  \fixed[John]{good job!}. We'd like to add more lines to separate the bend
-%  symbols. Finally, let's try to use the full version like this, I am going to
-%  add a \todo{a new todo} and a extended note to be put in another line with
-%  useless words as you known like this, this and that and eventually we come to
-%  the \note[who]{note}.
-%\end{LaTeXdemo}
+%\begin{function}{\note}
+%  \begin{syntax}
+%    \cs{note}\oarg{name}\marg{note text}
+%  \end{syntax}
+%\end{function}
+%\begin{function}{\comment}
+%  \begin{syntax}
+%    \cs{comment}\oarg{name}\marg{comment text}
+%  \end{syntax}
+%\end{function}
+%\begin{function}{\fixed}
+%  \begin{syntax}
+%    \cs{fixed}\oarg{name}\marg{fixed text}
+%  \end{syntax}
+%\end{function}
+%\begin{function}{\placeholder}
+%  \begin{syntax}
+%    \cs{placeholder}\oarg{name}\marg{placeholder text}
+%  \end{syntax}
+%\end{function}
+%  All these commands share the same syntax as \cs{todo}, so do the behaviour.
+%  They are defined just for convenience for different cases. Nothing magic are
+%  behind.
 %
-% Appearntly, it is very simple to good enough for note taking.
+%  If any of them does not work, it is very likely that they are defined by
+%  other packages. In order to avoid unnecessary confusion, \cs{zebra-goodies}
+%  will not \cs{renewcommand} them in case they are defined. So, it comes to
+%  their internal counterparts.
+%  \begin{LaTeXdemo}
+%    A very simple example of a todo note \note{how should we go to the lake?}
+%    and another one with an assignee is like \zebracomment[tom]{you should buy
+%    the ticket}. As you noticed, \cs{zebracomment} is used instead \cs{comment}
+%    here is because \cs{comment} has been defined by \pkg{l3doc}. Let's move on
+%    to other macros. and another one with many assignees
+%    \placeholder[lucy,jessie]{prepare the foo} and the issue has been
+%    \fixed[John]{good job!}. We'd like to add more lines to separate the bend
+%    symbols. Finally, let's try to use the full version like this, I am going
+%    to add a \todo{a new todo} and a extended note to be put in another line
+%    with useless words as you known like this, this and that and eventually we
+%    come to the \note[who]{note}.
+%  \end{LaTeXdemo}
 %
-%\DescribeMacro {\zebratodo}
-%\DescribeMacro {\zebranote}
-%\DescribeMacro {\zebracomment}
-%\DescribeMacro {\zebrafixed}
-%\DescribeMacro {\zebraplaceholder}
+%  Apparently, it is very simple to good enough for note taking.
 %
-%\begin{syntax}
-%  \cs{zebratodo}\oarg{name}\marg{note text} 
-%  \cs{zebranote}\oarg{name}\marg{note text} 
-%  \cs{zebracomment}\oarg{name}\marg{comment text}
-%  \cs{zebrafixed}\oarg{name}\marg{fixed text}
-%  \cs{zebraplaceholder} \oarg{name} \marg{placeholder text}
-%\end{syntax}
+%\begin{function}{\zebratodo}
+%  \begin{syntax}
+%    \cs{zebratodo}\oarg{name}\marg{note text}
+%  \end{syntax}
 %
-% If \cs{todo} is not defined, it is actually the alias of \cs{zebratodo}
-% internally. Otherwise, it is necessary to invoke the full version,
-% \cs{zebratodo}. This is how the other notes macros are defined.
+%  \cs{todo} will not be defined if it has been defined by other packages,
+%  please use its internal alias, \cs{zebratodo}. This is how the other notes
+%  macros are defined.
+%\end{function}
+%\begin{function}{\zebranote}
+%  \begin{syntax}
+%    \cs{zebranote}\oarg{name}\marg{note text}
+%  \end{syntax}
+%\end{function}
+%\begin{function}{\zebracomment}
+%  \begin{syntax}
+%    \cs{zebracomment}\oarg{name}\marg{comment text}
+%  \end{syntax}
+%\end{function}
+%\begin{function}{\zebrafixed}
+%  \begin{syntax}
+%    \cs{zebrafixed}\oarg{name}\marg{fixed text}
+%  \end{syntax}
+%\end{function}
+%\begin{function}{\zebraplaceholder}
+%  \begin{syntax}
+%    \cs{zebraplaceholder}\oarg{name}\marg{placeholder text}
+%  \end{syntax}
+%\end{function}
 %
-%\DescribeMacro {\zebranewnote}
-%\begin{syntax}
-%  \cs{zebranewnote}\marg{note name}\marg{xcolor color spec}
-%\end{syntax}
-% You will eventually need a new note type for whatever reasons.
-% \cs{zebranewnote} needs two arguments to create a new note type. \meta{note
-% name} will be used as the note's macro as \cs{todo}, while the \meta{xcolor
-% color spec} defines in what color the new note show be. The color is defined
-% with \pkg{xcolor}.
-%\begin{LaTeXdemo}
-%  \zebranewnote{question}{red!80}
-%  When it moves to the next step, we should be fine. %\question[who]{what's this?}
-%\end{LaTeXdemo}
+%\begin{function}{\zebranewnote}
+%  \begin{syntax}
+%    \cs{zebranewnote}\marg{note name}\marg{xcolor color spec}
+%  \end{syntax}
+%  You will eventually need a new note type for whatever reasons.
+%  \cs{zebranewnote} needs two arguments to create a new note type. \meta{note
+%  name} will be used as the note's macro as \cs{todo}, while the \meta{xcolor
+%  color spec} defines in what color the new note show be. The color is defined
+%  with \pkg{xcolor}.
+%  \begin{LaTeXdemo}
+%    % \zebranewnote{question}{red!80}
+%
+%    When it moves to the next step, we should be fine. %\question[who]{what's this?}
+%  \end{LaTeXdemo}
+%\end{function}
 %
 %\subsection{Package Options}
 %
-%\DescribeOption {draft}
+%\DescribeOption{draft}
 % When no explicit mode is given, \opt{draft} is \texttt{true}, in which case
 % all notes will be typesetted as well as the the summary table at end of the
 % document. By setting to \texttt{false}, notes will not be presented in the
 % document.
-% 
-%\DescribeOption {microtype} 
+%
+%\DescribeOption{microtype}
 % Enable the great \pkg{microtype} package or not. Default: \texttt{true}. I
 % personally love this package very much.
 %
@@ -378,7 +408,7 @@ This work consists of the file  zebra-goodies.dtx
 %    \begin{macrocode}
 %<*package>
 %    \end{macrocode}
-%    
+%
 %    \begin{macrocode}
 %<@@=zebra_goodies>
 %    \end{macrocode}
@@ -388,11 +418,11 @@ This work consists of the file  zebra-goodies.dtx
 \ProvidesPackage{zebra-goodies}
 [2019/07/01 0.7.0 Easy Notes for Documents]
 %\ProvidesExplPackage{zebra-goodies}{2019/07/01}{0.7.0}{Easy Notes for Documents}
-%    \end{macrocode} 
-%    
+%    \end{macrocode}
+%
 %\subsection{Package options}
 %
-% Two package options \opt{draft} and \opt{microtype} are created. 
+% Two package options \opt{draft} and \opt{microtype} are created.
 %    \begin{macrocode}
 \RequirePackage{kvoptions}
 \SetupKeyvalOptions{
@@ -416,7 +446,6 @@ This work consists of the file  zebra-goodies.dtx
 % \subsection{Main notes macros}
 % Various helper macros are defined before reaching out the \cs{todo} commands.
 %
-%    \begin{macro}{\zebr@marginnote}
 % First, the margin note code is from
 % \href{http://tex.stackexchange.com/questions/247449/making-marginnote-to-appear-either-side-of-twocolumn-twoside-document-part-ii}{StackExchage.com} with a bit modification.
 %    \begin{macrocode}
@@ -434,17 +463,13 @@ This work consists of the file  zebra-goodies.dtx
   \endgroup% resets \reversemarginpar
 }
 %    \end{macrocode}
-% \end{macro}
 %
-% \begin{macro}{\zebr@note}
 % Then, two meta macros are used to create any new type of note.
 %    \begin{macrocode}
 \def\zebr@note{%
   \ifzebr@draft\expandafter\zebr@note@\else\expandafter\@gobblefour\fi}
 %    \end{macrocode}
-% \end{macro}
 %
-% \begin{macro}{\zebr@note@}
 % \cs{zebr@note@} is the core macro to typeset the note. The syntax is:
 % \begin{syntax}
 %    \cs{zebr@note@}\marg{note name}\marg{color}\marg{assignee}\marg{note text}
@@ -460,7 +485,6 @@ This work consists of the file  zebra-goodies.dtx
 \newcommand{\zebr@prepend}[2]{%
   \ifx\relax#2\relax\relax\else#1#2\fi}
 %    \end{macrocode}
-% \end{macro}
 %
 % \begin{macro}{\zebranewnote}
 % All note types are created with \cs{zebranewnote}.
@@ -491,7 +515,7 @@ This work consists of the file  zebra-goodies.dtx
 \zebranewnote{fixed}{teal}
 \zebranewnote{comment}{blue}
 \zebranewnote{note}{violet}
-\zebranewnote{placeholder}{gray}    
+\zebranewnote{placeholder}{gray}
 %    \end{macrocode}
 % \end{macro}
 % \end{macro}
