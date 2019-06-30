@@ -9,7 +9,7 @@
 %%
 %% and version 1.3c or later is part of all distributions of LaTeX
 %% version 2008/05/04 or later.
-\ProvidesPackage{zebra-goodies}[2019/06/29 0.5.0 LaTeX goodies for paper writing.]
+\ProvidesPackage{zebra-goodies}[2019/06/30 0.6.0 LaTeX goodies for paper writing.]
 
 \RequirePackage{kvoptions}
 \SetupKeyvalOptions{
@@ -61,7 +61,7 @@
 \newcommand{\zebr@note@}[4]{%
   \zebr@marginnote{\textcolor{#2}{\dbend}}%
   \expandafter\stepcounter{zebr@num@#1}%
-  \textcolor{#2}{[\textcolor{#2!70!black}{\textsc{\MakeLowercase{\MakeUppercase#1}} {\expandafter\csname thezebr@num@#1\endcsname}\texttt{#3}}: #4]}}
+  \textcolor{#2}{[\colorbox[gray]{0.97}{\textcolor{#2!70!black}{\textsc{\MakeLowercase{\MakeUppercase#1}} {\expandafter\csname thezebr@num@#1\endcsname}\texttt{#3}:}} #4]}}
 
 \newcommand{\zebr@prepend}[2]{%
   \ifx\relax#2\relax\relax\else#1#2\fi}
