@@ -1,32 +1,15 @@
-ifndef MAIN
-	MAIN= $(shell find ./ -maxdepth 1 -type f -name "*.tex" -exec basename {} \;)
-endif
-ifndef FIGURES
-	FIGURES  += $(shell find figures/ -name '*.tex' -o -name '*.pdf')
-endif
-ifndef BIBFILES
-	BIBFILES += $(shell find ./ -maxdepth 1 -type f -name "*.bib")
-endif
-OTHER += zebra-latex-goodies/zebra.sty
-DEP = $(FIGURES) $(BIBFILES) $(OTHER)
-TRG = $(MAIN:%.tex=%.pdf)
+TARGET = zebra-goodies
+SOURCE = README.md zebra-goodies.sty
 
-LATEXMK = latexmk
-# use pdflatex
-LATEXMKOPT = -pdf
-# use xelatex
-# LATEXMKOPT = -xelatex
+all: ctan
 
-all: $(TRG)
-
-$(TRG): $(MAIN) $(DEP)
-	$(LATEXMK) $(LATEXMKOPT) $(MAIN)
+ctan: clean
+	@mkdir -p $(TARGET)
+	@ln $(SOURCE) $(TARGET)
+	@zip -r $(TARGET) $(TARGET)
+	@rm -rf $(TARGET)
 
 clean:
-	$(LATEXMK) -C $(MAIN)
+	@rm -rf $(TARGET) $(TARGET).zip
 
-# for mac
-view: $(TRG)
-	open $(TRG)
-
-.PHONY: all view clean
+.PHONY: all ctan clean
