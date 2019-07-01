@@ -1,5 +1,5 @@
 TARGET = zebra-goodies
-DESTFS = README.md $(TARGET).sty $(TARGET).pdf
+DESTFS = README.md $(TARGET).dtx $(TARGET).pdf
 
 all: $(TARGET).pdf
 
