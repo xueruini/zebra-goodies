@@ -176,7 +176,7 @@ This work consists of the file  zebra-goodies.dtx
 %\changes{v0.6.0}{2019/06/30}{Use gray background for label}
 %
 %\title{^^A
-%  \pkg{zebra-goodies} --- Easy Notes for Documents^^A
+%  \pkg{zebra-goodies} --- Easy Notes Taking^^A
 %    \thanks{^^A
 %      This file describes version \fileversion, last revised
 %      \filedate.^^A
@@ -221,7 +221,7 @@ This work consists of the file  zebra-goodies.dtx
 %
 % With these objectives in mind, \pkg{zebra-goodies} is created and improved
 % along with my writing activities. Apparently, this package is designed with a
-% heavy personal bias. It is not supposed to general and perfect.
+% heavy personal bias. It is not supposed to be general and perfect.
 %
 %\section{Installation}
 %
@@ -230,10 +230,11 @@ This work consists of the file  zebra-goodies.dtx
 % The package is supplied in \file{dtx} format and as a pre-extracted zip file.
 % The later is most convenient for most users: simply unzip this in your local
 % texmf directory and run \texttt{texhash} to update the database of file
-% locations. If you want to unpack the \file{dtx} yourself, running \texttt{tex
-% \jobname.dtx} will extract the package whereas \texttt{latex \jobname.dtx}
-% will extract it and also typeset the documentation\footnote{Actually,
-% \texttt{latexmk \jobname.dtx} is much better.}.
+% locations, or just unzip the files into your working directory. If you want to
+% unpack the \file{dtx} yourself, running \texttt{tex \jobname.dtx} will extract
+% the package whereas \texttt{latex \jobname.dtx} will extract it and also
+% typeset the documentation.\footnote{Actually, \texttt{latexmk \jobname.dtx} is
+% much better.}
 %
 %\section{Using the package}
 %
@@ -244,6 +245,7 @@ This work consists of the file  zebra-goodies.dtx
 %  \usepackage[<options>]{zebra-goodies}
 %\end{LaTeXdemo}
 %
+%\subsection{Notes Macros}
 %\begin{function}{\todo}
 %  \begin{syntax}
 %    \cs{todo}\oarg{name}\marg{note content}
@@ -327,7 +329,7 @@ This work consists of the file  zebra-goodies.dtx
 %    come to the \note[who]{note}.
 %  \end{LaTeXdemo}
 %
-%  Apparently, it is very simple to good enough for note taking.
+%  With these macros, it is very simple to good enough for note taking.
 %
 %\begin{function}{\zebratodo}
 %  \begin{syntax}
@@ -378,10 +380,12 @@ This work consists of the file  zebra-goodies.dtx
 %\subsection{Package Options}
 %
 %\DescribeOption{draft}
-% When no explicit mode is given, \opt{draft} is \texttt{true}, in which case
-% all notes will be typesetted as well as the the summary table at end of the
-% document. By setting to \texttt{false}, notes will not be presented in the
-% document.
+%\DescribeOption{final}
+
+% These two options are complementary to each other. When no explicit mode is
+% given, \opt{draft} is \texttt{true}, in which case all notes will be
+% typesetted as well as the the summary table at end of the document. By setting
+% \opt{draft} to \texttt{false} or \opt{final}, notes will not be presented.
 %
 %\DescribeOption{microtype}
 % Enable the great \pkg{microtype} package or not. Default: \texttt{true}. I
@@ -416,8 +420,8 @@ This work consists of the file  zebra-goodies.dtx
 % Version data to start with.
 %    \begin{macrocode}
 \ProvidesPackage{zebra-goodies}
-[2019/07/01 0.7.0 Easy Notes for Documents]
-%\ProvidesExplPackage{zebra-goodies}{2019/07/01}{0.7.0}{Easy Notes for Documents}
+[2019/07/01 0.7.0 Easy Notes Taking]
+%\ProvidesExplPackage{zebra-goodies}{2019/07/01}{0.7.0}{Easy Notes Taking}
 %    \end{macrocode}
 %
 %\subsection{Package options}
@@ -444,7 +448,7 @@ This work consists of the file  zebra-goodies.dtx
 %    \end{macrocode}
 %
 % \subsection{Main notes macros}
-% Various helper macros are defined before reaching out the \cs{todo} commands.
+% Various helper macros are defined before reaching out to the \cs{todo} commands.
 %
 % First, the margin note code is from
 % \href{http://tex.stackexchange.com/questions/247449/making-marginnote-to-appear-either-side-of-twocolumn-twoside-document-part-ii}{StackExchage.com} with a bit modification.
@@ -464,7 +468,7 @@ This work consists of the file  zebra-goodies.dtx
 }
 %    \end{macrocode}
 %
-% Then, two meta macros are used to create any new type of note.
+% Then, two meta macros are used to create new types of note.
 %    \begin{macrocode}
 \def\zebr@note{%
   \ifzebr@draft\expandafter\zebr@note@\else\expandafter\@gobblefour\fi}
@@ -558,7 +562,7 @@ This work consists of the file  zebra-goodies.dtx
 \AtEndDocument{\zebr@listnotes}
 %    \end{macrocode}
 %
-%\subsection{Peronal Colors}
+%\subsection{Personal Colors}
 %\label{sec:colors}
 % For colors are defined for plots.
 %    \begin{macrocode}
