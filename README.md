@@ -43,9 +43,11 @@ full version as follows:
 
 ```latex
 % \zebranewnote{<note name>}{<xcolor color>}
-\zebranewnote{question}{red!80}
 
-\question{what's this?}
+\colorlet{mycyan}{cyan}
+\zebranewnote{question}{mycyan}
+
+\question[who]{what's this?}
 ```
 
 ## Use Colors 

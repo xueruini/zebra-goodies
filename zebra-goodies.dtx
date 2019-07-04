@@ -67,6 +67,7 @@ This work consists of the file  zebra-goodies.dtx
 \usepackage[scaled=0.93]{helvet}
 \usepackage[final]{listings}
 \usepackage{zebra-goodies}
+\colorlet{mycyan}{cyan}
 \EnableCrossrefs
 \CodelineIndex
 \RecordChanges
@@ -99,7 +100,7 @@ This work consists of the file  zebra-goodies.dtx
 %\newcommand*\LaTeXdemo@common{^^A
 %  \setkeys{lst}{
 %    basicstyle      = \small\ttfamily,
-%    %basewidth       = 0.51em,
+%    %basewidth      = 0.51em,
 %    frame           = l,
 %    backgroundcolor = \color{gray!5},
 %    gobble          = 3,
@@ -111,12 +112,14 @@ This work consists of the file  zebra-goodies.dtx
 %      comment         ,
 %      fixed           ,
 %      placeholder     ,
+%      question        ,
 %      zebratodo       ,
 %      zebranote       ,
 %      zebracomment    ,
 %      zebrafixed      ,
 %      zebraplaceholder,
-%      zebranewnote
+%      zebranewnote    ,
+%      colorlet
 %    }
 %  }^^A
 %}
@@ -363,17 +366,19 @@ This work consists of the file  zebra-goodies.dtx
 %
 %\begin{function}{\zebranewnote}
 %  \begin{syntax}
-%    \cs{zebranewnote}\marg{note name}\marg{xcolor color spec}
+%    \cs{zebranewnote}\marg{note name}\marg{xcolor_name}
 %  \end{syntax}
 %  You will eventually need a new note type for whatever reasons.
 %  \cs{zebranewnote} needs two arguments to create a new note type. \meta{note
-%  name} will be used as the note's macro as \cs{todo}, while the \meta{xcolor
-%  color spec} defines in what color the new note show be. The color is defined
-%  with \pkg{xcolor}.
+%  name} will be used as the note's macro as \cs{todo}, while the \meta{xcolor_name}
+%  defines in what color the new note show be, which should be a \texttt{name} instead
+%  of \pkg{xcolor} spec. So, it is necessary to define the color with \cs{definecolor}
+%  or \cs{colorlet} in advance as in the following example.
+%  \changes{v0.8.0}{2019/07/04}{Fix new note demo}
 %  \begin{LaTeXdemo}
-%    % \zebranewnote{question}{red!80}
-%
-%    When it moves to the next step, we should be fine. %\question[who]{what's this?}
+%    \colorlet{mycyan}{cyan}
+%    \zebranewnote{question}{mycyan}
+%    When it moves to the next step, we should be fine. \question[who]{what's this?}
 %  \end{LaTeXdemo}
 %\end{function}
 %
@@ -420,8 +425,8 @@ This work consists of the file  zebra-goodies.dtx
 % Version data to start with.
 %    \begin{macrocode}
 \ProvidesPackage{zebra-goodies}
-[2019/07/01 0.7.0 Easy Notes Taking]
-%\ProvidesExplPackage{zebra-goodies}{2019/07/01}{0.7.0}{Easy Notes Taking}
+[2019/07/04 0.8.0 Easy Notes Taking]
+%\ProvidesExplPackage{zebra-goodies}{2019/07/04}{0.8.0}{Easy Notes Taking}
 %    \end{macrocode}
 %
 %\subsection{Package options}
@@ -492,12 +497,13 @@ This work consists of the file  zebra-goodies.dtx
 %
 % \begin{macro}{\zebranewnote}
 % All note types are created with \cs{zebranewnote}.
+% \changes{v0.8.0}{2019/07/04}{Fix on \cs{global} for examples}
 %    \begin{macrocode}
-\global\def\zebr@noteslist{}
+\def\zebr@noteslist{}
 \def\zebranewnote#1#2{%
   \g@addto@macro\zebr@noteslist{,#1}%
   \expandafter\newcounter\expandafter{zebr@num@#1}
-  \expandafter\newcommand\csname zebr@color@#1\endcsname{#2}
+  \expandafter\gdef\csname zebr@color@#1\endcsname{#2}
   \expandafter\newcommand\csname zebra#1\endcsname[2][]{%
     \zebr@note{#1}{#2}{\zebr@prepend{@}{##1}}{##2}}
   \@ifundefined{#1}{%
