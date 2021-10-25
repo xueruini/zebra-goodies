@@ -486,7 +486,7 @@ This work consists of the file  zebra-goodies.dtx
 %    \begin{macrocode}
 \newcommand{\zebr@note@}[4]{%
   \zebr@marginnote{\textcolor{#2}{\dbend}}%
-  \expandafter\stepcounter{zebr@num@#1}%
+  \expandafter\refstepcounter{zebr@num@#1}%
   \textcolor{#2}{[\colorbox[gray]{0.97}{%
       \textcolor{#2!70!black}{%
         \textsc{\MakeLowercase{\MakeUppercase#1}}
