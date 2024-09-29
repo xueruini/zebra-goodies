@@ -1,9 +1,13 @@
 # vim: set ft=perl:
 
+@default_files=('zebra-goodies.dtx');
+
 $pdf_mode = 5;
 
 $xelatex = "xelatex -file-line-error -halt-on-error -interaction=nonstopmode -no-pdf -synctex=1 %O %S";
-$xdvipdfmx = "xdvipdfmx -q -E -o %D %O %S";
+# $xdvipdfmx = "xdvipdfmx -q -E -o %D %O %S";
+
+$out_dir="./out";
 
 $bibtex_use = 1.5;
 
