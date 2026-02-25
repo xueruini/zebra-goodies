@@ -448,7 +448,6 @@ This work consists of the file  zebra-goodies.dtx
   \RequirePackage{microtype}
 \fi
 \RequirePackage{xcolor}
-\RequirePackage{tikzpagenodes}
 \RequirePackage{marginnote}
 \@ifundefined{dbend}{\RequirePackage{manfnt}}{}
 %    \end{macrocode}
@@ -456,21 +455,18 @@ This work consists of the file  zebra-goodies.dtx
 % \subsection{Main notes macros}
 % Various helper macros are defined before reaching out to the \cs{todo} commands.
 %
-% First, the margin note code is from
-% \href{http://tex.stackexchange.com/questions/247449/making-marginnote-to-appear-either-side-of-twocolumn-twoside-document-part-ii}{StackExchage.com} with a bit modification.
+% Place the margin note on the nearest margin. In twocolumn mode,
+% left-column notes go to the left margin and right-column notes go to
+% the right margin. In single-column mode, \cs{marginnote} already
+% handles twoside correctly by default.
 %    \begin{macrocode}
-\newlength{\zebr@tempdima}
-\newcount{\zebr@tikzpage}
 \newcommand*{\zebr@marginnote}[1]{%
-  \begin{tikzpicture}[remember picture, overlay]%
-    \pgfextractx{\zebr@tempdima}{\pgfpointanchor{current page text area}{center}}%
-    \global\zebr@tempdima=\zebr@tempdima
-    \global\zebr@tikzpage=\oddpage@page
-  \end{tikzpicture}%
   \begingroup
-    \ifdim\zebr@tempdima>0pt \reversemarginpar\fi
+    \if@twocolumn
+      \if@firstcolumn\reversemarginpar\fi
+    \fi
     \marginnote{#1}%
-  \endgroup% resets \reversemarginpar
+  \endgroup
 }
 %    \end{macrocode}
 %
@@ -485,7 +481,7 @@ This work consists of the file  zebra-goodies.dtx
 %    \cs{zebr@note@}\marg{note name}\marg{color}\marg{assignee}\marg{note text}
 % \end{syntax}
 %    \begin{macrocode}
-\newcommand{\zebr@note@}[4]{%
+\DeclareRobustCommand{\zebr@note@}[4]{%
   \zebr@marginnote{\textcolor{#2}{\dbend}}%
   \expandafter\stepcounter{zebr@num@#1}%
   \textcolor{#2}{[\colorbox[gray]{0.97}{%
