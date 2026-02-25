@@ -17,7 +17,7 @@ I'd like to keep this part here for later use.
 \keepsilent
 \askforoverwritefalse
 \preamble
-Copyright (C) 2016-2023, Ruini Xue <xueruini@gmail.com>
+Copyright (C) 2016-2026, Ruini Xue <xueruini@gmail.com>
 
 It may be distributed and/or modified under the conditions of
 the LaTeX Project Public License (LPPL), either version 1.3c of
@@ -66,6 +66,8 @@ This work consists of the file  zebra-goodies.dtx
 \documentclass[full]{l3doc}
 \usepackage[scaled=0.93]{helvet}
 \usepackage[final]{listings}
+\usepackage{graphicx}
+\graphicspath{{./out/}}
 \usepackage{zebra-goodies}
 \colorlet{mycyan}{cyan}
 \EnableCrossrefs
@@ -376,6 +378,32 @@ This work consists of the file  zebra-goodies.dtx
 %  \end{LaTeXdemo}
 %\end{function}
 %
+%\subsection{Two-column Support}
+%
+% In \texttt{twocolumn} documents, the \cs{dbend} symbol is automatically
+% placed on the nearest margin: left margin for the left column, right margin
+% for the right column. No special configuration is needed.
+%
+%  \begin{LaTeXdemo}[code only]
+%    \documentclass[twocolumn]{article}
+%    \usepackage{zebra-goodies}
+%    \begin{document}
+%    % Left column: symbol appears in the left margin
+%    \todo[alice]{revise the introduction}
+%
+%    % Right column: symbol appears in the right margin
+%    \note[bob]{add a reference here}
+%    \end{document}
+%  \end{LaTeXdemo}
+%
+% The rendered result (compiled from a standalone two-column document):
+%
+% \begin{center}
+%   \fbox{\includegraphics[width=0.85\linewidth,page=1]{zebra-goodies-demo-twocol}}
+% \end{center}
+%
+% This also works correctly in combination with the \texttt{twoside} option.
+%
 %\subsection{Package Options}
 %\label{sec:options}
 %
@@ -449,17 +477,18 @@ This work consists of the file  zebra-goodies.dtx
 % Various helper macros are defined before reaching out to the \cs{todo} commands.
 %
 % Place the margin note on the nearest margin. In twocolumn mode,
-% left-column notes go to the left margin and right-column notes go to
-% the right margin. In single-column mode, \cs{marginnote} already
+% \cs{marginpar} is used because the output routine knows which column
+% the material lands in and places the note on the correct side
+% automatically. In single-column mode, \cs{marginnote} is used instead
+% as it works in more contexts (floats, footnotes, etc.) and already
 % handles twoside correctly by default.
 %    \begin{macrocode}
 \newcommand*{\zebr@marginnote}[1]{%
-  \begingroup
-    \if@twocolumn
-      \if@firstcolumn\reversemarginpar\fi
-    \fi
+  \if@twocolumn
+    \marginpar{\makebox[\marginparwidth]{#1}}%
+  \else
     \marginnote{#1}%
-  \endgroup
+  \fi
 }
 %    \end{macrocode}
 %
@@ -475,8 +504,9 @@ This work consists of the file  zebra-goodies.dtx
 % \end{syntax}
 %    \begin{macrocode}
 \DeclareRobustCommand{\zebr@note@}[4]{%
-  \zebr@marginnote{\textcolor{#2}{\dbend}}%
   \expandafter\stepcounter{zebr@num@#1}%
+  \zebr@marginnote{\textcolor{#2}{%
+    \dbend\kern1pt{\scriptsize\expandafter\csname thezebr@num@#1\endcsname}}}%
   \textcolor{#2}{[\colorbox[gray]{0.97}{%
       \textcolor{#2!70!black}{%
         \textsc{\MakeLowercase{\MakeUppercase#1}}

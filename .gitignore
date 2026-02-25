@@ -2,6 +2,7 @@ zebra-goodies.pdf
 zebra-goodies.sty
 zebra-goodies.zip
 .DS_Store
+out/
 
 *.hd
 *.ins
