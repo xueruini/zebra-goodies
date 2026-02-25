@@ -331,7 +331,8 @@ This work consists of the file  zebra-goodies.dtx
 %    \zebracomment[tom]{you should buy the ticket}. Multiple assignees
 %    work too: \placeholder[lucy,jessie]{prepare the foo}. Mark resolved items
 %    with \fixed[John]{good job!}. Notes of different types are numbered
-%    independently: \todo{a new todo} and \note[who]{another note}.
+%    independently: \todo{a new todo} and (let's add more words to make the next
+%    note in a new line otherwise the symbols will overlap) \note[who]{another note}.
 %  \end{LaTeXdemo}
 %
 %\begin{function}{\zebratodo}
@@ -479,16 +480,20 @@ This work consists of the file  zebra-goodies.dtx
 % \subsection{Main notes macros}
 % Various helper macros are defined before reaching out to the \cs{todo} commands.
 %
-% Place the margin note on the nearest margin. In twocolumn mode,
-% \cs{marginpar} is used because the output routine knows which column
-% the material lands in and places the note on the correct side
-% automatically. In single-column mode, \cs{marginnote} is used instead
-% as it works in more contexts (floats, footnotes, etc.) and already
-% handles twoside correctly by default.
+% Place the margin note on the nearest margin. Takes two arguments:
+% |#1| for the left margin (number then symbol) and |#2| for the right
+% margin (symbol then number), so the symbol always sits closest to the
+% text column. In twocolumn mode, \cs{marginpar}'s optional argument
+% selects the left-margin variant automatically. In single-column mode,
+% \cs{marginnote} is used with the right-margin variant as default.
 %    \begin{macrocode}
-\newcommand*{\zebr@marginnote}[1]{%
+\newcommand*{\zebr@marginnote}[2]{%
   \if@twocolumn
-    \marginpar{\makebox[\marginparwidth]{#1}}%
+    \ifinner
+      \marginnote{#2}%
+    \else
+      \marginpar[{\makebox[\marginparwidth]{#1}}]{\makebox[\marginparwidth]{#2}}%
+    \fi
   \else
     \marginnote{#1}%
   \fi
@@ -508,8 +513,11 @@ This work consists of the file  zebra-goodies.dtx
 %    \begin{macrocode}
 \DeclareRobustCommand{\zebr@note@}[4]{%
   \expandafter\stepcounter{zebr@num@#1}%
-  \zebr@marginnote{\textcolor{#2}{%
-    \dbend\kern1pt{\scriptsize\expandafter\csname thezebr@num@#1\endcsname}}}%
+  \zebr@marginnote
+    {\textcolor{#2}{%
+      {\bfseries\expandafter\csname thezebr@num@#1\endcsname}\kern1pt\dbend}}
+    {\textcolor{#2}{%
+      \dbend\kern1pt{\bfseries\expandafter\csname thezebr@num@#1\endcsname}}}%
   \textcolor{#2}{[\colorbox[gray]{0.97}{%
       \textcolor{#2!70!black}{%
         \textsc{\MakeLowercase{\MakeUppercase#1}}
