@@ -194,12 +194,15 @@ This work consists of the file  zebra-goodies.dtx
 %\maketitle
 %
 %\begin{abstract}
-%  The \pkg{zebra-goodies} package defines a collection of handy macros for
-%  notes taking during document writing. It is designed to be very simple and
-%  good enough for writing common documents independently or collaboratively.
-%  Several commands, \cs{todo}, \cs{comment}, \cs{note}, \cs{fixed} and
-%  \cs{placeholder}, are provided for quick start. It is also possible to add
-%  new notes taking commands with \cs{zebranewnote}.
+%  The \pkg{zebra-goodies} package provides a lightweight set of macros for
+%  inline note-taking during document writing. It is designed to be simple and
+%  practical for both solo and collaborative workflows.
+%  Five built-in commands---\cs{todo}, \cs{comment}, \cs{note}, \cs{fixed},
+%  and \cs{placeholder}---cover common use cases out of the box, and
+%  \cs{zebranewnote} lets you define additional note types as needed.
+%  Notes are automatically numbered per type, marked with a \cs{dbend} symbol
+%  in the nearest margin, and summarised in a table at the end of the document.
+%  Passing the \opt{final} option suppresses all notes for production output.
 %\end{abstract}
 %
 %\tableofcontents
@@ -208,43 +211,38 @@ This work consists of the file  zebra-goodies.dtx
 %
 %\section{Introduction}
 %
-% There are quite a few note taking and todo packages available. However, I do
-% not like the interfaces they provided. Some of them create a huge, complex
-% and complicated feature set trying to fit all use cases, while others abuse
-% the margin par to show too many colorful boxes and long text, even worse, some
-% packages link the annotations and the original text with arrows, which results
-% in a really unreadable document.
+% Many note-taking and to-do packages exist for \LaTeX{}, but most fall into
+% one of two traps: they either offer an overwhelming feature set that tries to
+% cover every conceivable use case, or they clutter the margins with oversized
+% colourful boxes and arrows that make the document hard to read.
 %
-% So, I need a simple and good enough note taking package. With ``simple'', I
-% want the commands to be intuitive and equipped with just necessary arguments.
-% With ``good enough'', the document's appearance could be changed a bit to
-% present the notes for easy reading but not too much. Additionally, all notes
-% should be addressed once the file is in final state. As a kind reminder, a
-% summary table presents the notes statistics according to note types at the end
-% of the document.
+% \pkg{zebra-goodies} takes a different approach. It aims to be \emph{simple}
+% ---intuitive commands with only the arguments you actually need---and
+% \emph{good enough}---notes appear inline with a small visual cue in the
+% margin, keeping the document readable while still making annotations easy to
+% spot. Each note type is automatically numbered, and a summary table at the
+% end of the document lists how many notes of each type remain, serving as a
+% gentle reminder to address them before the final version.
 %
-% With these objectives in mind, \pkg{zebra-goodies} is created and improved
-% along with my writing activities. Apparently, this package is designed with a
-% heavy personal bias. It is not supposed to be general and perfect.
+% The package requires \LaTeX{} 2022-06-01 or later.
 %
 %\section{Installation}
 %
 %\changes{v0.7.0}{2019/07/01}{Move to docstrip}
 %
 % The package is supplied in \file{dtx} format and as a pre-extracted zip file.
-% The later is most convenient for most users: simply unzip this in your local
-% texmf directory and run \texttt{texhash} to update the database of file
-% locations, or just unzip the files into your working directory. If you want to
-% unpack the \file{dtx} yourself, running \texttt{tex \jobname.dtx} will extract
-% the package whereas \texttt{latex \jobname.dtx} will extract it and also
-% typeset the documentation.\footnote{Actually, \texttt{latexmk \jobname.dtx} is
-% much better.}
+% The latter is the most convenient option for most users: simply unzip it into
+% your local texmf directory and run \texttt{texhash} to update the file-name
+% database, or unzip the files directly into your working directory. To unpack
+% the \file{dtx} yourself, run \texttt{tex \jobname.dtx} to extract the package,
+% or \texttt{latex \jobname.dtx} to extract it and typeset the documentation at
+% the same time.\footnote{Running \texttt{latexmk \jobname.dtx} is even more
+% convenient as it handles multiple compilation passes automatically.}
 %
 %\section{Using the package}
 %
-% The package should be loaded as normal in the preamble. The package
-% recognises a number of options, which can also be used in the document
-% body. These are described later in this document.
+% Load the package in the preamble with any desired options.
+% Options are described in Section~\ref{sec:options}.
 %\begin{LaTeXdemo}[code only]
 %  \usepackage[<options>]{zebra-goodies}
 %\end{LaTeXdemo}
@@ -256,14 +254,12 @@ This work consists of the file  zebra-goodies.dtx
 %  \end{syntax}
 %\end{function}
 %
-%  The basic function provided by \pkg{zebra-goodies} is the \cs{todo} macro.
-%  This is used to insert a piece of \texttt{todo} note right here, taking a
-%  mandatory argument, the \meta{note content} of the \texttt{todo}, and an
-%  optional argument, the \meta{name} who should be responsible for this note.
-%  For example, the author wants \meta{name} to address this todo. This is very
-%  helpful during collaboration. The todo note will be typesetted in a
-%  predefined color and quoted in the current paragraph along with the famous
-%  symbol in margin par.
+%  The primary command provided by \pkg{zebra-goodies} is \cs{todo}. It inserts
+%  an inline note in the current paragraph, typeset in a predefined colour and
+%  marked with a \cs{dbend} symbol in the nearest margin. The mandatory
+%  \meta{note content} describes the task; the optional \meta{name} specifies
+%  who is responsible for addressing it, which is particularly useful during
+%  collaborative writing.
 %
 % \begin{LaTeXdemo}
 %   A very simple example of a todo note \todo{how should we go to the lake?},
@@ -271,7 +267,9 @@ This work consists of the file  zebra-goodies.dtx
 %   compare the code and the result.
 % \end{LaTeXdemo}
 %
-% And, the following example shows how to set the assignees:
+% The following example shows how to assign notes to specific people.
+% Notes of the same type are numbered sequentially, and assignees are
+% prefixed with \texttt{@}.
 %
 % \begin{LaTeXdemo}
 %   Another one with an assignee is like \todo[tom]{you should buy the ticket},
@@ -280,8 +278,8 @@ This work consists of the file  zebra-goodies.dtx
 %   assignees \todo[lucy,jessie]{prepare the foo}.
 % \end{LaTeXdemo}
 
-%  Since \pkg{zebra-goodies} uses running texts, so \cs{todo} also works in
-%  title macros like \cs{section} and \cs{caption}.
+%  Because notes are set as inline text, they work inside moving arguments
+%  such as \cs{section} and \cs{caption} without issues.
 %
 %  \begin{LaTeXdemo}[code only]
 %    \section{Introduction\todo[jerry]{please figure out a better name}}
@@ -311,38 +309,33 @@ This work consists of the file  zebra-goodies.dtx
 %    \cs{placeholder}\oarg{name}\marg{placeholder text}
 %  \end{syntax}
 %\end{function}
-%  All these commands share the same syntax as \cs{todo}, so do the behaviour.
-%  They are defined just for convenience for different cases. Nothing magic are
-%  behind.
+%  These commands share the same syntax and behaviour as \cs{todo}; they
+%  differ only in name and colour, providing semantic distinction for
+%  different annotation purposes.
 %
-%  If any of them does not work, it is very likely that they are defined by
-%  other packages. In order to avoid unnecessary confusion, \cs{zebra-goodies}
-%  will not \cs{renewcommand} them in case they are defined. So, it comes to
-%  their internal counterparts.
+%  If any of these short names conflicts with another loaded package,
+%  \pkg{zebra-goodies} will \emph{not} overwrite the existing definition.
+%  Instead, it issues a warning and you should use the prefixed form
+%  (e.g.\ \cs{zebracomment} instead of \cs{comment}).
+%  The following example mixes several note types. Note that
+%  \cs{zebracomment} is used here because \cs{comment} is already defined
+%  by \pkg{l3doc}.
 %  \begin{LaTeXdemo}
-%    A very simple example of a todo note \note{how should we go to the lake?}
-%    and another one with an assignee is like \zebracomment[tom]{you should buy
-%    the ticket}. As you noticed, \cs{zebracomment} is used instead of \cs{comment}
-%    here is because \cs{comment} has been defined by \pkg{l3doc}. Let's move on
-%    to other macros. and another one with many assignees
-%    \placeholder[lucy,jessie]{prepare the foo} and the issue has been
-%    \fixed[John]{good job!}. We'd like to add more lines to separate the bend
-%    symbols. Finally, let's try to use the full version like this, I am going
-%    to add a \todo{a new todo} and a extended note to be put in another line
-%    with useless words as you known like this, this and that and eventually we
-%    come to the \note[who]{note}.
+%    A \note{how should we go to the lake?} and a
+%    \zebracomment[tom]{you should buy the ticket}. Multiple assignees
+%    work too: \placeholder[lucy,jessie]{prepare the foo}. Mark resolved items
+%    with \fixed[John]{good job!}. Notes of different types are numbered
+%    independently: \todo{a new todo} and \note[who]{another note}.
 %  \end{LaTeXdemo}
-%
-%  With these macros, it is very simple to good enough for note taking.
 %
 %\begin{function}{\zebratodo}
 %  \begin{syntax}
 %    \cs{zebratodo}\oarg{name}\marg{note text}
 %  \end{syntax}
 %
-%  \cs{todo} will not be defined if it has been defined by other packages,
-%  please use its internal alias, \cs{zebratodo}. This is how the other notes
-%  macros are defined.
+%  Each built-in note command has a prefixed alias that is always available,
+%  regardless of name conflicts. If \cs{todo} is already taken by another
+%  package, use \cs{zebratodo} instead. The same applies to all other types.
 %\end{function}
 %\begin{function}{\zebranote}
 %  \begin{syntax}
@@ -369,12 +362,11 @@ This work consists of the file  zebra-goodies.dtx
 %  \begin{syntax}
 %    \cs{zebranewnote}\marg{note name}\marg{xcolor name}
 %  \end{syntax}
-%  You will eventually need a new note type for whatever reasons.
-%  \cs{zebranewnote} needs two arguments to create a new note type. \meta{note
-%  name} will be used as the note's macro as \cs{todo}, while the \meta{xcolor_name}
-%  defines in what color the new note show be, which should be a \texttt{name} instead
-%  of \pkg{xcolor} spec. So, it is necessary to define the color with \cs{definecolor}
-%  or \cs{colorlet} in advance as in the following example.
+%  Creates a new note type. The \meta{note name} becomes the command name
+%  (e.g.\ passing |question| creates \cs{question} and \cs{zebraquestion}),
+%  and \meta{xcolor name} sets its colour. The colour must be a named colour
+%  already known to \pkg{xcolor}; define it with \cs{definecolor} or
+%  \cs{colorlet} beforehand if needed.
 %  \changes{v0.8.0}{2019/07/04}{Fix new note demo}
 %  \changes{v0.8.1}{2019/07/04}{Fix doc}
 %  \begin{LaTeXdemo}
@@ -385,23 +377,24 @@ This work consists of the file  zebra-goodies.dtx
 %\end{function}
 %
 %\subsection{Package Options}
+%\label{sec:options}
 %
 %\DescribeOption{draft}
 %\DescribeOption{final}
 
-% These two options are complementary to each other. When no explicit mode is
-% given, \opt{draft} is \texttt{true}, in which case all notes will be
-% typesetted as well as the the summary table at end of the document. By setting
-% \opt{draft} to \texttt{false} or \opt{final}, notes will not be presented.
+% These two options are complementary. By default \opt{draft} is active:
+% all notes are typeset inline and a summary table is appended at the end of
+% the document. Setting \opt{final} (or |draft=false|) suppresses all notes
+% and the summary table, producing clean output ready for distribution.
 %
 %\DescribeOption{microtype}
-% Enable the great \pkg{microtype} package or not. Default: \texttt{true}. I
-% personally love this package very much.
+% Controls whether the \pkg{microtype} package is loaded. Default:
+% \texttt{true}.
 %
-%\section{Predefined Colors}
+%\section{Predefined Colours}
 %
-% This is for personal use. I often use \pkg{pgfplots} to create plots, however,
-% I do not like the default color. So several are define:
+% The package also defines a small palette of named colours intended for use
+% with \pkg{pgfplots} or other drawing packages:
 % \begin{itemize}
 % \item \texttt{zebrablue}
 % \item \texttt{zebrared}
@@ -532,24 +525,24 @@ This work consists of the file  zebra-goodies.dtx
 %
 %\subsection{Print summary at end of the document}
 %
-% A summary table will be inserted automatically at end of the document for easy
-% checking. Each note type is presend in a line with its associated color.
+% A summary table is inserted automatically at the end of the document.
+% Each note type with at least one instance is listed with its colour and count.
 %
 %    \begin{macrocode}
 \def\zebr@listnotes{%
   \ifzebr@draft\zebr@listnotes@\fi}
 \def\zebr@listnotes@{%
-  \def\temp@a{}
-  \edef\temp@noteslist{\expandafter\@gobble\zebr@noteslist}
-  \@for\temp@b:=\temp@noteslist\do{%
-    \expandafter\ifnum\expandafter\value\expandafter{zebr@num@\temp@b} > 0%
-      \def\temp@c{\expandafter\csname thezebr@num@\temp@b\endcsname}
-      \edef\temp@d{\noexpand\textcolor{%
-          \expandafter\csname zebr@color@\temp@b\endcsname}{\temp@b}%
-        \noexpand &  \temp@c\noexpand\\}
-      \expandafter\g@addto@macro\expandafter\temp@a\expandafter{\temp@d}%
+  \def\zebr@tbl@body{}
+  \edef\zebr@tbl@list{\expandafter\@gobble\zebr@noteslist}
+  \@for\zebr@tbl@type:=\zebr@tbl@list\do{%
+    \expandafter\ifnum\expandafter\value\expandafter{zebr@num@\zebr@tbl@type} > 0%
+      \def\zebr@tbl@cnt{\expandafter\csname thezebr@num@\zebr@tbl@type\endcsname}
+      \edef\zebr@tbl@row{\noexpand\textcolor{%
+          \expandafter\csname zebr@color@\zebr@tbl@type\endcsname}{\zebr@tbl@type}%
+        \noexpand &  \zebr@tbl@cnt\noexpand\\}
+      \expandafter\g@addto@macro\expandafter\zebr@tbl@body\expandafter{\zebr@tbl@row}%
     \fi}
-  \ifx\temp@a\@empty\else%
+  \ifx\zebr@tbl@body\@empty\else%
     \noindent\dotfill\par
     \section*{Zebra Notes}
     \par \medskip
@@ -557,7 +550,7 @@ This work consists of the file  zebra-goodies.dtx
       \begin{tabular}{lr}
         \hline
         \textbf{Type} & \textbf{Number} \\\hline
-        \temp@a
+        \zebr@tbl@body
         \hline
       \end{tabular}
     \end{center}
