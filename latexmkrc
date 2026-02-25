@@ -19,3 +19,19 @@ sub glo2gls {
     system("makeindex -s gglo.ist -o \"$_[0].gls\" \"$_[0].glo\"");
 }
 push @generated_exts, "glo", "gls";
+
+# Build the two-column demo PDF before the main document.
+# The main doc includes it via \includegraphics.
+# The demo .tex is extracted from the .dtx by docstrip alongside the .sty.
+my $demo = "zebra-goodies-demo-twocol";
+if (! -f "$demo.tex" || ! -f "zebra-goodies.sty") {
+    system("tex zebra-goodies.dtx") == 0
+        or warn "Failed to extract files from .dtx\n";
+}
+if (-f "$demo.tex"
+    && (! -f "out/$demo.pdf"
+        || -M "out/$demo.pdf" > -M "$demo.tex"
+        || -M "out/$demo.pdf" > -M "zebra-goodies.sty")) {
+    system("pdflatex -interaction=nonstopmode -output-directory=out $demo.tex") == 0
+        or warn "Failed to compile demo\n";
+}

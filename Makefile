@@ -4,8 +4,8 @@ DEMO   = $(TARGET)-demo-twocol
 
 all: $(OUTPUT)/$(TARGET).pdf
 
-# Extract .sty and .ins from .dtx (lands in current dir)
-$(TARGET).sty $(TARGET).ins: $(TARGET).dtx
+# Extract .sty, .ins, and demo .tex from .dtx (all land in current dir)
+$(TARGET).sty $(TARGET).ins $(DEMO).tex: $(TARGET).dtx
 	tex $(TARGET).dtx
 
 # Compile the two-column demo (finds .sty in current dir)
@@ -24,12 +24,16 @@ ctan: all
 	zip -r $(TARGET).zip $(TARGET)
 	rm -rf $(TARGET)
 
+# Build and open the PDF viewer
+view: all
+	latexmk -pv $(TARGET).dtx
+
 clean:
 	latexmk -C $(TARGET).dtx
 	latexmk -C -outdir=$(OUTPUT) $(DEMO).tex
-	rm -f $(TARGET).sty $(TARGET).ins
+	rm -f $(TARGET).sty $(TARGET).ins $(DEMO).tex
 
 dist-clean: clean
 	rm -rf $(TARGET) $(OUTPUT) $(TARGET).zip
 
-.PHONY: all ctan clean dist-clean
+.PHONY: all view ctan clean dist-clean

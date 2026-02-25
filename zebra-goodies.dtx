@@ -41,6 +41,10 @@ This work consists of the file  zebra-goodies.dtx
 \generate{
   \file{\jobname.sty}{\from{\jobname.dtx}{package}}
 }
+\nopreamble\nopostamble
+\generate{
+  \file{\jobname-demo-twocol.tex}{\from{\jobname.dtx}{demo-twocol}}
+}
 %</install>
 %<install>\endbatchfile
 %<*internal>
@@ -383,20 +387,19 @@ This work consists of the file  zebra-goodies.dtx
 % In \texttt{twocolumn} documents, the \cs{dbend} symbol is automatically
 % placed on the nearest margin: left margin for the left column, right margin
 % for the right column. No special configuration is needed.
+% The following standalone example is extracted from this \file{dtx} file
+% and compiled automatically during the build.
 %
-%  \begin{LaTeXdemo}[code only]
-%    \documentclass[twocolumn]{article}
-%    \usepackage{zebra-goodies}
-%    \begin{document}
-%    % Left column: symbol appears in the left margin
-%    \todo[alice]{revise the introduction}
+% \lstinputlisting[
+%   basicstyle=\small\ttfamily,
+%   frame=l,
+%   backgroundcolor=\color{gray!5},
+%   keywordstyle=\bfseries\color{blue},
+%   language={[LaTeX]TeX},
+%   moretexcs={todo,note,comment,fixed,placeholder,lipsum},
+% ]{\jobname-demo-twocol.tex}
 %
-%    % Right column: symbol appears in the right margin
-%    \note[bob]{add a reference here}
-%    \end{document}
-%  \end{LaTeXdemo}
-%
-% The rendered result (compiled from a standalone two-column document):
+% The rendered result:
 %
 % \begin{center}
 %   \fbox{\includegraphics[width=0.85\linewidth,page=1]{zebra-goodies-demo-twocol}}
@@ -601,6 +604,39 @@ This work consists of the file  zebra-goodies.dtx
 %    \end{macrocode}
 %    \begin{macrocode}
 %</package>
+%    \end{macrocode}
+%
+%\subsection{Two-column demo}
+%
+% A standalone two-column document used to generate the demo figure
+% included in the documentation. It is extracted automatically by
+% docstrip and compiled during the build.
+%    \begin{macrocode}
+%<*demo-twocol>
+\documentclass[twocolumn,a4paper]{article}
+\usepackage[margin=2cm]{geometry}
+\usepackage{zebra-goodies}
+\usepackage{lipsum}
+\pagestyle{empty}
+\begin{document}
+\section{Demo name\comment{revise the name}}
+\lipsum[1] \todo[alice]{revise the introduction}
+
+\lipsum[2] \note[bob]{add a reference here}
+\lipsum[3] \fixed[carol]{looks good now}
+\lipsum[4] \todo[dave]{needs more data}
+
+\lipsum[5] \placeholder[eve]{insert figure}
+
+\lipsum[6] \note[frank]{check the numbers}
+
+\lipsum[7] \comment[tom]{is it you, jerry?}
+
+\lipsum[8] \fixed[heidi]{typo corrected}
+
+You can place \todo[judy]{summarise the findings} anywhere. \lipsum[9][10-11]
+\end{document}
+%</demo-twocol>
 %    \end{macrocode}
 %
 %\end{implementation}
