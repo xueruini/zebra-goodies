@@ -2,9 +2,11 @@
 
 @default_files=('zebra-goodies.dtx');
 
-$pdf_mode = 5;
+$pdf_mode = 1;
 
-$xelatex = "xelatex -file-line-error -halt-on-error -interaction=nonstopmode -no-pdf -synctex=1 %O %S";
+$pdflatex = "pdflatex -file-line-error -halt-on-error -interaction=nonstopmode -synctex=1 %O %S";
+
+# $xelatex = "xelatex -file-line-error -halt-on-error -interaction=nonstopmode -no-pdf -synctex=1 %O %S";
 # $xdvipdfmx = "xdvipdfmx -q -E -o %D %O %S";
 
 $out_dir="./out";
