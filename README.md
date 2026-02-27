@@ -50,7 +50,7 @@ full version as follows:
 \question[who]{what's this?}
 ```
 
-## Use Colors 
+## Use Colors
 
 Several colors are provided via `xcolor` for ploting:
 - `zebrablue`
@@ -58,3 +58,19 @@ Several colors are provided via `xcolor` for ploting:
 - `zebrayellow`
 - `zebrapurple`
 - `zebragreen`
+
+## Author
+
+Ruini Xue <xueruini@gmail.com>
+
+## License
+
+Copyright (C) 2016-2026, Ruini Xue
+
+This work may be distributed and/or modified under the conditions of
+the LaTeX Project Public License (LPPL), version 1.3c. The latest
+version of this license is at:
+
+http://www.latex-project.org/lppl.txt
+
+This work is "maintained" (as per LPPL maintenance status) by Ruini Xue.
