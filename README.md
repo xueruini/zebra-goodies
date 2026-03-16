@@ -1,7 +1,7 @@
 # zebra-goodies
 
-A collection of handy macros for note taking, like `todo` and `comment`. This is
-not intended for general cases. Use it at your own risk.
+A collection of handy note-taking macros such as `todo` and `comment`. It is
+primarily intended for draft and review workflows.
 
 ## Options
 
@@ -11,13 +11,31 @@ not intended for general cases. Use it at your own risk.
     % or use the complementary option "final"
     \usepackage[final]{zebra-goodies}
     ```
-- `microtype`: boolean option, whether to load package `microtype`. Enabled by default.
+- `microtypeexpansion`: boolean option, whether to enable `microtype` font expansion. Enabled by default. `zebra-goodies` ensures `microtype` is loaded. Example to disable expansion while keeping `microtype` loaded:
+    ```latex
+    \usepackage[microtypeexpansion=false]{zebra-goodies}
+    % or use the complementary option "nomicrotypeexpansion"
+    \usepackage[nomicrotypeexpansion]{zebra-goodies}
+    ```
+    Engines without font expansion support still fall back to `expansion=false` automatically.
+- `hyperref`: boolean option, whether to load package `hyperref`. Enabled by default. Example to disable it:
+    ```latex
+    \usepackage[hyperref=false]{zebra-goodies}
+    % or use the complementary option "nohyperref"
+    \usepackage[nohyperref]{zebra-goodies}
+    ```
+- `listofnotes`: boolean option, whether to print the summary table and detailed note list at the end of the document. Enabled by default. Example to disable it:
+    ```latex
+    \usepackage[listofnotes=false]{zebra-goodies}
+    % or use the complementary option "nolistofnotes"
+    \usepackage[nolistofnotes]{zebra-goodies}
+    ```
 
 ## Take Notes
 
-Add comments, todos, notes anything you like during revise in a colorful way.
-The package also summarizes the revise notes at the end of the document.
-Predefined commands are as follows:
+Add comments, todos, and notes during drafting in a visible way. The package
+also prints a summary table and a detailed note list at the end of the document.
+The predefined commands are:
 
 ```latex
 \todo[<who>]{bla bla}
@@ -27,9 +45,9 @@ Predefined commands are as follows:
 \placeholder[<who>]{bla bla}
 ```
 
-If any of them does not work, it is very likely that it has been defined by
-other packages. We will not override the definition, so you have to turn to its
-full version as follows:
+If any of these short names does not work, it is very likely that another
+package has already defined it. `zebra-goodies` does not overwrite existing
+commands, so use the always-available prefixed forms instead:
 
 ```latex
 \zebratodo[<who>]{bla bla}
@@ -52,7 +70,7 @@ full version as follows:
 
 ## Use Colors
 
-Several colors are provided via `xcolor` for ploting:
+Several colors are provided via `xcolor` for plotting:
 - `zebrablue`
 - `zebrared`
 - `zebrayellow`

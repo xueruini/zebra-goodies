@@ -6,9 +6,6 @@ $pdf_mode = 1;
 
 $pdflatex = "pdflatex -file-line-error -halt-on-error -interaction=nonstopmode -synctex=1 %O %S";
 
-# $xelatex = "xelatex -file-line-error -halt-on-error -interaction=nonstopmode -no-pdf -synctex=1 %O %S";
-# $xdvipdfmx = "xdvipdfmx -q -E -o %D %O %S";
-
 $out_dir="./out";
 
 $bibtex_use = 1.5;
@@ -22,18 +19,13 @@ sub glo2gls {
 }
 push @generated_exts, "glo", "gls";
 
-# Build the two-column demo PDF before the main document.
-# The main doc includes it via \includegraphics.
-# The demo .tex is extracted from the .dtx by docstrip alongside the .sty.
-my $demo = "zebra-goodies-demo-twocol";
-if (! -f "$demo.tex" || ! -f "zebra-goodies.sty") {
-    system("tex zebra-goodies.dtx") == 0
-        or warn "Failed to extract files from .dtx\n";
-}
-if (-f "$demo.tex"
-    && (! -f "out/$demo.pdf"
-        || -M "out/$demo.pdf" > -M "$demo.tex"
-        || -M "out/$demo.pdf" > -M "zebra-goodies.sty")) {
-    system("pdflatex -interaction=nonstopmode -output-directory=out $demo.tex") == 0
-        or warn "Failed to compile demo\n";
+# The main .dtx run generates zebra-goodies-demo-twocol.tex.
+# When the documentation later requests the corresponding PDF, latexmk
+# can build it from the generated .tex and then rerun the main document.
+add_cus_dep('tex', 'pdf', 0, 'tex2pdf');
+sub tex2pdf {
+    return 0 unless $_[0] =~ /demo-twocol$/;
+    return Run_subst(
+        "pdflatex -file-line-error -halt-on-error -interaction=nonstopmode -output-directory=out %S"
+    );
 }
