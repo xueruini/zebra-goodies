@@ -252,10 +252,39 @@ This work consists of the file  zebra-goodies.dtx
 %\section{Using the package}
 %
 % Load the package in the preamble with any desired options.
-% Options are described in Section~\ref{sec:options}.
 %\begin{LaTeXdemo}[code only]
 %  \usepackage[<options>]{zebra-goodies}
 %\end{LaTeXdemo}
+%
+%\subsection{Package Options}
+%\label{sec:options}
+%
+%\DescribeOption{draft}
+%\DescribeOption{final}
+
+% These two options are complementary. By default \opt{draft} is active:
+% all notes are typeset inline and a summary table plus a detailed note list are appended
+% at the end of the document. Setting \opt{final} (or |draft=false|) suppresses
+% all notes and the generated lists, producing clean output ready for
+% distribution.
+%
+%\DescribeOption{microtypeexpansion}
+% Controls whether \pkg{microtype} is loaded with font expansion enabled.
+% Default: \texttt{true}. Set |microtypeexpansion=false| or use the
+% complementary option \opt{nomicrotypeexpansion} to disable expansion while
+% keeping \pkg{microtype} loaded. \pkg{zebra-goodies} ensures
+% \pkg{microtype} is loaded. Engines without font expansion support still fall back to
+% |expansion=false| automatically.
+%
+%\DescribeOption{hyperref}
+% Controls whether the \pkg{hyperref} package is loaded by \pkg{zebra-goodies}.
+% Default: \texttt{true}. Set |hyperref=false| or use the complementary option
+% \opt{nohyperref} to disable automatic loading.
+%
+%\DescribeOption{listofnotes}
+% Controls whether the summary table and detailed note list are printed at the
+% end of the document. Default: \texttt{true}. Set |listofnotes=false| or use
+% the complementary option \opt{nolistofnotes} to suppress them.
 %
 %\subsection{Notes Macros}
 %\begin{function}{\todo}
@@ -331,14 +360,17 @@ This work consists of the file  zebra-goodies.dtx
 %  \cs{zebracomment} is used here because \cs{comment} is already defined
 %  by \pkg{l3doc}.
 %  \begin{LaTeXdemo}
-%    A \note{how should we go to the lake?} helps start the discussion.
-%    The next sentence can carry a follow-up
-%    \zebracomment[tom]{you should buy the ticket} for a collaborator.
-%    Multiple assignees work too: \placeholder[lucy, tom]{prepare the foo}.
-%    Mark resolved items with \fixed[John]{good job!}.
-%    Notes of different types are numbered independently, so
-%    \todo{a new todo} starts its own sequence.
-%    After a little more text, \note[who]{another note} shows the next note entry.
+%    We may want to reorganise \note{how should we structure the intro?} this
+%    part before the final submission. The experimental setup in Section~2 has
+%    already been reviewed by a collaborator \zebracomment[tom]{the setup
+%    description looks clear now}. Results are presented in the following
+%    tables and figures, but some of them are still missing
+%    \placeholder[lucy, tom]{insert Figure~3 here}. The discussion section
+%    has been revised and all previous issues addressed \fixed[John]{updated
+%    the conclusion}. Finally, the list of references needs a second pass
+%    before we can submit \todo{check bibliography entries for formatting}.
+%    With these items resolved, \note[who]{anything else?} the draft should
+%    be ready to go.
 %  \end{LaTeXdemo}
 %
 %\begin{function}{\zebratodo}
@@ -393,10 +425,14 @@ This work consists of the file  zebra-goodies.dtx
 %
 % In \texttt{twocolumn} documents, the \cs{dbend} symbol is automatically
 % placed on the nearest margin: left margin for the left column, right margin
-% for the right column. No special configuration is needed.
-% The following standalone example is extracted from this \file{dtx} file
-% and compiled automatically during the build.
+% for the right column. No special configuration is needed like this:
 %
+% \begin{center}
+%   \fbox{\includegraphics[width=0.9\linewidth,page=1]{zebra-goodies-demo-twocol}}
+% \end{center}
+%
+% It is generated with the following code.  This also works correctly in combination
+% with the \texttt{twoside} option.
 % \lstinputlisting[
 %   basicstyle=\small\ttfamily,
 %   frame=l,
@@ -407,43 +443,6 @@ This work consists of the file  zebra-goodies.dtx
 %   moretexcs={todo,note,comment,fixed,placeholder},
 % ]{\jobname-demo-twocol.tex}
 %
-% The rendered result:
-%
-% \begin{center}
-%   \fbox{\includegraphics[width=0.85\linewidth,page=1]{zebra-goodies-demo-twocol}}
-% \end{center}
-%
-% This also works correctly in combination with the \texttt{twoside} option.
-%
-%\subsection{Package Options}
-%\label{sec:options}
-%
-%\DescribeOption{draft}
-%\DescribeOption{final}
-
-% These two options are complementary. By default \opt{draft} is active:
-% all notes are typeset inline and a summary table plus a detailed note list are appended
-% at the end of the document. Setting \opt{final} (or |draft=false|) suppresses
-% all notes and the generated lists, producing clean output ready for
-% distribution.
-%
-%\DescribeOption{microtypeexpansion}
-% Controls whether \pkg{microtype} is loaded with font expansion enabled.
-% Default: \texttt{true}. Set |microtypeexpansion=false| or use the
-% complementary option \opt{nomicrotypeexpansion} to disable expansion while
-% keeping \pkg{microtype} loaded. \pkg{zebra-goodies} ensures
-% \pkg{microtype} is loaded. Engines without font expansion support still fall back to
-% |expansion=false| automatically.
-%
-%\DescribeOption{hyperref}
-% Controls whether the \pkg{hyperref} package is loaded by \pkg{zebra-goodies}.
-% Default: \texttt{true}. Set |hyperref=false| or use the complementary option
-% \opt{nohyperref} to disable automatic loading.
-%
-%\DescribeOption{listofnotes}
-% Controls whether the summary table and detailed note list are printed at the
-% end of the document. Default: \texttt{true}. Set |listofnotes=false| or use
-% the complementary option \opt{nolistofnotes} to suppress them.
 %
 %\section{Predefined Colours}
 %
@@ -553,7 +552,13 @@ This work consists of the file  zebra-goodies.dtx
   }
 \RequirePackage{xcolor}
 \RequirePackage{marginnote}
-\cs_if_exist:NF \dbend
+\cs_if_exist:NTF \dbend
+  {
+    \cs_set_eq:NN \@@_saved_dbend: \dbend
+    \cs_undefine:N \dbend
+    \RequirePackage{manfnt}
+    \cs_set_eq:NN \dbend \@@_saved_dbend:
+  }
   { \RequirePackage{manfnt} }
 \cs_new_protected:Npn \@@_pdfstring_note:
   { \@ifnextchar [ { \@@_pdfstring_note_opt:w } { \use_none:n } }
@@ -598,7 +603,7 @@ This work consists of the file  zebra-goodies.dtx
             { \makebox[\marginparwidth]{#2} }
         }
     \else
-      \marginnote{#1}
+      \marginnote[#1]{#2}
     \fi
   }
 \cs_new:Npn \@@_target:nn #1#2
@@ -657,9 +662,9 @@ This work consists of the file  zebra-goodies.dtx
       \@@_target:nn { \l@@_note_target_tl } {}
       \@@_margin_note:nn
         {\textcolor{#2}{%
-          {\bfseries\@@_note_count:n {#1}}\kern1pt\dbend}}
+          {\bfseries\@@_note_count:n {#1}}\kern1pt\textdbend}}
         {\textcolor{#2}{%
-          \dbend\kern1pt{\bfseries\@@_note_count:n {#1}}}}%
+          \textdbend\kern1pt{\bfseries\@@_note_count:n {#1}}}}%
       \textcolor{#2}{[\colorbox[gray]{0.97}{%
           \textcolor{#2!70!black}{%
             \textsc{\MakeLowercase{\MakeUppercase#1}}
