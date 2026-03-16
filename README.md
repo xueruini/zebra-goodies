@@ -11,7 +11,7 @@ primarily intended for draft and review workflows.
     % or use the complementary option "final"
     \usepackage[final]{zebra-goodies}
     ```
-- `microtypeexpansion`: boolean option, whether to enable `microtype` font expansion. Enabled by default. `zebra-goodies` always loads `microtype`. Example to disable expansion while keeping `microtype` loaded:
+- `microtypeexpansion`: boolean option, whether to enable `microtype` font expansion. Enabled by default. `zebra-goodies` ensures `microtype` is loaded. Example to disable expansion while keeping `microtype` loaded:
     ```latex
     \usepackage[microtypeexpansion=false]{zebra-goodies}
     % or use the complementary option "nomicrotypeexpansion"
@@ -57,10 +57,6 @@ commands, so use the always-available prefixed forms instead:
 \zebraplaceholder[<who>]{bla bla}
 ```
 
-The package automatically prints a note summary and a detailed note list at the
-end of the document. The detailed list is grouped by note type, and the page
-numbers link back to the original note locations when `hyperref` is available.
-
 ## Define new Notes
 
 ```latex
@@ -75,11 +71,11 @@ numbers link back to the original note locations when `hyperref` is available.
 ## Use Colors
 
 Several colors are provided via `xcolor` for plotting:
-- <span style="color:#4F81BD"><code>zebrablue</code></span>
-- <span style="color:#C0504D"><code>zebrared</code></span>
-- <span style="color:#D9CD2E"><code>zebrayellow</code></span>
-- <span style="color:#9F4C7C"><code>zebrapurple</code></span>
-- <span style="color:#9BBB00"><code>zebragreen</code></span>
+- `zebrablue`
+- `zebrared`
+- `zebrayellow`
+- `zebrapurple`
+- `zebragreen`
 
 ## Author
 

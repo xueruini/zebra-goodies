@@ -24,6 +24,7 @@ push @generated_exts, "glo", "gls";
 # can build it from the generated .tex and then rerun the main document.
 add_cus_dep('tex', 'pdf', 0, 'tex2pdf');
 sub tex2pdf {
+    return 0 unless $_[0] =~ /demo-twocol$/;
     return Run_subst(
         "pdflatex -file-line-error -halt-on-error -interaction=nonstopmode -output-directory=out %S"
     );

@@ -230,9 +230,9 @@ This work consists of the file  zebra-goodies.dtx
 % ---intuitive commands with only the arguments you actually need---and
 % \emph{good enough}---notes appear inline with a small visual cue in the
 % margin, keeping the document readable while still making annotations easy to
-% spot. Each note type is automatically numbered, and a summary table at the
-% end of the document lists how many notes of each type remain, serving as a
-% gentle reminder to address them before the final version.
+% spot. Each note type is automatically numbered, and a summary table plus a
+% detailed note list at the end of the document serve as a gentle reminder to
+% address them before the final version.
 %
 % The package requires \LaTeX{} 2022-06-01 or later.
 %
@@ -401,7 +401,7 @@ This work consists of the file  zebra-goodies.dtx
 %   basicstyle=\small\ttfamily,
 %   frame=l,
 %   backgroundcolor=\color{gray!5},
-%   firstline=3, ^^A docstrip addes 2 more lines
+%   firstline=3, ^^A docstrip adds 2 more lines
 %   keywordstyle=\bfseries\color{blue},
 %   language={[LaTeX]TeX},
 %   moretexcs={todo,note,comment,fixed,placeholder},
@@ -431,8 +431,8 @@ This work consists of the file  zebra-goodies.dtx
 % Controls whether \pkg{microtype} is loaded with font expansion enabled.
 % Default: \texttt{true}. Set |microtypeexpansion=false| or use the
 % complementary option \opt{nomicrotypeexpansion} to disable expansion while
-% keeping \pkg{microtype} loaded. \pkg{zebra-goodies} always loads
-% \pkg{microtype}. Engines without font expansion support still fall back to
+% keeping \pkg{microtype} loaded. \pkg{zebra-goodies} ensures
+% \pkg{microtype} is loaded. Engines without font expansion support still fall back to
 % |expansion=false| automatically.
 %
 %\DescribeOption{hyperref}
@@ -468,7 +468,7 @@ This work consists of the file  zebra-goodies.dtx
 %    \end{macrocode}
 %
 %    \begin{macrocode}
-%<@@=zebra_goodies>
+%<@@=zebra>
 %    \end{macrocode}
 %
 % Version data to start with.
@@ -485,91 +485,96 @@ This work consists of the file  zebra-goodies.dtx
 % and \opt{listofnotes} are created using
 % the kernel key--value interface available since \LaTeX{} 2022-06-01.
 %    \begin{macrocode}
-\ExplSyntaxOn
-\RequirePackage{l3keys2e}
+\bool_new:N \l@@_draft_bool
+\bool_new:N \l@@_microtypeexpansion_bool
+\bool_new:N \l@@_hyperref_bool
+\bool_new:N \l@@_listofnotes_bool
+\seq_new:N \g@@_note_types_seq
+\prop_new:N \g@@_note_colors_prop
+\prop_new:N \g@@_note_public_alias_prop
+\int_new:N \g@@_note_id_int
+\tl_new:N \l@@_note_target_tl
+\tl_new:N \l@@_summary_rows_tl
+\int_new:N \l@@_total_notes_int
 
-\bool_new:N \l_zebr_draft_bool
-\bool_new:N \l_zebr_microtypeexpansion_bool
-\bool_new:N \l_zebr_hyperref_bool
-\bool_new:N \l_zebr_listofnotes_bool
-\seq_new:N \g_zebr_note_types_seq
-\prop_new:N \g_zebr_note_colors_prop
-\prop_new:N \g_zebr_note_public_alias_prop
-\int_new:N \g_zebr_note_id_int
-\tl_new:N \l_zebr_note_target_tl
-\tl_new:N \l_zebr_summary_rows_tl
-\int_new:N \l_zebr_total_notes_int
-
-\msg_new:nnn { zebr } { command-taken }
+\msg_new:nnn { zebra } { command-taken }
   {
     The~command~'\iow_char:N\\#1'~is~already~defined.~
     Use~'\iow_char:N\\zebra#1'~instead.
   }
 
-\prg_new_conditional:Npnn \zebr_if_package_loaded:n #1 { T , F , TF }
+\prg_new_conditional:Npnn \@@_if_package_loaded:n #1 { T , F , TF }
   {
     \cs_if_exist:cTF { ver@#1.sty }
       { \prg_return_true: }
       { \prg_return_false: }
   }
 
-\keys_define:nn { zebr }
+\keys_define:nn { zebra }
   {
-    draft .bool_set:N = \l_zebr_draft_bool,
+    draft .bool_set:N = \l@@_draft_bool,
     draft .initial:n = true,
     final .meta:n = { draft = false },
-    microtypeexpansion .bool_set:N = \l_zebr_microtypeexpansion_bool,
+    microtypeexpansion .bool_set:N = \l@@_microtypeexpansion_bool,
     microtypeexpansion .initial:n = true,
     nomicrotypeexpansion .meta:n = { microtypeexpansion = false },
-    hyperref .bool_set:N = \l_zebr_hyperref_bool,
+    hyperref .bool_set:N = \l@@_hyperref_bool,
     hyperref .initial:n = true,
     nohyperref .meta:n = { hyperref = false },
-    listofnotes .bool_set:N = \l_zebr_listofnotes_bool,
+    listofnotes .bool_set:N = \l@@_listofnotes_bool,
     listofnotes .initial:n = true,
     nolistofnotes .meta:n = { listofnotes = false },
   }
-\ProcessKeyOptions [ zebr ]
+\ProcessKeyOptions [ zebra ]
 \sys_if_engine_xetex:T
-  { \bool_set_false:N \l_zebr_microtypeexpansion_bool }
+  { \bool_set_false:N \l@@_microtypeexpansion_bool }
 
-\cs_new_protected:Npn \zebr_setup_microtype:
+\cs_new_protected:Npn \@@_setup_microtype:
   {
-    \zebr_if_package_loaded:nTF { microtype }
+    \@@_if_package_loaded:nTF { microtype }
       {
-        \bool_if:NF \l_zebr_microtypeexpansion_bool
+        \bool_if:NF \l@@_microtypeexpansion_bool
           { \microtypesetup { expansion = false } }
       }
       {
-        \bool_if:NTF \l_zebr_microtypeexpansion_bool
+        \bool_if:NTF \l@@_microtypeexpansion_bool
           { \RequirePackage{microtype} }
           { \RequirePackage[expansion=false]{microtype} }
       }
   }
-\zebr_setup_microtype:
-\bool_if:NT \l_zebr_hyperref_bool
-  { \RequirePackage{hyperref} }
+\@@_setup_microtype:
+\@@_if_package_loaded:nF { hyperref }
+  {
+    \bool_if:NT \l@@_hyperref_bool
+      {
+        \RequirePackage{hyperref}
+        \hypersetup { pdfborder = { 0 0 0 } }
+      }
+  }
 \RequirePackage{xcolor}
 \RequirePackage{marginnote}
 \cs_if_exist:NF \dbend
   { \RequirePackage{manfnt} }
-\NewDocumentCommand \zebr_pdfstring_note: { o m } { }
-\cs_new_protected:Npn \zebr_apply_pdfstring_defs:
+\cs_new_protected:Npn \@@_pdfstring_note:
+  { \@ifnextchar [ { \@@_pdfstring_note_opt:w } { \use_none:n } }
+\cs_new_protected:Npn \@@_pdfstring_note_opt:w [#1] #2 { }
+\cs_new_protected:Npn \@@_apply_pdfstring_defs:
   {
-    \zebr_if_package_loaded:nT { hyperref }
+    \@@_if_package_loaded:nT { hyperref }
       {
         \pdfstringdefDisableCommands
           {
-            \seq_map_inline:Nn \g_zebr_note_types_seq
+            \seq_map_inline:Nn \g@@_note_types_seq
               {
-                \cs_set_eq:cN { zebra##1 } \zebr_pdfstring_note:
-                \prop_if_in:NnT \g_zebr_note_public_alias_prop { ##1 }
-                  { \cs_set_eq:cN { ##1 } \zebr_pdfstring_note: }
+                \cs_set_eq:cN { zebra##1 } \@@_pdfstring_note:
+                \prop_if_in:NnT \g@@_note_public_alias_prop { ##1 }
+                  { \cs_set_eq:cN { ##1 } \@@_pdfstring_note: }
               }
           }
       }
   }
 \hook_gput_code:nnn { begindocument } { zebra-goodies }
-  { \zebr_apply_pdfstring_defs: }
+  { \@@_apply_pdfstring_defs: }
 %    \end{macrocode}
 %
 % \subsection{Main notes macros}
@@ -582,7 +587,7 @@ This work consists of the file  zebra-goodies.dtx
 % selects the left-margin variant automatically. In single-column mode,
 % \cs{marginnote} is used with the right-margin variant as default.
 %    \begin{macrocode}
-\cs_new_protected:Npn \zebr_margin_note:nn #1#2
+\cs_new_protected:Npn \@@_margin_note:nn #1#2
   {
     \if@twocolumn
       \mode_if_inner:TF
@@ -596,35 +601,35 @@ This work consists of the file  zebra-goodies.dtx
       \marginnote{#1}
     \fi
   }
-\cs_new:Npn \zebr_target:nn #1#2
+\cs_new:Npn \@@_target:nn #1#2
   {
-    \zebr_if_package_loaded:nTF { hyperref }
+    \@@_if_package_loaded:nTF { hyperref }
       { \hypertarget{#1}{#2} }
       {#2}
   }
-\cs_new:Npn \zebr_link:nn #1#2
+\cs_new:Npn \@@_link:nn #1#2
   {
-    \zebr_if_package_loaded:nTF { hyperref }
+    \@@_if_package_loaded:nTF { hyperref }
       { \hyperlink{#1}{#2} }
       {#2}
   }
-\cs_new:Npn \zebr_prepend:nn #1#2
+\cs_new:Npn \@@_prepend:nn #1#2
   { \tl_if_blank:nTF {#2} {} {#1#2} }
-\cs_new:Npn \zebr_capitalize_type:n #1
-  { \tl_upper_case:n { \tl_head:n {#1} } \tl_tail:n {#1} }
-\cs_new:Npn \zebr_note_count:n #1
-  { \int_use:c { g_zebr_note_count_#1_int } }
-\cs_new:Npn \zebr_note_color:n #1
-  { \prop_item:Nn \g_zebr_note_colors_prop {#1} }
-\cs_new_protected:Npn \zebr_new_listbody:n #1
-  { \tl_new:c { g_zebr_listbody_#1_tl } }
-\cs_new:Npn \zebr_use_listbody:n #1
-  { \tl_use:c { g_zebr_listbody_#1_tl } }
-\cs_new_protected:Npn \zebr_record_note:nnnnnn #1#2#3#4#5#6
+\cs_new:Npn \@@_capitalize_type:n #1
+  { \text_uppercase:n { \tl_head:n {#1} } \tl_tail:n {#1} }
+\cs_new:Npn \@@_note_count:n #1
+  { \int_use:c { g@@_note_count_#1_int } }
+\cs_new:Npn \@@_note_color:n #1
+  { \prop_item:Nn \g@@_note_colors_prop {#1} }
+\cs_new_protected:Npn \@@_new_listbody:n #1
+  { \tl_new:c { g@@_listbody_#1_tl } }
+\cs_new:Npn \@@_use_listbody:n #1
+  { \tl_use:c { g@@_listbody_#1_tl } }
+\cs_new_protected:Npn \@@_record_note:nnnnnn #1#2#3#4#5#6
   {
-    \tl_gput_right:cx { g_zebr_listbody_#1_tl }
+    \tl_gput_right:cx { g@@_listbody_#1_tl }
       {
-        \exp_not:N \zebr_list_entry:nnnnnnn
+        \exp_not:N \@@_list_entry:nnnnnnn
         { \exp_not:n {#1} }
         { \exp_not:n {#2} }
         {#3}
@@ -634,58 +639,58 @@ This work consists of the file  zebra-goodies.dtx
         { \thepage }
       }
   }
-\cs_new_protected:Npn \zebr_note:nnnn #1#2#3#4
+\cs_new_protected:Npn \@@_note:nnnn #1#2#3#4
   {
-    \bool_if:NT \l_zebr_draft_bool
+    \bool_if:NT \l@@_draft_bool
       {
-      \int_gincr:c { g_zebr_note_count_#1_int }
-      \int_gincr:N \g_zebr_note_id_int
-      \tl_set:Nx \l_zebr_note_target_tl
-        { zebr@note.\int_use:N \g_zebr_note_id_int }
-      \zebr_record_note:nnnnnn
+      \int_gincr:c { g@@_note_count_#1_int }
+      \int_gincr:N \g@@_note_id_int
+      \tl_set:Nx \l@@_note_target_tl
+        { zebranote.\int_use:N \g@@_note_id_int }
+      \@@_record_note:nnnnnn
         {#1}
         {#2}
-        { \zebr_note_count:n {#1} }
+        { \@@_note_count:n {#1} }
         {#3}
         {#4}
-        { \l_zebr_note_target_tl }
-      \zebr_target:nn { \l_zebr_note_target_tl } {}
-      \zebr_margin_note:nn
+        { \l@@_note_target_tl }
+      \@@_target:nn { \l@@_note_target_tl } {}
+      \@@_margin_note:nn
         {\textcolor{#2}{%
-          {\bfseries\zebr_note_count:n {#1}}\kern1pt\dbend}}
+          {\bfseries\@@_note_count:n {#1}}\kern1pt\dbend}}
         {\textcolor{#2}{%
-          \dbend\kern1pt{\bfseries\zebr_note_count:n {#1}}}}%
+          \dbend\kern1pt{\bfseries\@@_note_count:n {#1}}}}%
       \textcolor{#2}{[\colorbox[gray]{0.97}{%
           \textcolor{#2!70!black}{%
             \textsc{\MakeLowercase{\MakeUppercase#1}}
-            \zebr_note_count:n {#1}\texttt{\zebr_prepend:nn {@}{#3}}:}} #4]}%
+            \@@_note_count:n {#1}\texttt{\@@_prepend:nn {@}{#3}}:}} #4]}%
       }
   }
-\cs_new_protected:Npn \zebr_new_note_type:nn #1#2
+\cs_new_protected:Npn \@@_new_note_type:nn #1#2
   {
-    \seq_gput_right:Nn \g_zebr_note_types_seq {#1}
-    \prop_gput:Nnn \g_zebr_note_colors_prop {#1} {#2}
-    \int_new:c { g_zebr_note_count_#1_int }
-    \zebr_new_listbody:n {#1}
+    \seq_gput_right:Nn \g@@_note_types_seq {#1}
+    \prop_gput:Nnn \g@@_note_colors_prop {#1} {#2}
+    \int_new:c { g@@_note_count_#1_int }
+    \@@_new_listbody:n {#1}
     \exp_args:Nc \NewDocumentCommand { zebra#1 } { O{} m }
-      { \zebr_note:nnnn {#1}{#2}{##1}{##2} }
-    \zebr_if_package_loaded:nT { hyperref }
-      { \zebr_apply_pdfstring_defs: }
+      { \@@_note:nnnn {#1}{#2}{##1}{##2} }
+    \@@_if_package_loaded:nT { hyperref }
+      { \@@_apply_pdfstring_defs: }
     \cs_if_exist:cTF {#1}
-      { \msg_warning:nnn { zebr } { command-taken } {#1} }
+      { \msg_warning:nnn { zebra } { command-taken } {#1} }
       {
         \cs_set_eq:cc {#1} {zebra#1}
-        \prop_gput:Nnn \g_zebr_note_public_alias_prop {#1} { true }
+        \prop_gput:Nnn \g@@_note_public_alias_prop {#1} { true }
       }
   }
-\cs_new_protected:Npn \zebr_list_entry:nnnnnnn #1#2#3#4#5#6#7
+\cs_new_protected:Npn \@@_list_entry:nnnnnnn #1#2#3#4#5#6#7
   {
     \par\noindent
     \textcolor{#2}{%
-      \textbf{\zebr_capitalize_type:n {#1}~#3}%
-      \tl_if_blank:nF {#4} { \enspace \texttt{\zebr_prepend:nn {@}{#4}} }}%
+      \textbf{\@@_capitalize_type:n {#1}~#3}%
+      \tl_if_blank:nF {#4} { \enspace \texttt{\@@_prepend:nn {@}{#4}} }}%
     \nobreak\dotfill
-    \zebr_link:nn {#6} {#7}%
+    \@@_link:nn {#6} {#7}%
     \par
     \begingroup
       \leftskip=1.5em
@@ -693,37 +698,37 @@ This work consists of the file  zebra-goodies.dtx
       #5\par
     \endgroup
   }
-\cs_new_protected:Npn \zebr_print_note_group:n #1
+\cs_new_protected:Npn \@@_print_note_group:n #1
   {
-    \int_compare:nNnT { \zebr_note_count:n {#1} } > { 0 }
+    \int_compare:nNnT { \@@_note_count:n {#1} } > { 0 }
       {
         \par\medskip
-        \zebr_use_listbody:n {#1}
+        \@@_use_listbody:n {#1}
       }
   }
-\cs_new_protected:Npn \zebr_summary_row:n #1
+\cs_new_protected:Npn \@@_summary_row:n #1
   {
-    \int_compare:nNnT { \zebr_note_count:n {#1} } > { 0 }
+    \int_compare:nNnT { \@@_note_count:n {#1} } > { 0 }
       {
-        \int_add:Nn \l_zebr_total_notes_int { \zebr_note_count:n {#1} }
-        \tl_put_right:Nx \l_zebr_summary_rows_tl
+        \int_add:Nn \l@@_total_notes_int { \@@_note_count:n {#1} }
+        \tl_put_right:Nx \l@@_summary_rows_tl
           {
             \exp_not:N \textcolor
-              { \zebr_note_color:n {#1} }
+              { \@@_note_color:n {#1} }
               {#1}
             \exp_not:N &
-            \zebr_note_count:n {#1}
+            \@@_note_count:n {#1}
             \exp_not:N \\
           }
       }
   }
-\cs_new_protected:Npn \zebr_print_notes:
+\cs_new_protected:Npn \@@_print_notes:
   {
-    \tl_clear:N \l_zebr_summary_rows_tl
-    \int_zero:N \l_zebr_total_notes_int
-    \seq_map_inline:Nn \g_zebr_note_types_seq
-      { \zebr_summary_row:n {##1} }
-    \tl_if_empty:NF \l_zebr_summary_rows_tl
+    \tl_clear:N \l@@_summary_rows_tl
+    \int_zero:N \l@@_total_notes_int
+    \seq_map_inline:Nn \g@@_note_types_seq
+      { \@@_summary_row:n {##1} }
+    \tl_if_empty:NF \l@@_summary_rows_tl
       {
         \par\nobreak
         \noindent\dotfill\par
@@ -734,9 +739,9 @@ This work consists of the file  zebra-goodies.dtx
           \begin{tabular}{lr}
             \hline
             \textbf{Type} & \textbf{Number} \\\hline
-            \tl_use:N \l_zebr_summary_rows_tl
+            \tl_use:N \l@@_summary_rows_tl
             \hline
-            \textbf{Total} & \textbf{\int_use:N \l_zebr_total_notes_int} \\
+            \textbf{Total} & \textbf{\int_use:N \l@@_total_notes_int} \\
             \hline
           \end{tabular}
         \end{center}
@@ -749,8 +754,8 @@ This work consists of the file  zebra-goodies.dtx
         \begingroup
           \small
           \noindent{\bfseries List~of~notes}\par
-          \seq_map_inline:Nn \g_zebr_note_types_seq
-            { \zebr_print_note_group:n {##1} }
+          \seq_map_inline:Nn \g@@_note_types_seq
+            { \@@_print_note_group:n {##1} }
         \endgroup
       }
   }
@@ -761,7 +766,7 @@ This work consists of the file  zebra-goodies.dtx
 % \changes{v0.8.0}{2019/07/04}{Fix on \cs{global} for examples}
 %    \begin{macrocode}
 \cs_new_protected:Npn \zebranewnote #1#2
-  { \zebr_new_note_type:nn {#1} {#2} }
+  { \@@_new_note_type:nn {#1} {#2} }
 %    \end{macrocode}
 % \end{macro}
 %
@@ -794,10 +799,10 @@ This work consists of the file  zebra-goodies.dtx
 %    \begin{macrocode}
 \hook_gput_code:nnn { enddocument } { zebra-goodies }
   {
-    \bool_if:NT \l_zebr_draft_bool
+    \bool_if:NT \l@@_draft_bool
       {
-        \bool_if:NT \l_zebr_listofnotes_bool
-          { \zebr_print_notes: }
+        \bool_if:NT \l@@_listofnotes_bool
+          { \@@_print_notes: }
       }
   }
 \ExplSyntaxOff
