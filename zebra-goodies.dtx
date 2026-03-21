@@ -70,9 +70,11 @@ This work consists of the file  zebra-goodies.dtx
 \documentclass[full]{l3doc}
 \usepackage[scaled=0.93]{helvet}
 \usepackage[final]{listings}
+\usepackage{fontawesome}
 \usepackage{graphicx}
 \graphicspath{{./out/}}
 \usepackage{zebra-goodies}
+\zebranotesymbol{fixed}{$\surd$}
 \colorlet{mycyan}{cyan}
 \EnableCrossrefs
 \CodelineIndex
@@ -125,6 +127,7 @@ This work consists of the file  zebra-goodies.dtx
 %      zebrafixed      ,
 %      zebraplaceholder,
 %      zebranewnote    ,
+%      zebranotesymbol ,
 %      colorlet
 %    }
 %  }^^A
@@ -187,6 +190,7 @@ This work consists of the file  zebra-goodies.dtx
 %\changes{v0.9.1}{2026/02/27}{Beautify the numbers.}
 %\changes{v0.9.2}{2026/03/03}{Faster.}
 %\changes{v1.0.0}{2026/03/16}{\pkg{expl3}, list of notes and compatibility.}
+%\changes{v1.1.0}{2026/03/21}{Customisable margin symbol, accurate page numbers, code cleanup.}
 %
 %\title{^^A
 %  \pkg{zebra-goodies} --- Easy Notes Taking^^A
@@ -286,6 +290,13 @@ This work consists of the file  zebra-goodies.dtx
 % end of the document. Default: \texttt{true}. Set |listofnotes=false| or use
 % the complementary option \opt{nolistofnotes} to suppress them.
 %
+%\DescribeOption{symbol}
+% Sets the margin symbol used by all note types.
+% Default: \cs{textdbend} (from \pkg{manfnt}).
+% For example, |symbol=\textdagger| replaces the dangerous-bend
+% sign with a dagger. Individual note types can override this
+% via the optional argument of \cs{zebranewnote}.
+%
 %\subsection{Notes Macros}
 %\begin{function}{\todo}
 %  \begin{syntax}
@@ -363,14 +374,13 @@ This work consists of the file  zebra-goodies.dtx
 %    We may want to reorganise \note{how should we structure the intro?} this
 %    part before the final submission. The experimental setup in Section~2 has
 %    already been reviewed by a collaborator \zebracomment[tom]{the setup
-%    description looks clear now}. Results are presented in the following
-%    tables and figures, but some of them are still missing
-%    \placeholder[lucy, tom]{insert Figure~3 here}. The discussion section
-%    has been revised and all previous issues addressed \fixed[John]{updated
-%    the conclusion}. Finally, the list of references needs a second pass
-%    before we can submit \todo{check bibliography entries for formatting}.
-%    With these items resolved, \note[who]{anything else?} the draft should
-%    be ready to go.
+%    description looks clear now}. Results are presented in the following tables
+%    and figures, but some of them are still missing. The discussion section has
+%    been revised \placeholder[lucy, tom]{good job!} and all previous issues
+%    addressed \fixed[John]{updated the conclusion}. Finally, the list of
+%    references needs a second pass before we can submit \todo{check bibliography
+%    entries for formatting}. With these items resolved, \note[who]{anything
+%    else?} the draft should be ready to go.
 %  \end{LaTeXdemo}
 %
 %\begin{function}{\zebratodo}
@@ -405,19 +415,32 @@ This work consists of the file  zebra-goodies.dtx
 %
 %\begin{function}{\zebranewnote}
 %  \begin{syntax}
-%    \cs{zebranewnote}\marg{note name}\marg{xcolor name}
+%    \cs{zebranewnote}\marg{note name}\marg{xcolor name}\oarg{symbol}
 %  \end{syntax}
 %  Creates a new note type. The \meta{note name} becomes the command name
 %  (e.g.\ passing |question| creates \cs{question} and \cs{zebraquestion}),
 %  and \meta{xcolor name} sets its colour. The colour must be a named colour
 %  already known to \pkg{xcolor}; define it with \cs{definecolor} or
 %  \cs{colorlet} beforehand if needed.
+%  The optional \meta{symbol} overrides the global margin symbol for this
+%  note type only. If omitted, the global \opt{symbol} option is used.
 %  \changes{v0.8.0}{2019/07/04}{Fix new note demo}
 %  \changes{v0.8.1}{2019/07/04}{Fix doc}
 %  \begin{LaTeXdemo}
 %    \colorlet{mycyan}{cyan}
-%    \zebranewnote{question}{mycyan}
-%    When it moves to the next step, we should be fine. \question[who]{what's this?}
+%    \zebranewnote{question}{mycyan}[\faQuestionCircle] % \usepackage{fontawesome}
+%    When it moves to the next step, we should be fine.\question[who]{what's this?}
+%  \end{LaTeXdemo}
+%\end{function}
+%
+%\begin{function}{\zebranotesymbol}
+%  \begin{syntax}
+%    \cs{zebranotesymbol}\marg{note name}\marg{symbol}
+%  \end{syntax}
+%  Changes the margin symbol of an existing note type. This is useful for
+%  overriding the symbol of built-in types such as \cs{fixed} in this document.
+%  \begin{LaTeXdemo}[code only]
+%    \zebranotesymbol{fixed}{$\surd$}
 %  \end{LaTeXdemo}
 %\end{function}
 %
@@ -425,14 +448,8 @@ This work consists of the file  zebra-goodies.dtx
 %
 % In \texttt{twocolumn} documents, the \cs{dbend} symbol is automatically
 % placed on the nearest margin: left margin for the left column, right margin
-% for the right column. No special configuration is needed like this:
-%
-% \begin{center}
-%   \fbox{\includegraphics[width=0.9\linewidth,page=1]{zebra-goodies-demo-twocol}}
-% \end{center}
-%
-% It is generated with the following code.  This also works correctly in combination
-% with the \texttt{twoside} option.
+% for the right column. No special configuration is needed.
+% This also works correctly in combination with the \texttt{twoside} option.
 % \lstinputlisting[
 %   basicstyle=\small\ttfamily,
 %   frame=l,
@@ -443,18 +460,13 @@ This work consists of the file  zebra-goodies.dtx
 %   moretexcs={todo,note,comment,fixed,placeholder},
 % ]{\jobname-demo-twocol.tex}
 %
+% The code above produces the following output:
 %
-%\section{Predefined Colours}
+% \begin{center}
+%   \fbox{\includegraphics[width=0.9\linewidth,page=1]{zebra-goodies-demo-twocol}}
+% \end{center}
 %
-% The package also defines a small palette of named colours intended for use
-% with \pkg{pgfplots} or other drawing packages:
-% \begin{itemize}
-% \item \textcolor{zebrablue}{\texttt{zebrablue}}
-% \item \textcolor{zebrared}{\texttt{zebrared}}
-% \item \textcolor{zebrayellow}{\texttt{zebrayellow}}
-% \item \textcolor{zebrapurple}{\texttt{zebrapurple}}
-% \item \textcolor{zebragreen}{\texttt{zebragreen}}
-% \end{itemize}
+%
 %
 %\end{documentation}
 %
@@ -473,15 +485,15 @@ This work consists of the file  zebra-goodies.dtx
 % Version data to start with.
 %    \begin{macrocode}
 \ProvidesExplPackage{zebra-goodies}
-  {2026/03/16}
-  {1.0.0}
+  {2026/03/21}
+  {1.1.0}
   {Easy Notes Taking}
 %    \end{macrocode}
 %
 %\subsection{Package options}
 %
-% Four package options \opt{draft}, \opt{microtypeexpansion}, \opt{hyperref},
-% and \opt{listofnotes} are created using
+% Five package options \opt{draft}, \opt{microtypeexpansion}, \opt{hyperref},
+% \opt{listofnotes}, and \opt{symbol} are created using
 % the kernel key--value interface available since \LaTeX{} 2022-06-01.
 %    \begin{macrocode}
 \bool_new:N \l@@_draft_bool
@@ -495,6 +507,7 @@ This work consists of the file  zebra-goodies.dtx
 \tl_new:N \l@@_note_target_tl
 \tl_new:N \l@@_summary_rows_tl
 \int_new:N \l@@_total_notes_int
+\prop_new:N \g@@_note_symbols_prop
 
 \msg_new:nnn { zebra } { command-taken }
   {
@@ -523,6 +536,8 @@ This work consists of the file  zebra-goodies.dtx
     listofnotes .bool_set:N = \l@@_listofnotes_bool,
     listofnotes .initial:n = true,
     nolistofnotes .meta:n = { listofnotes = false },
+    symbol .tl_set:N = \l@@_symbol_tl,
+    symbol .initial:n = \textdbend,
   }
 \ProcessKeyOptions [ zebra ]
 \sys_if_engine_xetex:T
@@ -594,17 +609,17 @@ This work consists of the file  zebra-goodies.dtx
 %    \begin{macrocode}
 \cs_new_protected:Npn \@@_margin_note:nn #1#2
   {
-    \if@twocolumn
-      \mode_if_inner:TF
-        { \marginnote{#2} }
-        {
-          \marginpar
-            [ { \makebox[\marginparwidth]{#1} } ]
-            { \makebox[\marginparwidth]{#2} }
-        }
-    \else
-      \marginnote[#1]{#2}
-    \fi
+    \legacy_if:nTF { @twocolumn }
+      {
+        \mode_if_inner:TF
+          { \marginnote{#2} }
+          {
+            \marginpar
+              [ { \makebox[\marginparwidth]{#1} } ]
+              { \makebox[\marginparwidth]{#2} }
+          }
+      }
+      { \marginnote[#1]{#2} }
   }
 \cs_new:Npn \@@_target:nn #1#2
   {
@@ -618,6 +633,12 @@ This work consists of the file  zebra-goodies.dtx
       { \hyperlink{#1}{#2} }
       {#2}
   }
+\cs_new:Npn \@@_pageref:n #1
+  {
+    \@@_if_package_loaded:nTF { hyperref }
+      { \pageref* {#1} }
+      { \pageref {#1} }
+  }
 \cs_new:Npn \@@_prepend:nn #1#2
   { \tl_if_blank:nTF {#2} {} {#1#2} }
 \cs_new:Npn \@@_capitalize_type:n #1
@@ -626,6 +647,12 @@ This work consists of the file  zebra-goodies.dtx
   { \int_use:c { g@@_note_count_#1_int } }
 \cs_new:Npn \@@_note_color:n #1
   { \prop_item:Nn \g@@_note_colors_prop {#1} }
+\cs_new:Npn \@@_note_symbol:n #1
+  {
+    \prop_if_in:NnTF \g@@_note_symbols_prop {#1}
+      { \prop_item:Nn \g@@_note_symbols_prop {#1} }
+      { \l@@_symbol_tl }
+  }
 \cs_new_protected:Npn \@@_new_listbody:n #1
   { \tl_new:c { g@@_listbody_#1_tl } }
 \cs_new:Npn \@@_use_listbody:n #1
@@ -634,14 +661,13 @@ This work consists of the file  zebra-goodies.dtx
   {
     \tl_gput_right:cx { g@@_listbody_#1_tl }
       {
-        \exp_not:N \@@_list_entry:nnnnnnn
+        \exp_not:N \@@_list_entry:nnnnnn
         { \exp_not:n {#1} }
         { \exp_not:n {#2} }
         {#3}
         { \exp_not:n {#4} }
         { \exp_not:n {#5} }
         {#6}
-        { \thepage }
       }
   }
 \cs_new_protected:Npn \@@_note:nnnn #1#2#3#4
@@ -660,21 +686,26 @@ This work consists of the file  zebra-goodies.dtx
         {#4}
         { \l@@_note_target_tl }
       \@@_target:nn { \l@@_note_target_tl } {}
+      \exp_args:NV \label \l@@_note_target_tl
       \@@_margin_note:nn
         {\textcolor{#2}{%
-          {\bfseries\@@_note_count:n {#1}}\kern1pt\textdbend}}
+          {\bfseries\@@_note_count:n {#1}}\kern1pt\@@_note_symbol:n {#1}}}
         {\textcolor{#2}{%
-          \textdbend\kern1pt{\bfseries\@@_note_count:n {#1}}}}%
+          \@@_note_symbol:n {#1}\kern1pt{\bfseries\@@_note_count:n {#1}}}}%
       \textcolor{#2}{[\colorbox[gray]{0.97}{%
           \textcolor{#2!70!black}{%
-            \textsc{\MakeLowercase{\MakeUppercase#1}}
+            \textsc{\MakeLowercase{\MakeUppercase#1}}~%
             \@@_note_count:n {#1}\texttt{\@@_prepend:nn {@}{#3}}:}} #4]}%
       }
   }
 \cs_new_protected:Npn \@@_new_note_type:nn #1#2
+  { \@@_new_note_type:nnn {#1} {#2} {} }
+\cs_new_protected:Npn \@@_new_note_type:nnn #1#2#3
   {
     \seq_gput_right:Nn \g@@_note_types_seq {#1}
     \prop_gput:Nnn \g@@_note_colors_prop {#1} {#2}
+    \tl_if_blank:nF {#3}
+      { \prop_gput:Nnn \g@@_note_symbols_prop {#1} {#3} }
     \int_new:c { g@@_note_count_#1_int }
     \@@_new_listbody:n {#1}
     \exp_args:Nc \NewDocumentCommand { zebra#1 } { O{} m }
@@ -688,14 +719,14 @@ This work consists of the file  zebra-goodies.dtx
         \prop_gput:Nnn \g@@_note_public_alias_prop {#1} { true }
       }
   }
-\cs_new_protected:Npn \@@_list_entry:nnnnnnn #1#2#3#4#5#6#7
+\cs_new_protected:Npn \@@_list_entry:nnnnnn #1#2#3#4#5#6
   {
     \par\noindent
     \textcolor{#2}{%
       \textbf{\@@_capitalize_type:n {#1}~#3}%
       \tl_if_blank:nF {#4} { \enspace \texttt{\@@_prepend:nn {@}{#4}} }}%
     \nobreak\dotfill
-    \@@_link:nn {#6} {#7}%
+    \@@_link:nn {#6} { \@@_pageref:n {#6} }%
     \par
     \begingroup
       \leftskip=1.5em
@@ -750,12 +781,12 @@ This work consists of the file  zebra-goodies.dtx
             \hline
           \end{tabular}
         \end{center}
-        \if@twocolumn
-          \clearpage
-          \onecolumn
-        \else
-          \par \medskip
-        \fi
+        \legacy_if:nTF { @twocolumn }
+          {
+            \clearpage
+            \onecolumn
+          }
+          { \par \medskip }
         \begingroup
           \small
           \noindent{\bfseries List~of~notes}\par
@@ -770,8 +801,16 @@ This work consists of the file  zebra-goodies.dtx
 % All note types are created with \cs{zebranewnote}.
 % \changes{v0.8.0}{2019/07/04}{Fix on \cs{global} for examples}
 %    \begin{macrocode}
-\cs_new_protected:Npn \zebranewnote #1#2
-  { \@@_new_note_type:nn {#1} {#2} }
+\NewDocumentCommand \zebranewnote { m m O{} }
+  { \@@_new_note_type:nnn {#1} {#2} {#3} }
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\zebranotesymbol}
+% Changes the margin symbol of an existing note type.
+%    \begin{macrocode}
+\NewDocumentCommand \zebranotesymbol { m m }
+  { \prop_gput:Nnn \g@@_note_symbols_prop {#1} {#2} }
 %    \end{macrocode}
 % \end{macro}
 %
@@ -811,18 +850,6 @@ This work consists of the file  zebra-goodies.dtx
       }
   }
 \ExplSyntaxOff
-%    \end{macrocode}
-%
-%\subsection{Personal Colors}
-%\label{sec:colors}
-% Several colors are defined for plots.
-%    \begin{macrocode}
-\definecolor{zebrablue}{HTML}{4F81BD}
-\definecolor{zebrared}{HTML}{C0504D}
-\definecolor{zebragreen}{HTML}{9BBB00}
-\definecolor{zebrapurple}{HTML}{9F4C7C}
-\definecolor{zebrayellow}{HTML}{D9CD2E}
-\definecolor{zebragreen2}{HTML}{00E000}
 %    \end{macrocode}
 %    \begin{macrocode}
 %</package>
