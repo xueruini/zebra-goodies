@@ -11,9 +11,21 @@ document. The `final` option suppresses all notes for clean output.
     ```latex
     \usepackage[final]{zebra-goodies}
     ```
+- `sort`: order of the detailed note list. `none` (default, document order) or `type` (grouped by note type).
+    ```latex
+    \usepackage[sort=type]{zebra-goodies}
+    ```
 - `symbol`: global margin symbol. Default: `\textdbend`.
     ```latex
     \usepackage[symbol=\textdagger]{zebra-goodies}
+    ```
+- `color/<type>`: override the colour of a single note type.
+    ```latex
+    \usepackage[color/todo=red]{zebra-goodies}
+    ```
+- `symbol/<type>`: override the margin symbol of a single note type.
+    ```latex
+    \usepackage[symbol/fixed=$\surd$]{zebra-goodies}
     ```
 - `microtypeexpansion` / `nomicrotypeexpansion`: enable or disable `microtype` font expansion. Default: enabled.
     ```latex
@@ -22,10 +34,6 @@ document. The `final` option suppresses all notes for clean output.
 - `hyperref` / `nohyperref`: load or skip `hyperref`. Default: enabled.
     ```latex
     \usepackage[nohyperref]{zebra-goodies}
-    ```
-- `listofnotes` / `nolistofnotes`: print or suppress the end-of-document note list. Default: enabled.
-    ```latex
-    \usepackage[nolistofnotes]{zebra-goodies}
     ```
 
 ## Take Notes
@@ -58,10 +66,14 @@ If a short name clashes with another package, use the prefixed form:
 \question[who]{what's this?}
 ```
 
-## Change Symbol of Existing Types
+## Customise Existing Types
+
+Use `\zebrasetup` to change the colour or symbol of any note type after loading:
 
 ```latex
-\zebranotesymbol{fixed}{$\surd$}
+\zebrasetup{color/todo=red}                 % red todos
+\zebrasetup{symbol/fixed=$\surd$}           % tick mark for fixed notes
+\zebrasetup{color/todo=red, symbol=\textdagger}  % combine several keys
 ```
 
 ## Author
