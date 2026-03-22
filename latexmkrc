@@ -4,11 +4,11 @@
 
 $pdf_mode = 1;
 
-$pdflatex = "pdflatex -file-line-error -halt-on-error -interaction=nonstopmode -synctex=1 %O %S";
+$pdflatex = "pdflatex -file-line-error -halt-on-error -interaction=nonstopmode %O %S";
 
 $out_dir="./out";
 
-$bibtex_use = 1.5;
+$bibtex_use = 0;
 
 $clean_ext = "hd sty tmp ins synctex.gz xdv";
 
