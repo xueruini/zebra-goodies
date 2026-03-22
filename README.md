@@ -15,18 +15,6 @@ document. The `final` option suppresses all notes for clean output.
     ```latex
     \usepackage[sort=type]{zebra-goodies}
     ```
-- `symbol`: global margin symbol. Default: `\textdbend`.
-    ```latex
-    \usepackage[symbol=\textdagger]{zebra-goodies}
-    ```
-- `color/<type>`: override the colour of a single note type.
-    ```latex
-    \usepackage[color/todo=red]{zebra-goodies}
-    ```
-- `symbol/<type>`: override the margin symbol of a single note type.
-    ```latex
-    \usepackage[symbol/fixed=$\surd$]{zebra-goodies}
-    ```
 - `microtypeexpansion` / `nomicrotypeexpansion`: enable or disable `microtype` font expansion. Default: enabled.
     ```latex
     \usepackage[nomicrotypeexpansion]{zebra-goodies}
@@ -73,7 +61,7 @@ Use `\zebrasetup` to change the colour or symbol of any note type after loading:
 ```latex
 \zebrasetup{color/todo=red}                 % red todos
 \zebrasetup{symbol/fixed=$\surd$}           % tick mark for fixed notes
-\zebrasetup{color/todo=red, symbol=\textdagger}  % combine several keys
+\zebrasetup{color/todo=red, symbol/fixed=$\surd$}  % combine several keys
 ```
 
 ## Author

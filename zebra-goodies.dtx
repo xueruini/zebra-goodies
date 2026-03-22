@@ -192,6 +192,7 @@ This work consists of the file  zebra-goodies.dtx
 %\changes{v1.0.0}{2026/03/16}{\pkg{expl3}, list of notes and compatibility.}
 %\changes{v1.1.0}{2026/03/21}{Customisable margin symbol, accurate page numbers, code cleanup.}
 %\changes{v1.1.1}{2026/03/22}{Per-type \texttt{color}/\texttt{symbol} keys, \cs{zebrasetup}.}
+%\changes{v1.2.0}{2026/03/22}{Simplify key architecture.}
 %
 %\title{^^A
 %  \pkg{zebra-goodies} --- Easy Notes Taking^^A
@@ -210,14 +211,15 @@ This work consists of the file  zebra-goodies.dtx
 %\begin{abstract}
 %  The \pkg{zebra-goodies} package provides a lightweight set of macros for
 %  inline note-taking during document writing. It is designed to be simple and
-%  practical for both solo and collaborative workflows.
-%  Five built-in commands---\cs{todo}, \cs{note}, \cs{comment}, \cs{fixed},
-%  and \cs{placeholder}---cover common use cases out of the box, and
-%  \cs{zebranewnote} lets you define additional note types as needed.
-%  Notes are automatically numbered per type, marked with a customisable
-%  symbol (default: \cs{dbend}) in the nearest margin, and summarised with a summary table plus a detailed
-%  note list at the end of the document.
-%  Passing the \opt{final} option suppresses all notes for production output.
+%  practical for both solo and collaborative workflows. Five built-in
+%  commands---\cs{todo}, \cs{note}, \cs{comment}, \cs{fixed}, and
+%  \cs{placeholder}---cover common use cases out of the box, and
+%  \cs{zebranewnote} lets you define additional note types as needed. Notes are
+%  automatically numbered per type, marked with a customisable
+%  symbol\marginnote{\textdbend} (default: \cs{textdbend}) in the nearest
+%  margin, and summarised with a summary table plus a detailed note list at the
+%  end of the document. Passing the \opt{final} option suppresses all notes for
+%  production output.
 %\end{abstract}
 %
 %\tableofcontents
@@ -266,11 +268,10 @@ This work consists of the file  zebra-goodies.dtx
 %
 %\DescribeOption{draft}
 %\DescribeOption{final}
-
-% These two options are complementary. Default: \texttt{true} (draft mode).
-% All notes are typeset inline and a summary table plus a detailed note list are appended
-% at the end of the document. Setting \opt{final} (or |draft=false|) suppresses
-% all notes and the generated lists, producing clean output ready for
+% These two options are complementary. Default: \texttt{true} (draft mode). All
+% notes are typeset inline and a summary table plus a detailed note list are
+% appended at the end of the document. Setting \opt{final} (or |draft=false|)
+% suppresses all notes and the generated lists, producing clean output ready for
 % distribution.
 %
 %\DescribeOption{sort}
@@ -278,32 +279,13 @@ This work consists of the file  zebra-goodies.dtx
 % document. Default: \texttt{none} (document order).
 % |sort=type| groups them by note type.
 %
-%\DescribeOption{symbol}
-% Sets the margin symbol used by all note types.
-% Default: \cs{textdbend} (from \pkg{manfnt}).
-% For example, |symbol=\textdagger| replaces the dangerous-bend
-% sign with a dagger. Individual note types can override this
-% via |symbol/\meta{type}| or the optional argument of \cs{zebranewnote}.
-%
-%\DescribeOption{color/\meta{type}}
-% Overrides the colour of a single note type.
-% For example, |color/todo=red| makes \cs{todo} notes red.
-% The value must be a colour name already known to \pkg{xcolor}.
-% This key may be given as a package option or inside \cs{zebrasetup}.
-%
-%\DescribeOption{symbol/\meta{type}}
-% Overrides the margin symbol of a single note type.
-% For example, |symbol/fixed=$\surd$| replaces the margin symbol for
-% \cs{fixed} notes with a tick mark.
-% This key may be given as a package option or inside \cs{zebrasetup}.
-%
 %\DescribeOption{microtypeexpansion}
 % Controls whether \pkg{microtype} is loaded with font expansion enabled.
 % Default: \texttt{true}. Set |microtypeexpansion=false| or use the
 % complementary option \opt{nomicrotypeexpansion} to disable expansion while
 % keeping \pkg{microtype} loaded. \pkg{zebra-goodies} ensures
-% \pkg{microtype} is loaded. Engines without font expansion support still fall back to
-% |expansion=false| automatically.
+% \pkg{microtype} is loaded. Engines without font expansion
+% support are handled gracefully.
 %
 %\DescribeOption{hyperref}
 % Controls whether the \pkg{hyperref} package is loaded by \pkg{zebra-goodies}.
@@ -311,162 +293,147 @@ This work consists of the file  zebra-goodies.dtx
 % \opt{nohyperref} to disable automatic loading.
 %
 %\subsection{Notes Macros}
-%\begin{function}{\todo}
+%
+% All note commands share the syntax \cs{cmd}\oarg{name}\marg{text}. Each also
+% has a prefixed alias (e.g.\ \cs{zebratodo}) that is always available,
+% regardless of name conflicts. If a short name clashes with another loaded
+% package, \pkg{zebra-goodies} will \emph{not} overwrite the existing
+% definition; use the prefixed form instead.
+%
+%\begin{function}{\todo, \zebratodo}
 %  \begin{syntax}
 %    \cs{todo}\oarg{name}\marg{text}
-%  \end{syntax}
-%\end{function}
-%
-%  The primary command provided by \pkg{zebra-goodies} is \cs{todo}. It inserts
-%  an inline note in the current paragraph, typeset in a predefined colour and
-%  marked with a \cs{dbend} symbol in the nearest margin. The mandatory
-%  \meta{text} describes the task; the optional \meta{name} specifies
-%  who is responsible for addressing it, which is particularly useful during
-%  collaborative writing.
-%
-% \begin{LaTeXdemo}
-%   A simple example: \todo{revise the introduction before submission}.
-% \end{LaTeXdemo}
-%
-% The optional argument assigns one or more people to the note.
-% Assignees appear prefixed with \texttt{@}, and notes of the same
-% type are numbered sequentially.
-%
-% \begin{LaTeXdemo}
-%   Here is a note assigned to one person \todo[tom]{buy the tickets}.
-%   Some filler text so that the margin symbols do not overlap each other.
-%   And one assigned to several \todo[lucy, jessie, tom]{prepare the slides}.
-% \end{LaTeXdemo}
-
-%  Because notes are set as inline text, they work inside moving arguments
-%  such as \cs{section} and \cs{caption} without issues.
-%
-%  \begin{LaTeXdemo}[code only]
-%    \section{Introduction\todo[jerry]{please figure out a better name}}
-%    \begin{figure}
-%      \centering
-%      \caption{Speed vs distance. \todo{need to insert the figure}}
-%    \end{figure}
-%  \end{LaTeXdemo}
-%
-%\begin{function}{\note}
-%  \begin{syntax}
-%    \cs{note}\oarg{name}\marg{text}
-%  \end{syntax}
-%\end{function}
-%\begin{function}{\comment}
-%  \begin{syntax}
-%    \cs{comment}\oarg{name}\marg{text}
-%  \end{syntax}
-%\end{function}
-%\begin{function}{\fixed}
-%  \begin{syntax}
-%    \cs{fixed}\oarg{name}\marg{text}
-%  \end{syntax}
-%\end{function}
-%\begin{function}{\placeholder}
-%  \begin{syntax}
-%    \cs{placeholder}\oarg{name}\marg{text}
-%  \end{syntax}
-%\end{function}
-%  These commands share the same syntax and behaviour as \cs{todo}; they
-%  differ only in name and colour, providing semantic distinction for
-%  different annotation purposes.
-%
-%  If any of these short names conflicts with another loaded package,
-%  \pkg{zebra-goodies} will \emph{not} overwrite the existing definition.
-%  Instead, it issues a warning and you should use the prefixed form
-%  (e.g.\ \cs{zebracomment} instead of \cs{comment}).
-%  The following example mixes several note types. Note that
-%  \cs{zebracomment} is used here because \cs{comment} is already defined
-%  by \pkg{l3doc}.
-%  \begin{LaTeXdemo}
-%    We may want to reorganise \note{how should we structure the intro?} this
-%    part before the final submission. The experimental setup in Section~2 has
-%    already been reviewed by a collaborator \zebracomment[tom]{the setup
-%    description looks clear now}. Results are presented in the following tables
-%    and figures, but some of them are still missing.
-%    The discussion section has been revised \placeholder[lucy, tom]{good job!}
-%    and the related work comparison strengthened with two additional references.
-%    The list of references still needs a second pass \todo{check bibliography
-%    entries for formatting} before we can finalise the submission.
-%    With those items addressed, the conclusion has been rewritten so the
-%    argument flows more naturally from the results.
-%    \fixed[John]{updated the conclusion} The overall structure now matches
-%    the revised outline we agreed on last week.
-%    \note[who]{anything else?} If not, the draft should be ready to go.
-%  \end{LaTeXdemo}
-%
-%\begin{function}{\zebratodo}
-%  \begin{syntax}
 %    \cs{zebratodo}\oarg{name}\marg{text}
 %  \end{syntax}
-%
-%  Each built-in note command has a prefixed alias that is always available,
-%  regardless of name conflicts. If \cs{todo} is already taken by another
-%  package, use \cs{zebratodo} instead. The same applies to all other types.
 %\end{function}
-%\begin{function}{\zebranote}
+%
+% The primary command provided by \pkg{zebra-goodies} is \cs{todo}. It inserts
+% an inline note in the current paragraph, typeset in a predefined colour and
+% marked with a symbol in the nearest margin. The mandatory \meta{text}
+% describes the task; the optional \meta{name} specifies who is responsible for
+% addressing it, which is particularly useful during collaborative writing.
+%
+% \begin{LaTeXdemo}
+%   The motivation section still feels too vague \todo{revise the introduction
+%   before submission} and could benefit from a concrete running example to
+%   guide the reader through the key ideas step by step.
+% \end{LaTeXdemo}
+%
+% The optional argument assigns one or more people to the note. Assignees appear
+% prefixed with \texttt{@}, and notes of the same type are numbered
+% sequentially.
+%
+% \begin{LaTeXdemo}
+%   The related work section needs more references \todo[alice]{add two or
+%   three citations from the latest survey} to recent advances in the field. We
+%   should also double-check the experimental setup before the camera-ready
+%   deadline \todo[bob, carol]{verify the hyperparameter table against the
+%   source code and update any outdated entries and let's check afterwards}.
+% \end{LaTeXdemo}
+
+% Because notes are set as inline text, they work inside moving arguments
+% such as \cs{section} and \cs{caption} without issues.
+%
+% \begin{LaTeXdemo}[code only]
+%   \section{Introduction\todo[jerry]{please figure out a better name}}
+%   \begin{figure}
+%     \centering
+%     \caption{Speed vs distance. \todo{need to insert the figure}}
+%   \end{figure}
+% \end{LaTeXdemo}
+%
+%\begin{function}{\note, \zebranote}
 %  \begin{syntax}
+%    \cs{note}\oarg{name}\marg{text}
 %    \cs{zebranote}\oarg{name}\marg{text}
 %  \end{syntax}
 %\end{function}
-%\begin{function}{\zebracomment}
+%\begin{function}{\comment, \zebracomment}
 %  \begin{syntax}
+%    \cs{comment}\oarg{name}\marg{text}
 %    \cs{zebracomment}\oarg{name}\marg{text}
 %  \end{syntax}
 %\end{function}
-%\begin{function}{\zebrafixed}
+%\begin{function}{\fixed, \zebrafixed}
 %  \begin{syntax}
+%    \cs{fixed}\oarg{name}\marg{text}
 %    \cs{zebrafixed}\oarg{name}\marg{text}
 %  \end{syntax}
 %\end{function}
-%\begin{function}{\zebraplaceholder}
+%\begin{function}{\placeholder, \zebraplaceholder}
 %  \begin{syntax}
+%    \cs{placeholder}\oarg{name}\marg{text}
 %    \cs{zebraplaceholder}\oarg{name}\marg{text}
 %  \end{syntax}
 %\end{function}
+% These commands share the same syntax and behaviour as \cs{todo}; they differ
+% only in name and colour, providing semantic distinction for different
+% annotation purposes. Note that \cs{zebracomment} is used in the example below
+% because \cs{comment} is already defined by \pkg{l3doc}.
+% \begin{LaTeXdemo}
+%   We may want to reorganise \note{how should we structure the intro?} this
+%   part before the final submission. The experimental setup in Section~2 has
+%   already been reviewed by a collaborator \zebracomment[tom]{the setup
+%   description looks clear now}. Results are presented in the following tables
+%   and figures, but some of them are still missing.
+%
+%   The discussion section has been revised \placeholder[lucy, tom]{good job!}
+%   and the related work comparison strengthened with two additional references.
+%   The list of references still needs a second pass \todo{check bibliography
+%   entries for formatting} before we can finalise the submission.
+%
+%   With those items addressed, the conclusion has been rewritten so the
+%   argument flows more naturally from the results. \fixed[John]{updated the
+%   conclusion} The overall structure now matches the revised outline we agreed
+%   on last week. \note[who]{anything else?} If not, the draft should be fine.
+% \end{LaTeXdemo}
 %
 %\begin{function}{\zebranewnote}
 %  \begin{syntax}
 %    \cs{zebranewnote}\marg{note name}\marg{xcolor name}\oarg{symbol}
 %  \end{syntax}
-%  Creates a new note type. The \meta{note name} becomes the command name
-%  (e.g.\ passing |question| creates \cs{question} and \cs{zebraquestion}),
-%  and \meta{xcolor name} sets its colour. The colour must be a named colour
-%  already known to \pkg{xcolor}; define it with \cs{definecolor} or
-%  \cs{colorlet} beforehand if needed.
-%  The optional \meta{symbol} overrides the global margin symbol for this
-%  note type only. If omitted, the global \opt{symbol} option is used.
-%  \changes{v0.8.0}{2019/07/04}{Fix new note demo}
-%  \changes{v0.8.1}{2019/07/04}{Fix doc}
-%  \begin{LaTeXdemo}
-%    \colorlet{mycyan}{cyan!80!black}
-%    \zebranewnote{question}{mycyan}[\faQuestionCircle] % \usepackage{fontawesome}
-%    When it moves to the next step, we should be fine.\question[who]{what's this?}
-%  \end{LaTeXdemo}
 %\end{function}
+% Creates a new note type. The \meta{note name} becomes the command name
+% (e.g.\ passing |question| creates \cs{question} and \cs{zebraquestion}), and
+% \meta{xcolor name} sets its colour. The colour must be a named colour already
+% known to \pkg{xcolor}; define it with \cs{definecolor} or \cs{colorlet}
+% beforehand if needed. The optional \meta{symbol} overrides the default margin
+% symbol (\cs{textdbend}) for this note type only. Per-type symbols can also be
+% changed after loading via
+% |\zebrasetup{symbol/|\meta{type}|=|\meta{symbol}|}|.
+% \changes{v0.8.0}{2019/07/04}{Fix new note demo}
+% \changes{v0.8.1}{2019/07/04}{Fix doc}
+% \begin{LaTeXdemo}
+%   \colorlet{mycyan}{cyan!80!black}
+%   \zebranewnote{question}{mycyan}[\faQuestionCircle] % \usepackage{fontawesome}
+%
+%   When it moves to the next step, we should be fine.\question[who]{what's this?}
+% \end{LaTeXdemo}
 %
 %\begin{function}{\zebrasetup}
 %  \begin{syntax}
 %    \cs{zebrasetup}\marg{key\,=\,value list}
 %  \end{syntax}
-%  Applies configuration keys after loading. Accepts all package options
-%  (e.g.\ |symbol=\textdagger|) as well as the per-type
-%  \texttt{color/\meta{type}} and \texttt{symbol/\meta{type}} keys.
-%  For example:
-%  \begin{LaTeXdemo}[code only]
-%    \zebrasetup{symbol/fixed=\manerrarrow}
-%    \zebrasetup{color/todo=red, symbol=\textdagger}
-%  \end{LaTeXdemo}
 %\end{function}
+% Configures note appearance after loading. Accepted keys:
+% \begin{itemize}
+%   \item |color/|\meta{type}|=|\meta{colour} --- override the
+%     colour of a note type.
+%   \item |symbol/|\meta{type}|=|\meta{symbol} --- override the
+%     margin symbol of a note type.
+% \end{itemize}
+% For example:
+% \begin{LaTeXdemo}[code only]
+%   \zebrasetup{symbol/fixed=\manerrarrow} % like this doc
+%   \zebrasetup{color/todo=red}
+% \end{LaTeXdemo}
 %
 %\subsection{Two-column Support}
 %
-% In \texttt{twocolumn} documents, the \cs{dbend} symbol is automatically
-% placed on the nearest margin: left margin for the left column, right margin
-% for the right column. No special configuration is needed.
-% This also works correctly in combination with the \texttt{twoside} option.
+% In \texttt{twocolumn} documents, the margin symbol is automatically placed on
+% the nearest margin: left margin for the left column, right margin for the
+% right column. No special configuration is needed. This also works correctly in
+% combination with the \texttt{twoside} option.
 % \lstinputlisting[
 %   basicstyle=\small\ttfamily,
 %   frame=l,
@@ -474,7 +441,7 @@ This work consists of the file  zebra-goodies.dtx
 %   firstline=3, ^^A docstrip adds 2 more lines
 %   keywordstyle=\bfseries\color{blue},
 %   language={[LaTeX]TeX},
-%   moretexcs={todo,note,comment,fixed,placeholder},
+%   moretexcs={todo,note,comment,fixed,placeholder,zebrasetup},
 % ]{\jobname-demo-twocol.tex}
 %
 % The code above produces the following output:
@@ -503,18 +470,18 @@ This work consists of the file  zebra-goodies.dtx
 %    \begin{macrocode}
 \ProvidesExplPackage{zebra-goodies}
   {2026/03/22}
-  {1.1.1}
+  {1.2.0}
   {Easy Notes Taking}
 %    \end{macrocode}
 %
 %\subsection{Package options}
 %
 % Package options \opt{draft}, \opt{microtypeexpansion}, \opt{hyperref},
-% \opt{sort}, and \opt{symbol} are created using
+% and \opt{sort} are created using
 % the kernel key--value interface available since \LaTeX{} 2022-06-01.
-% Per-type \texttt{color/\meta{type}} and \texttt{symbol/\meta{type}} keys
-% are handled by sub-family \texttt{unknown} handlers for \cs{zebrasetup}
-% and by \cs{DeclareUnknownKeyHandler} for package options.
+% Post-load configuration (\cs{zebrasetup}) uses a separate
+% \texttt{zebra-setup} key family with \texttt{color/\meta{type}} and
+% \texttt{symbol/\meta{type}} sub-families.
 %    \begin{macrocode}
 \bool_new:N \l@@_draft_bool
 \bool_new:N \l@@_microtypeexpansion_bool
@@ -529,6 +496,8 @@ This work consists of the file  zebra-goodies.dtx
 \tl_new:N \l@@_summary_rows_tl
 \int_new:N \l@@_total_notes_int
 \prop_new:N \g@@_note_symbols_prop
+\tl_new:N \l@@_symbol_tl
+\tl_set:Nn \l@@_symbol_tl { \textdbend }
 
 \msg_new:nnn { zebra } { command-taken }
   {
@@ -558,38 +527,18 @@ This work consists of the file  zebra-goodies.dtx
     sort / type .code:n = { \bool_set_false:N \l@@_sort_none_bool },
     sort / none .code:n = { \bool_set_true:N \l@@_sort_none_bool },
     sort .initial:n = none,
-    symbol .tl_set:N = \l@@_symbol_tl,
-    symbol .initial:n = \textdbend,
   }
-\keys_define:nn { zebra / color }
+\ProcessKeyOptions [ zebra ]
+\keys_define:nn { zebra-setup / color }
   {
     unknown .code:n =
       { \prop_gput:NVn \g@@_note_colors_prop \l_keys_key_str {#1} }
   }
-\keys_define:nn { zebra / symbol }
+\keys_define:nn { zebra-setup / symbol }
   {
     unknown .code:n =
       { \prop_gput:NVn \g@@_note_symbols_prop \l_keys_key_str {#1} }
   }
-\cs_new_protected:Npn \@@_process_option_unknown:nn #1#2
-  {
-    \seq_set_split:Nnn \l_tmpa_seq { / } {#1}
-    \int_compare:nNnT { \seq_count:N \l_tmpa_seq } = { 2 }
-      {
-        \str_case_e:nn { \seq_item:Nn \l_tmpa_seq { 1 } }
-          {
-            { color }
-              { \prop_gput:Nnn \g@@_note_colors_prop
-                  { \seq_item:Nn \l_tmpa_seq { 2 } } {#2} }
-            { symbol }
-              { \prop_gput:Nnn \g@@_note_symbols_prop
-                  { \seq_item:Nn \l_tmpa_seq { 2 } } {#2} }
-          }
-      }
-  }
-\DeclareUnknownKeyHandler [ zebra ]
-  { \@@_process_option_unknown:nn {#1} {#2} }
-\ProcessKeyOptions [ zebra ]
 \sys_if_engine_xetex:T
   { \bool_set_false:N \l@@_microtypeexpansion_bool }
 
@@ -648,7 +597,8 @@ This work consists of the file  zebra-goodies.dtx
 %    \end{macrocode}
 %
 % \subsection{Main notes macros}
-% Various helper macros are defined before reaching out to the \cs{todo} commands.
+% Various helper macros are defined before reaching out to
+% the \cs{todo} commands.
 %
 % Place the margin note on the nearest margin. Takes two arguments:
 % |#1| for the left margin (number then symbol) and |#2| for the right
@@ -788,7 +738,8 @@ This work consists of the file  zebra-goodies.dtx
     \@@_link:nn {#5} { \@@_pageref:n {#5} }%
     \par
     \begingroup
-      \leftskip=1.5em
+      \leftskip=2em
+      \rightskip=2em
       \parindent=0pt
       #4\par
     \endgroup
@@ -831,9 +782,9 @@ This work consists of the file  zebra-goodies.dtx
     \tl_if_empty:NF \l@@_summary_rows_tl
       {
         \par\nobreak
-        \noindent\dotfill\par
+        \noindent\dotfill\par\medskip
         \nobreak
-        \section*{Zebra~Notes}
+        \noindent\textbf{\Large Zebra~Notes}
         \par \medskip
         \begin{center}
           \begin{tabular}{lr}
@@ -854,6 +805,7 @@ This work consists of the file  zebra-goodies.dtx
         \begingroup
           \small
           \noindent{\bfseries List~of~notes}\par
+          \nobreak
           \bool_if:NTF \l@@_sort_none_bool
             { \@@_print_notes_inorder: }
             {
@@ -875,12 +827,11 @@ This work consists of the file  zebra-goodies.dtx
 % \end{macro}
 %
 % \begin{macro}{\zebrasetup}
-% Applies configuration keys after loading. Accepts the same keys as
-% the package options plus the \texttt{color/\meta{type}} and
-% \texttt{symbol/\meta{type}} families.
+% Applies configuration keys after loading using the
+% \texttt{zebra-setup} key family.
 %    \begin{macrocode}
 \NewDocumentCommand \zebrasetup { m }
-  { \keys_set:nn { zebra } {#1} }
+  { \keys_set:nn { zebra-setup } {#1} }
 %    \end{macrocode}
 % \end{macro}
 %
@@ -889,8 +840,7 @@ This work consists of the file  zebra-goodies.dtx
 % \begin{macro}{\fixed}
 % \begin{macro}{\comment}
 % \begin{macro}{\placeholder}
-% They are defined with \cs{zebranewnote}. The colors are picked up from the default
-% ones from \pkg{xcolor}.
+% Built-in note types, defined with \cs{zebranewnote}.
 %    \begin{macrocode}
 \zebranewnote{todo}{purple}
 \colorlet{zebra@fixed@color}{green!50!black}
@@ -932,15 +882,18 @@ This work consists of the file  zebra-goodies.dtx
 %<*demo-twocol>
 \documentclass[twocolumn,a4paper]{article}
 \usepackage[margin=2cm]{geometry}
-\usepackage[symbol/comment=$\clubsuit$]{zebra-goodies}
+\usepackage{zebra-goodies}
+\zebrasetup{symbol/comment=$\clubsuit$}
 \usepackage{lipsum}
 \pagestyle{empty}
 \begin{document}
 \section{Demo name\comment{revise the name}}
-\lipsum[1] \todo[alice]{revise the introduction}
+\lipsum[1][2-] \todo[alice]{revise the introduction}
 
 \lipsum[2] \note[bob]{add a reference here}
+
 \lipsum[3] \fixed[carol]{looks good now}
+
 \lipsum[4] \todo[dave]{needs more data}
 
 \lipsum[5] \placeholder[eve]{insert figure}
