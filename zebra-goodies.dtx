@@ -134,14 +134,11 @@ This work consists of the file  zebra-goodies.dtx
 %}
 %\newcommand*\LaTeXdemo@input{^^A
 %  \MakePercentComment
-%  \catcode`\^^M=10\relax
 %  \small
 %  \begingroup
-%    \setkeys{lst}{
-%      SelectCharTable=\lst@ReplaceInput{\^\^I}{\lst@ProcessTabulator}
-%    }^^A
-%    \leavevmode
-%      \input{\jobname.tmp}^^A
+%    \endlinechar=13\relax
+%    \catcode`\^^M=5\relax
+%    \input{\jobname.tmp}^^A
 %  \endgroup
 %  \MakePercentIgnore
 %}

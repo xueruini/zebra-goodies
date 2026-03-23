@@ -48,7 +48,7 @@ If a short name clashes with another package, use the prefixed form:
 
 ```latex
 \colorlet{mycyan}{cyan}
-\zebranewnote{question}{mycyan}              % uses global symbol
+\zebranewnote{question}{mycyan}              % uses default symbol
 \zebranewnote{question}{mycyan}[$\diamond$]  % custom symbol for this type
 
 \question[who]{what's this?}
