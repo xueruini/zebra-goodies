@@ -1,27 +1,31 @@
-# zebra-goodies
+# zebra
 
-Inline note-taking macros (`\todo`, `\comment`, `\fixed`, `\note`, `\placeholder`)
-for collaborative paper writing. Notes are colour-coded, numbered, and marked in
-the margin. A summary table and clickable note list are appended at the end of the
-document. The `final` option suppresses all notes for clean output.
+A writing revision toolkit for LaTeX. Currently provides inline note-taking
+macros (`\todo`, `\comment`, `\fixed`, `\note`, `\placeholder`) for collaborative
+writing. Notes are colour-coded, numbered, and marked in the margin. A summary
+table and clickable note list are appended at the end of the document. The
+`final` option suppresses all notes for clean output.
+
+> **Migration:** This package was previously distributed as `zebra-goodies`.
+> The old name still works but prints a deprecation warning.
 
 ## Options
 
 - `draft` / `final`: show or suppress notes. Default: `draft`.
     ```latex
-    \usepackage[final]{zebra-goodies}
+    \usepackage[final]{zebra}
     ```
 - `sort`: order of the detailed note list. `none` (default, document order) or `type` (grouped by note type).
     ```latex
-    \usepackage[sort=type]{zebra-goodies}
+    \usepackage[sort=type]{zebra}
     ```
 - `microtypeexpansion` / `nomicrotypeexpansion`: enable or disable `microtype` font expansion. Default: enabled.
     ```latex
-    \usepackage[nomicrotypeexpansion]{zebra-goodies}
+    \usepackage[nomicrotypeexpansion]{zebra}
     ```
 - `hyperref` / `nohyperref`: load or skip `hyperref`. Default: enabled.
     ```latex
-    \usepackage[nohyperref]{zebra-goodies}
+    \usepackage[nohyperref]{zebra}
     ```
 
 ## Take Notes

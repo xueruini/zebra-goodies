@@ -31,15 +31,17 @@ version of this license is in the file:
 This work is "maintained" (as per LPPL maintenance status) by
   Ruini Xue.
 
-This work consists of the file  zebra-goodies.dtx
-          and the derived files zebra-goodies.ins,
-                                zebra-goodies.pdf and
+This work consists of the file  zebra.dtx
+          and the derived files zebra.ins,
+                                zebra.pdf,
+                                zebra.sty, and
                                 zebra-goodies.sty.
 
 \endpostamble
-\usedir{tex/latex/zebra-goodies}
+\usedir{tex/latex/zebra}
 \generate{
   \file{\jobname.sty}{\from{\jobname.dtx}{package}}
+  \file{\jobname-goodies.sty}{\from{\jobname.dtx}{compat}}
 }
 \nopreamble\nopostamble
 \generate{
@@ -48,12 +50,12 @@ This work consists of the file  zebra-goodies.dtx
 %</install>
 %<install>\endbatchfile
 %<*internal>
-\usedir{source/latex/zebra-goodies}
+\usedir{source/latex/zebra}
 \generate{
   \file{\jobname.ins}{\from{\jobname.dtx}{install}}
 }
 %\nopreamble\nopostamble
-%\usedir{doc/latex/zebra-goodies}
+%\usedir{doc/latex/zebra}
 %\generate{
 %  \file{README.md}{\from{\jobname.dtx}{dummy}}
 %}
@@ -73,7 +75,7 @@ This work consists of the file  zebra-goodies.dtx
 \usepackage{fontawesome}
 \usepackage{graphicx}
 \graphicspath{{./out/}}
-\usepackage{zebra-goodies}
+\usepackage{zebra}
 \zebrasetup{symbol/fixed=\manerrarrow}
 \colorlet{mycyan}{cyan!80!black}
 \EnableCrossrefs
@@ -190,9 +192,10 @@ This work consists of the file  zebra-goodies.dtx
 %\changes{v1.1.0}{2026/03/21}{Customisable margin symbol, accurate page numbers, code cleanup.}
 %\changes{v1.1.1}{2026/03/22}{Per-type \texttt{color}/\texttt{symbol} keys, \cs{zebrasetup}.}
 %\changes{v1.2.0}{2026/03/23}{Simplify key architecture.}
+%\changes{v1.3.0}{2026/03/23}{Rename package to \pkg{zebra}.}
 %
 %\title{^^A
-%  \pkg{zebra-goodies} --- Easy Notes Taking^^A
+%  \pkg{zebra} --- Writing Revision Toolkit^^A
 %    \thanks{^^A
 %      This file describes version \fileversion, last revised
 %      \filedate.^^A
@@ -206,9 +209,9 @@ This work consists of the file  zebra-goodies.dtx
 %\maketitle
 %
 %\begin{abstract}
-%  The \pkg{zebra-goodies} package provides a lightweight set of macros for
-%  inline note-taking during document writing. It is designed to be simple and
-%  practical for both solo and collaborative workflows. Five built-in
+%  The \pkg{zebra} package is a writing revision toolkit. It currently
+%  provides a lightweight set of macros for inline note-taking, designed to
+%  be simple and practical for both solo and collaborative workflows. Five built-in
 %  commands---\cs{todo}, \cs{note}, \cs{comment}, \cs{fixed}, and
 %  \cs{placeholder}---cover common use cases out of the box, and
 %  \cs{zebranewnote} lets you define additional note types as needed. Notes are
@@ -230,7 +233,7 @@ This work consists of the file  zebra-goodies.dtx
 % cover every conceivable use case, or they clutter the margins with oversized
 % colourful boxes and arrows that make the document hard to read.
 %
-% \pkg{zebra-goodies} takes a different approach. It aims to be \emph{simple}
+% \pkg{zebra} takes a different approach. It aims to be \emph{simple}
 % ---intuitive commands with only the arguments you actually need---and
 % \emph{good enough}---notes appear inline with a small visual cue in the
 % margin, keeping the document readable while still making annotations easy to
@@ -253,11 +256,16 @@ This work consists of the file  zebra-goodies.dtx
 % the same time.\footnote{Running \texttt{latexmk \jobname.dtx} is even more
 % convenient as it handles multiple compilation passes automatically.}
 %
+% \textbf{Migration from \pkg{zebra-goodies}:}
+% This package was previously distributed as \pkg{zebra-goodies}.
+% The old name still works but will print a deprecation warning.
+% Please update to |\usepackage{zebra}|.
+%
 %\section{Using the package}
 %
 % Load the package in the preamble with any desired options.
 %\begin{LaTeXdemo}[code only]
-%  \usepackage[<options>]{zebra-goodies}
+%  \usepackage[<options>]{zebra}  % was zebra-goodies
 %\end{LaTeXdemo}
 %
 %\subsection{Package Options}
@@ -280,12 +288,12 @@ This work consists of the file  zebra-goodies.dtx
 % Controls whether \pkg{microtype} is loaded with font expansion enabled.
 % Default: \texttt{true}. Set |microtypeexpansion=false| or use the
 % complementary option \opt{nomicrotypeexpansion} to disable expansion while
-% keeping \pkg{microtype} loaded. \pkg{zebra-goodies} ensures
+% keeping \pkg{microtype} loaded. \pkg{zebra} ensures
 % \pkg{microtype} is loaded. Engines without font expansion
 % support are handled gracefully.
 %
 %\DescribeOption{hyperref}
-% Controls whether the \pkg{hyperref} package is loaded by \pkg{zebra-goodies}.
+% Controls whether the \pkg{hyperref} package is loaded by \pkg{zebra}.
 % Default: \texttt{true}. Set |hyperref=false| or use the complementary option
 % \opt{nohyperref} to disable automatic loading.
 %
@@ -294,7 +302,7 @@ This work consists of the file  zebra-goodies.dtx
 % All note commands share the syntax \cs{cmd}\oarg{name}\marg{text}. Each also
 % has a prefixed alias (e.g.\ \cs{zebratodo}) that is always available,
 % regardless of name conflicts. If a short name clashes with another loaded
-% package, \pkg{zebra-goodies} will \emph{not} overwrite the existing
+% package, \pkg{zebra} will \emph{not} overwrite the existing
 % definition; use the prefixed form instead.
 %
 %\begin{function}{\todo, \zebratodo}
@@ -304,7 +312,7 @@ This work consists of the file  zebra-goodies.dtx
 %  \end{syntax}
 %\end{function}
 %
-% The primary command provided by \pkg{zebra-goodies} is \cs{todo}. It inserts
+% The primary command provided by \pkg{zebra} is \cs{todo}. It inserts
 % an inline note in the current paragraph, typeset in a predefined colour and
 % marked with a symbol in the nearest margin. The mandatory \meta{text}
 % describes the task; the optional \meta{name} specifies who is responsible for
@@ -444,7 +452,7 @@ This work consists of the file  zebra-goodies.dtx
 % The code above produces the following output:
 %
 % \begin{center}
-%   \fbox{\includegraphics[width=\linewidth,page=1]{zebra-goodies-demo-twocol}}
+%   \fbox{\includegraphics[width=\linewidth,page=1]{zebra-demo-twocol}}
 % \end{center}
 %
 %
@@ -465,10 +473,10 @@ This work consists of the file  zebra-goodies.dtx
 %
 % Version data to start with.
 %    \begin{macrocode}
-\ProvidesExplPackage{zebra-goodies}
+\ProvidesExplPackage{zebra}
   {2026/03/23}
-  {1.2.0}
-  {Easy Notes Taking}
+  {1.3.0}
+  {Writing Revision Toolkit}
 %    \end{macrocode}
 %
 %\subsection{Package options}
@@ -589,7 +597,7 @@ This work consists of the file  zebra-goodies.dtx
           }
       }
   }
-\hook_gput_code:nnn { begindocument } { zebra-goodies }
+\hook_gput_code:nnn { begindocument } { zebra }
   { \@@_apply_pdfstring_defs: }
 %    \end{macrocode}
 %
@@ -859,7 +867,7 @@ This work consists of the file  zebra-goodies.dtx
 % its colour and count, followed by notes in document order or grouped by type.
 %
 %    \begin{macrocode}
-\hook_gput_code:nnn { enddocument } { zebra-goodies }
+\hook_gput_code:nnn { enddocument } { zebra }
   {
     \bool_if:NT \l@@_draft_bool
       { \@@_print_notes: }
@@ -868,6 +876,22 @@ This work consists of the file  zebra-goodies.dtx
 %    \end{macrocode}
 %    \begin{macrocode}
 %</package>
+%    \end{macrocode}
+%
+%\subsection{Compatibility shim}
+%
+% The old package name \pkg{zebra-goodies} is supported via a thin
+% wrapper that loads \pkg{zebra} and prints a deprecation warning.
+%    \begin{macrocode}
+%<*compat>
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{zebra-goodies}
+  [2026/03/23 v1.3.0 Deprecated: use zebra instead]
+\PackageWarningNoLine{zebra-goodies}
+  {Package~'zebra-goodies'~is~deprecated.\MessageBreak
+   Use~\string\usepackage{zebra}~instead}
+\RequirePackageWithOptions{zebra}
+%</compat>
 %    \end{macrocode}
 %
 %\subsection{Two-column demo}
@@ -879,7 +903,7 @@ This work consists of the file  zebra-goodies.dtx
 %<*demo-twocol>
 \documentclass[twocolumn,a4paper]{article}
 \usepackage[margin=2cm]{geometry}
-\usepackage{zebra-goodies}
+\usepackage{zebra}
 \zebrasetup{symbol/comment=$\clubsuit$}
 \usepackage{lipsum}
 \pagestyle{empty}

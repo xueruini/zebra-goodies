@@ -1,6 +1,6 @@
 # vim: set ft=perl:
 
-@default_files=('zebra-goodies.dtx');
+@default_files=('zebra.dtx');
 
 $pdf_mode = 1;
 
@@ -19,7 +19,7 @@ sub glo2gls {
 }
 push @generated_exts, "glo", "gls";
 
-# The main .dtx run generates zebra-goodies-demo-twocol.tex.
+# The main .dtx run generates zebra-demo-twocol.tex.
 # When the documentation later requests the corresponding PDF, latexmk
 # can build it from the generated .tex and then rerun the main document.
 add_cus_dep('tex', 'pdf', 0, 'tex2pdf');

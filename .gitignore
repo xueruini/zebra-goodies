@@ -1,7 +1,8 @@
-zebra-goodies.pdf
+zebra.pdf
+zebra.sty
+zebra.zip
+zebra-demo-twocol.*
 zebra-goodies.sty
-zebra-goodies.zip
-zebra-goodies-demo-twocol.*
 .DS_Store
 out/
 
