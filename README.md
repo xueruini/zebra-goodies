@@ -1,10 +1,11 @@
 # zebra
 
-A writing revision toolkit for LaTeX. Currently provides inline note-taking
-macros (`\todo`, `\comment`, `\fixed`, `\note`, `\placeholder`) for collaborative
-writing. Notes are colour-coded, numbered, and marked in the margin. A summary
-table and clickable note list are appended at the end of the document. The
-`final` option suppresses all notes for clean output.
+A writing revision toolkit for LaTeX. The current release focuses on inline
+note-taking, providing macros (`\todo`, `\comment`, `\fixed`, `\note`,
+`\placeholder`) for collaborative writing. Notes are colour-coded, numbered,
+and marked in the margin. A summary table and clickable note list are appended
+at the end of the document. The `final` option suppresses all notes for clean
+output.
 
 > **Migration:** This package was previously distributed as `zebra-goodies`.
 > The old name still works but prints a deprecation warning.
@@ -19,13 +20,13 @@ table and clickable note list are appended at the end of the document. The
     ```latex
     \usepackage[sort=type]{zebra}
     ```
-- `microtypeexpansion` / `nomicrotypeexpansion`: enable or disable `microtype` font expansion. Default: enabled.
+- `font-expansion` / `nofont-expansion`: control `microtype` font expansion, which usually improves the appearance of the document. Disable it if it conflicts with your engine or another package. Default: enabled. `microtype` remains loaded when expansion is disabled.
     ```latex
-    \usepackage[nomicrotypeexpansion]{zebra}
+    \usepackage[nofont-expansion]{zebra}
     ```
-- `hyperref` / `nohyperref`: load or skip `hyperref`. Default: enabled.
+- `pagelinks` / `nopagelinks`: enable or disable clickable page-number links in the detailed note list. Default: enabled.
     ```latex
-    \usepackage[nohyperref]{zebra}
+    \usepackage[nopagelinks]{zebra}
     ```
 
 ## Take Notes
