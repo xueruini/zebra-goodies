@@ -1,4 +1,4 @@
-TARGET = zebra-goodies
+TARGET = zebra
 OUTPUT = out
 DEMO   = $(TARGET)-demo-twocol
 
@@ -9,7 +9,7 @@ all:
 ctan: all
 	rm -rf $(TARGET) $(TARGET).zip
 	mkdir -p $(TARGET)
-	cp README.md $(TARGET).dtx $(OUTPUT)/$(TARGET).ins $(OUTPUT)/$(TARGET).pdf $(TARGET)/
+	cp README.md $(TARGET).dtx $(OUTPUT)/$(TARGET).ins $(OUTPUT)/$(TARGET).pdf $(OUTPUT)/$(TARGET).sty $(OUTPUT)/$(TARGET)-goodies.sty $(TARGET)/
 	zip -r $(TARGET).zip $(TARGET)
 	rm -rf $(TARGET)
 
@@ -19,7 +19,6 @@ view: all
 
 clean:
 	rm -rf $(OUTPUT)
-	rm -f $(TARGET).sty $(TARGET).ins $(DEMO).tex $(TARGET).log
 
 dist-clean: clean
 	rm -rf $(TARGET) $(TARGET).zip
