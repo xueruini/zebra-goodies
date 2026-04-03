@@ -129,6 +129,7 @@ This work consists of the file  zebra.dtx
 %      zebrafixed      ,
 %      zebraplaceholder,
 %      zebranewnote    ,
+%      zebraref        ,
 %      zebrasetup      ,
 %      colorlet
 %    }
@@ -195,6 +196,7 @@ This work consists of the file  zebra.dtx
 %\changes{v1.3.0}{2026/03/25}{Rename package to \pkg{zebra}.}
 %\changes{v1.3.0}{2026/03/25}{Rename the page-link option to \opt{pagelinks}/\opt{nopagelinks}.}
 %\changes{v1.3.0}{2026/03/25}{Rename the microtype expansion option to \opt{font-expansion}.}
+%\changes{v1.4.0}{2026/04/03}{Support note labels via \cs{label}, \cs{ref}, and \cs{zebraref}.}
 %
 %\title{^^A
 %  \pkg{zebra} --- Writing Revision Toolkit^^A
@@ -413,6 +415,25 @@ This work consists of the file  zebra.dtx
 %   When it moves to the next step, we should be fine.\question[who]{what's this?}
 % \end{LaTeXdemo}
 %
+%\begin{function}{\zebraref}
+%  \begin{syntax}
+%    \cs{zebraref}\marg{label}
+%  \end{syntax}
+%\end{function}
+%
+% Labels may be placed inside note bodies with the usual \cs{label} command.
+% Standard \cs{ref} returns the note number, while \cs{zebraref} prints the
+% note type together with the number.
+% \begin{LaTeXdemo}
+%   The motivation section still feels too vague \todo{\label{zebra:intro}revise
+%   the introduction before submission}.  The same issue appears again later
+%   \note{see Todo~\ref{zebra:intro} (that is, \zebraref{zebra:intro}) on
+%   p.~\pageref{zebra:intro}}.
+% \end{LaTeXdemo}
+%
+% As in standard \LaTeX{}, labels inside notes are unavailable in
+% \opt{final} mode because the notes themselves are suppressed.
+%
 %\begin{function}{\zebrasetup}
 %  \begin{syntax}
 %    \cs{zebrasetup}\marg{key\,=\,value list}
@@ -472,8 +493,8 @@ This work consists of the file  zebra.dtx
 % Version data to start with.
 %    \begin{macrocode}
 \ProvidesExplPackage{zebra}
-  {2026/03/25}
-  {1.3.0}
+  {2026/04/03}
+  {1.4.0}
   {Writing Revision Toolkit}
 %    \end{macrocode}
 %
@@ -496,6 +517,7 @@ This work consists of the file  zebra.dtx
 \int_new:N \g@@_note_id_int
 \tl_new:N \l@@_note_target_tl
 \tl_new:N \l@@_note_color_tl
+\tl_new:N \l@@_note_ref_type_tl
 \tl_new:N \l@@_summary_rows_tl
 \int_new:N \l@@_total_notes_int
 \prop_new:N \g@@_note_symbols_prop
@@ -507,6 +529,8 @@ This work consists of the file  zebra.dtx
     The~command~'\iow_char:N\\#1'~is~already~defined.~
     Use~'\iow_char:N\\zebra#1'~instead.
   }
+\msg_new:nnn { zebra } { invalid-note-label }
+  { Label~'#1'~is~not~a~zebra~note~label. }
 
 \prg_new_conditional:Npnn \@@_if_package_loaded:n #1 { T , F , TF }
   {
@@ -569,6 +593,7 @@ This work consists of the file  zebra.dtx
   }
 \RequirePackage{xcolor}
 \RequirePackage{marginnote}
+\cs_new_eq:NN \@@_kernel_label:n \label
 \cs_if_exist:NTF \dbend
   {
     \cs_set_eq:NN \@@_saved_dbend: \dbend
@@ -583,10 +608,42 @@ This work consists of the file  zebra.dtx
 \cs_new:Npn \@@_target:nn #1#2 {#2}
 \cs_new:Npn \@@_link:nn #1#2 {#2}
 \cs_new:Npn \@@_pageref:n #1 { \pageref {#1} }
+\cs_new:Npn \@@_zebra_label_name:n #1 { #1@zebra }
+\cs_new:Npn \@@_zebra_label_type:n #1
+  {
+    \exp_after:wN \use_i:nn
+      \cs:w r@\@@_zebra_label_name:n {#1}\cs_end:
+      { }
+  }
+\cs_new_protected:Npn \@@_write_zebra_label:n #1
+  {
+    \protected@write \@auxout { }
+      {
+        \string\newlabel{\@@_zebra_label_name:n {#1}}
+          {{\exp_not:V \l@@_note_ref_type_tl}{}}
+      }
+  }
+\cs_new_protected:Npn \@@_note_label:n #1
+  {
+    \@@_kernel_label:n {#1}
+    \@@_write_zebra_label:n {#1}
+  }
+\cs_new_protected:Npn \@@_zebra_ref:n #1
+  {
+    \cs_if_exist:cTF { r@\@@_zebra_label_name:n {#1} }
+      { \@@_zebra_label_type:n {#1}~\ref{#1} }
+      {
+        \msg_warning:nnn { zebra } { invalid-note-label } {#1}
+        ??
+      }
+  }
+\NewDocumentCommand \zebraref { m }
+  { \@@_zebra_ref:n {#1} }
 \cs_new_protected:Npn \@@_apply_pdfstring_defs:
   {
     \pdfstringdefDisableCommands
       {
+        \cs_set:Npn \zebraref ##1 { \ref{##1} }
         \seq_map_inline:Nn \g@@_note_types_seq
           {
             \cs_set_eq:cN { zebra##1 } \@@_pdfstring_note:
@@ -691,17 +748,24 @@ This work consists of the file  zebra.dtx
         {#2}
         {#3}
         { \l@@_note_target_tl }
-      \@@_target:nn { \l@@_note_target_tl } {}
-      \exp_args:NV \label \l@@_note_target_tl
-      \@@_margin_note:nn
-        {\textcolor{\l@@_note_color_tl}{%
-          {\bfseries\@@_note_count:n {#1}}\kern1pt\@@_note_symbol:n {#1}}}
-        {\textcolor{\l@@_note_color_tl}{%
-          \@@_note_symbol:n {#1}\kern1pt{\bfseries\@@_note_count:n {#1}}}}%
-      \textcolor{\l@@_note_color_tl}{[\colorbox[gray]{0.97}{%
-          \textcolor{\l@@_note_color_tl !70!black}{%
-            \textsc{\MakeLowercase{\MakeUppercase#1}}~%
-            \@@_note_count:n {#1}\texttt{\@@_prepend:nn {@}{#2}}:}} #3]}%
+      \group_begin:
+        \protected@edef \@currentlabel { \@@_note_count:n {#1} }
+        \@@_if_package_loaded:nT { hyperref }
+          { \tl_set:Nx \@currentHref { \l@@_note_target_tl } }
+        \tl_set:Nx \l@@_note_ref_type_tl { \@@_capitalize_type:n {#1} }
+        \@@_target:nn { \l@@_note_target_tl } {}
+        \exp_args:NV \@@_kernel_label:n \l@@_note_target_tl
+        \@@_margin_note:nn
+          {\textcolor{\l@@_note_color_tl}{%
+            {\bfseries\@@_note_count:n {#1}}\kern1pt\@@_note_symbol:n {#1}}}
+          {\textcolor{\l@@_note_color_tl}{%
+            \@@_note_symbol:n {#1}\kern1pt{\bfseries\@@_note_count:n {#1}}}}%
+        \cs_set_eq:NN \label \@@_note_label:n
+        \textcolor{\l@@_note_color_tl}{[\colorbox[gray]{0.97}{%
+            \textcolor{\l@@_note_color_tl !70!black}{%
+              \textsc{\MakeLowercase{\MakeUppercase#1}}~%
+              \@@_note_count:n {#1}\texttt{\@@_prepend:nn {@}{#2}}:}} #3]}%
+      \group_end:
       }
   }
 \cs_new_protected:Npn \@@_new_note_type:nn #1#2
@@ -742,6 +806,7 @@ This work consists of the file  zebra.dtx
       \leftskip=2em
       \rightskip=2em
       \parindent=0pt
+      \cs_set_eq:NN \label \use_none:n
       #4\par
     \endgroup
   }
@@ -882,7 +947,7 @@ This work consists of the file  zebra.dtx
 %<*compat>
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{zebra-goodies}
-  [2026/03/25 v1.3.0 Deprecated: use zebra instead]
+  [2026/04/03 v1.4.0 Deprecated: use zebra instead]
 \PackageWarningNoLine{zebra-goodies}
   {Package 'zebra-goodies' is deprecated.\MessageBreak
    Use \string\usepackage{zebra} instead}
@@ -905,11 +970,13 @@ This work consists of the file  zebra.dtx
 \pagestyle{empty}
 \begin{document}
 \section{Demo name\comment{revise the name}}
-\lipsum[1][2-] \todo[alice]{revise the introduction}
+\lipsum[1][2-] \todo[alice]{\label{zebra:intro}revise the introduction}
 
 \lipsum[2] \note[bob]{add a reference here}
 
 \lipsum[3] \fixed[carol]{looks good now}
+
+\noindent The issue raised in Todo~\ref{zebra:intro} still applies here.
 
 \lipsum[4] \todo[dave]{needs more data}
 

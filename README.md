@@ -49,6 +49,22 @@ If a short name clashes with another package, use the prefixed form:
 \zebraplaceholder[<who>]{bla bla}
 ```
 
+## Refer to Notes
+
+Labels may be placed inside note bodies with the usual `\label` command.
+Standard `\ref` returns the note number, while `\zebraref` prints the note
+type together with the number.
+
+```latex
+\todo{\label{zebra:intro}revise the introduction}
+
+See Todo~\ref{zebra:intro} on p.~\pageref{zebra:intro}.
+See \zebraref{zebra:intro} for the full reference.
+```
+
+Labels inside notes are unavailable in `final` mode because the notes
+themselves are suppressed.
+
 ## Define New Notes
 
 ```latex
