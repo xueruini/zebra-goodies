@@ -9,7 +9,7 @@ all:
 ctan: all
 	rm -rf $(TARGET) $(TARGET).zip
 	mkdir -p $(TARGET)
-	cp README.md $(TARGET).dtx $(OUTPUT)/$(TARGET).ins $(OUTPUT)/$(TARGET).pdf $(OUTPUT)/$(TARGET).sty $(OUTPUT)/$(TARGET)-goodies.sty $(TARGET)/
+	cp README.md $(TARGET).dtx $(OUTPUT)/$(TARGET).ins $(OUTPUT)/$(TARGET).pdf $(TARGET)/
 	zip -r $(TARGET).zip $(TARGET)
 	rm -rf $(TARGET)
 

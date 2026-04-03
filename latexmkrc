@@ -20,12 +20,15 @@ sub glo2gls {
 push @generated_exts, "glo", "gls";
 
 # The main .dtx run generates zebra-demo-twocol.tex.
-# When the documentation later requests the corresponding PDF, latexmk
-# can build it from the generated .tex and then rerun the main document.
+# Build the standalone demo with a few plain pdflatex passes; that is
+# enough to settle its local cross-references without adding more logic.
 add_cus_dep('tex', 'pdf', 0, 'tex2pdf');
 sub tex2pdf {
     return 0 unless $_[0] =~ /demo-twocol$/;
-    return Run_subst(
-        "pdflatex -file-line-error -halt-on-error -interaction=nonstopmode -output-directory=out %S"
-    );
+    my $cmd =
+      "pdflatex -file-line-error -halt-on-error -interaction=nonstopmode -output-directory=out %S";
+    for (1 .. 3) {
+        return 1 if Run_subst($cmd);
+    }
+    return 0;
 }
