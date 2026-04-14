@@ -197,6 +197,7 @@ This work consists of the file  zebra.dtx
 %\changes{v1.3.0}{2026/03/25}{Rename the page-link option to \opt{pagelinks}/\opt{nopagelinks}.}
 %\changes{v1.3.0}{2026/03/25}{Rename the microtype expansion option to \opt{font-expansion}.}
 %\changes{v1.4.0}{2026/04/03}{Support note labels via \cs{label}, \cs{ref}, and \cs{zebraref}.}
+%\changes{v1.5.0}{2026/04/14}{Fix notes numbering in moving arguments.}
 %
 %\title{^^A
 %  \pkg{zebra} --- Writing Revision Toolkit^^A
@@ -335,16 +336,21 @@ This work consists of the file  zebra.dtx
 %   source code and update any outdated entries and let's check afterwards}.
 % \end{LaTeXdemo}
 
-% Because notes are set as inline text, they work inside moving arguments
-% such as \cs{section} and \cs{caption} without issues.
+% Because notes are set as inline text, they can appear inside moving
+% arguments such as \cs{section} and \cs{caption}.  Adding a \cs{label}
+% inside the note gives it a stable identity across contexts:
 %
 % \begin{LaTeXdemo}[code only]
-%   \section{Introduction\todo[jerry]{please figure out a better name}}
+%   \section{Introduction\todo[jerry]{\label{zebra:heading}fix the name}}
 %   \begin{figure}
-%     \centering
 %     \caption{Speed vs distance. \todo{need to insert the figure}}
 %   \end{figure}
 % \end{LaTeXdemo}
+%
+% A labeled note in a heading is counted exactly once; the table of
+% contents and the note list link to the correct page after two
+% compilations.  Notes without a label still work but may be counted
+% separately in each context (TOC, running headers).
 %
 %\begin{function}{\note, \zebranote}
 %  \begin{syntax}
@@ -492,8 +498,8 @@ This work consists of the file  zebra.dtx
 % Version data to start with.
 %    \begin{macrocode}
 \ProvidesExplPackage{zebra}
-  {2026/04/03}
-  {1.4.0}
+  {2026/04/14}
+  {1.5.0}
   {Writing Revision Toolkit}
 %    \end{macrocode}
 %
@@ -590,9 +596,106 @@ This work consists of the file  zebra.dtx
         \hypersetup { pdfborder = { 0~0~0 } }
       }
   }
+%    \end{macrocode}
+%
+% \subsection{Moving-argument deduplication}
+%
+% Notes inside moving arguments (\cs{section}, \cs{caption}, etc.) may be
+% processed more than once per compilation pass: the original location plus
+% each secondary context (TOC, LOF, running headers, \cs{sbox} measurement
+% in \cs{@makecaption}).  The deduplication layer ensures each unique note
+% is allocated exactly once and rendered at most once per pass.
+%
+% \paragraph{Dedup key.}
+% The key is \meta{type}\verb"|"\meta{author}\verb"|"\meta{sanitised body}.
+% The body is stringified and the first \cs{label}\verb|{...}| (if any) is
+% stripped by a single regex pass.  This makes the key identical whether
+% the body still contains \cs{label} (body, marks) or has had it consumed
+% by \cs{protected@write}'s \cs{edef} (TOC, LOF entries).
+%
+% \paragraph{Encounter counting.}
+% A global prop tracks how many times each key is encountered during the
+% current pass.  At \cs{enddocument} the counts are written to the
+% \texttt{.aux} file via \cs{zebra@notecount}.  On the next pass the
+% expected total~$N$ is known from the \texttt{.aux} data.  Two render
+% modes are used:
+% \begin{itemize}
+%   \item \emph{Full render} (encounter ${}= N$, $N > 0$): the last
+%     encounter, typically the body location, performs all writes
+%     (hypertarget, target label, user labels via \cs{label} inside the
+%     note).
+%   \item \emph{Light render} (all other cases, including $N=0$ on the
+%     first pass): margin note and inline text are shown but no
+%     \cs{hypertarget} or \cs{label} writes are emitted.
+% \end{itemize}
+% Every encounter produces visible output so that the page layout ---
+% in particular the caption width measured by \cs{@makecaption}'s
+% \cs{sbox} --- stays stable across passes and \texttt{latexmk}
+% converges (typically in two to three passes).
+%
+%    \begin{macrocode}
 \RequirePackage{xcolor}
 \RequirePackage{marginnote}
 \cs_new_eq:NN \@@_kernel_label:n \label
+%% -- dedup data structures --
+% key -> hypertarget name (e.g. zebranote.3)
+\prop_new:N \g@@_note_target_prop
+% key -> display number (e.g. 2)
+\prop_new:N \g@@_note_display_prop
+% key -> encounter count this pass
+\prop_new:N \g@@_note_encounter_prop
+% key -> expected total N from previous pass (.aux)
+\prop_new:N \g@@_note_total_prop
+\tl_new:N \l@@_note_display_tl
+\tl_new:N \l@@_note_key_tl
+%% Compute the dedup key.  The body is stringified and the first
+%% \label{...} is stripped so that the key matches across contexts
+%% where \protected@write's \edef consumes the \label token.
+\cs_new_protected:Npn \@@_note_dedup_key:nnnN #1#2#3#4
+  {
+    \tl_set:Nx \l_tmpa_tl { \tl_to_str:n {#3} }
+    \regex_replace_once:nnN
+      { \\label \s* \{ [^{}]* \} } { } \l_tmpa_tl
+    \tl_set:Nx #4
+      {
+        \tl_to_str:n {#1}
+        | \tl_to_str:n {#2}
+        | \l_tmpa_tl
+      }
+  }
+%% Allocate a fresh note: increment the type counter, generate
+%% a unique hypertarget name, and record the note in the list body.
+\cs_new_protected:Npn \@@_allocate_note:nnn #1#2#3
+  {
+    \int_gincr:c { g@@_note_count_#1_int }
+    \tl_set:Nx \l@@_note_display_tl { \@@_note_count:n {#1} }
+    \int_gincr:N \g@@_note_id_int
+    \tl_set:Nx \l@@_note_target_tl
+      { zebranote.\int_use:N \g@@_note_id_int }
+    \@@_record_note:nnnnn
+      {#1}
+      { \l@@_note_display_tl }
+      {#2}
+      {#3}
+      { \l@@_note_target_tl }
+  }
+%% Aux-file interface: read encounter counts from the previous pass.
+%% The key is re-stringified to normalise catcodes: during .aux
+%% reading \makeatletter is active (@ = catcode 11), but at note
+%% time the key is built with \tl_to_str (@ = catcode 12).
+\cs_new_protected:Npn \zebra@notecount #1#2
+  {
+    \tl_set:Nx \l_tmpa_tl { \tl_to_str:n {#1} }
+    \prop_gput:NVn \g@@_note_total_prop \l_tmpa_tl {#2}
+  }
+%% Write one key's encounter count to .aux (called at \enddocument).
+%% Uses \immediate\write so the data reaches the .aux regardless of
+%% deferred-write timing at end of document.
+\cs_new_protected:Npn \@@_write_one_encounter:nn #1#2
+  {
+    \immediate\write \@auxout
+      { \string\zebra@notecount {#1} {#2} }
+  }
 \cs_if_exist:NTF \dbend
   {
     \cs_set_eq:NN \@@_saved_dbend: \dbend
@@ -732,39 +835,85 @@ This work consists of the file  zebra.dtx
         {#5}
       }
   }
+%% \@@_note:nnn {type}{author}{body}
+%% Main entry point for every note.  Two render modes:
+%%   full render  (enc=N, N>0)  -- writes hypertarget + labels
+%%   light render (otherwise)   -- visible, no writes
 \cs_new_protected:Npn \@@_note:nnn #1#2#3
   {
     \bool_if:NT \l@@_draft_bool
       {
-      \tl_set:Nx \l@@_note_color_tl { \@@_note_color:n {#1} }
-      \int_gincr:c { g@@_note_count_#1_int }
-      \int_gincr:N \g@@_note_id_int
-      \tl_set:Nx \l@@_note_target_tl
-        { zebranote.\int_use:N \g@@_note_id_int }
-      \@@_record_note:nnnnn
-        {#1}
-        { \@@_note_count:n {#1} }
-        {#2}
-        {#3}
-        { \l@@_note_target_tl }
-      \group_begin:
-        \protected@edef \@currentlabel { \@@_note_count:n {#1} }
-        \@@_if_package_loaded:nT { hyperref }
-          { \tl_set:Nx \@currentHref { \l@@_note_target_tl } }
-        \tl_set:Nx \l@@_note_ref_type_tl { \@@_capitalize_type:n {#1} }
-        \@@_target:nn { \l@@_note_target_tl } {}
-        \exp_args:NV \@@_kernel_label:n \l@@_note_target_tl
-        \@@_margin_note:nn
-          {\textcolor{\l@@_note_color_tl}{%
-            {\bfseries\@@_note_count:n {#1}}\kern1pt\@@_note_symbol:n {#1}}}
-          {\textcolor{\l@@_note_color_tl}{%
-            \@@_note_symbol:n {#1}\kern1pt{\bfseries\@@_note_count:n {#1}}}}%
-        \cs_set_eq:NN \label \@@_note_label:n
-        \textcolor{\l@@_note_color_tl}{[\colorbox[gray]{0.97}{%
-            \textcolor{\l@@_note_color_tl !70!black}{%
-              \textsc{\MakeLowercase{\MakeUppercase#1}}~%
-              \@@_note_count:n {#1}\texttt{\@@_prepend:nn {@}{#2}}:}} #3]}%
-      \group_end:
+        \tl_set:Nx \l@@_note_color_tl { \@@_note_color:n {#1} }
+        \@@_note_dedup_key:nnnN {#1} {#2} {#3} \l@@_note_key_tl
+        %% -- encounter counting (global, survives output routine) --
+        \prop_get:NVNTF \g@@_note_encounter_prop \l@@_note_key_tl \l_tmpa_tl
+          { \tl_set:Nx \l_tmpa_tl { \int_eval:n { \l_tmpa_tl + 1 } } }
+          { \tl_set:Nn \l_tmpa_tl { 1 } }
+        \prop_gput:NVV \g@@_note_encounter_prop \l@@_note_key_tl \l_tmpa_tl
+        %% -- allocate once per key --
+        \prop_get:NVNTF \g@@_note_target_prop \l@@_note_key_tl
+            \l@@_note_target_tl
+          {
+            \prop_get:NVN \g@@_note_display_prop \l@@_note_key_tl
+              \l@@_note_display_tl
+          }
+          {
+            \@@_allocate_note:nnn {#1} {#2} {#3}
+            \prop_gput:NVV \g@@_note_target_prop
+              \l@@_note_key_tl \l@@_note_target_tl
+            \prop_gput:NVV \g@@_note_display_prop
+              \l@@_note_key_tl \l@@_note_display_tl
+          }
+        %% -- render decision --
+        %% l_tmpa_tl = current encounter number
+        %% l_tmpb_tl = N (expected total from .aux; 0 = unknown)
+        %% Two modes only (no suppress -- suppressing would change the
+        %% caption width inside \sbox, altering the encounter count and
+        %% preventing latexmk convergence):
+        %%   full render  (encounter=N, N>0) -- writes hypertarget + labels
+        %%   light render (otherwise)        -- visible, no writes
+        \prop_get:NVNF \g@@_note_total_prop \l@@_note_key_tl \l_tmpb_tl
+          { \tl_set:Nn \l_tmpb_tl { 0 } }
+        \group_begin:
+          %% Default to light render: \label inside the body is
+          %% silently consumed (no writes).
+          \cs_set_eq:NN \label \use_none:n
+          \bool_if:nT
+            {
+              \int_compare_p:nNn { \l_tmpb_tl } > { 0 } &&
+              \int_compare_p:nNn { \l_tmpa_tl } = { \l_tmpb_tl }
+            }
+            {
+              %% Full render: encounter = N.  Set up cross-reference
+              %% data, write hypertarget + labels, and override \label.
+              \protected@edef \@currentlabel
+                { \l@@_note_display_tl }
+              \@@_if_package_loaded:nT { hyperref }
+                {
+                  \tl_set:Nx \@currentHref
+                    { \l@@_note_target_tl }
+                }
+              \tl_set:Nx \l@@_note_ref_type_tl
+                { \@@_capitalize_type:n {#1} }
+              \@@_target:nn { \l@@_note_target_tl } {}
+              \exp_args:NV \@@_kernel_label:n
+                \l@@_note_target_tl
+              \cs_set_eq:NN \label \@@_note_label:n
+            }
+          %% Margin note + inline text (shared by both modes).
+          \@@_margin_note:nn
+            {\textcolor{\l@@_note_color_tl}{%
+              {\bfseries\l@@_note_display_tl}\kern1pt
+              \@@_note_symbol:n {#1}}}
+            {\textcolor{\l@@_note_color_tl}{%
+              \@@_note_symbol:n {#1}\kern1pt
+              {\bfseries\l@@_note_display_tl}}}%
+          \textcolor{\l@@_note_color_tl}{[\colorbox[gray]{0.97}{%
+              \textcolor{\l@@_note_color_tl !70!black}{%
+                \textsc{\MakeLowercase{\MakeUppercase#1}}~%
+                \l@@_note_display_tl
+                \texttt{\@@_prepend:nn {@}{#2}}:}} #3]}%
+        \group_end:
       }
   }
 \cs_new_protected:Npn \@@_new_note_type:nn #1#2
@@ -927,10 +1076,16 @@ This work consists of the file  zebra.dtx
 % its colour and count, followed by notes in document order or grouped by type.
 %
 %    \begin{macrocode}
+%% At end of document: print the note summary and list, then
+%% write encounter counts to .aux for the next pass.
 \hook_gput_code:nnn { enddocument } { zebra }
   {
     \bool_if:NT \l@@_draft_bool
-      { \@@_print_notes: }
+      {
+        \@@_print_notes:
+        \prop_map_function:NN \g@@_note_encounter_prop
+          \@@_write_one_encounter:nn
+      }
   }
 \ExplSyntaxOff
 %    \end{macrocode}
@@ -946,7 +1101,7 @@ This work consists of the file  zebra.dtx
 %<*compat>
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{zebra-goodies}
-  [2026/04/03 v1.4.0 Deprecated: use zebra instead]
+  [2026/04/14 v1.5.0 Deprecated: use zebra instead]
 \PackageWarningNoLine{zebra-goodies}
   {Package 'zebra-goodies' is deprecated.\MessageBreak
    Use \string\usepackage{zebra} instead}

@@ -19,6 +19,7 @@ view: all
 
 clean:
 	rm -rf $(OUTPUT)
+	rm -f $(TARGET).sty $(TARGET)-goodies.sty $(TARGET).ins $(DEMO).*
 
 dist-clean: clean
 	rm -rf $(TARGET) $(TARGET).zip

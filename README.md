@@ -63,7 +63,8 @@ See \zebraref{zebra:intro} for the full reference.
 ```
 
 Labels inside notes are unavailable in `final` mode because the notes
-themselves are suppressed.
+themselves are suppressed. For notes in moving arguments such as `\section`
+and `\caption`, add a `\label` inside the note for stable cross-references.
 
 ## Define New Notes
 
