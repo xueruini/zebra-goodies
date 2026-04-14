@@ -19,6 +19,8 @@ view: all
 
 clean:
 	rm -rf $(OUTPUT)
+	rm -f $(TARGET).sty $(TARGET)-goodies.sty $(TARGET).ins $(DEMO).*
+	rm -f $(TARGET).aux $(TARGET).glo $(TARGET).gls $(TARGET).idx $(TARGET).ilg $(TARGET).log $(TARGET).out $(TARGET).toc $(TARGET).tmp $(TARGET).hd $(TARGET).dvi
 
 dist-clean: clean
 	rm -rf $(TARGET) $(TARGET).zip

@@ -20,13 +20,13 @@ output.
     ```latex
     \usepackage[sort=type]{zebra}
     ```
-- `font-expansion` / `nofont-expansion`: control `microtype` font expansion, which usually improves the appearance of the document. Disable it if it conflicts with your engine or another package. Default: enabled. `microtype` remains loaded when expansion is disabled.
+- `pagelinks`: enable or disable clickable page-number links in the detailed note list. Default: enabled. Set `pagelinks=false` to disable them. The alias `nopagelinks` is also accepted.
     ```latex
-    \usepackage[nofont-expansion]{zebra}
+    \usepackage[pagelinks=false]{zebra}
     ```
-- `pagelinks` / `nopagelinks`: enable or disable clickable page-number links in the detailed note list. Default: enabled.
+- `font-expansion`: control `microtype` font expansion, which usually improves the appearance of the document. Disable it if it conflicts with your engine or another package by setting `font-expansion=false`. The alias `nofont-expansion` is also accepted. Default: enabled. `microtype` remains loaded when expansion is disabled.
     ```latex
-    \usepackage[nopagelinks]{zebra}
+    \usepackage[font-expansion=false]{zebra}
     ```
 
 ## Take Notes
@@ -63,7 +63,8 @@ See \zebraref{zebra:intro} for the full reference.
 ```
 
 Labels inside notes are unavailable in `final` mode because the notes
-themselves are suppressed.
+themselves are suppressed. For notes in moving arguments such as `\section`
+and `\caption`, add a `\label` inside the note for stable cross-references.
 
 ## Define New Notes
 
