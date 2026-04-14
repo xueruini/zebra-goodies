@@ -25,6 +25,7 @@ push @generated_exts, "glo", "gls";
 add_cus_dep('tex', 'pdf', 0, 'tex2pdf');
 sub tex2pdf {
     return 0 unless $_[0] =~ /demo-twocol$/;
+    local $ENV{TEXINPUTS} = "./out/:" . ($ENV{TEXINPUTS} // "");
     my $cmd =
       "pdflatex -file-line-error -halt-on-error -interaction=nonstopmode -output-directory=out %S";
     for (1 .. 3) {

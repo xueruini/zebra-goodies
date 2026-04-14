@@ -3,7 +3,8 @@ OUTPUT = out
 DEMO   = $(TARGET)-demo-twocol
 
 all:
-	latexmk $(TARGET).dtx
+	@latexmk $(TARGET).dtx 2>/dev/null \
+	  || (rm -f $(OUTPUT)/*.fdb_latexmk && latexmk $(TARGET).dtx)
 
 # Package for CTAN upload
 ctan: all
@@ -19,8 +20,31 @@ view: all
 
 clean:
 	rm -rf $(OUTPUT)
+	rm -f $(TARGET).sty $(TARGET)-goodies.sty $(TARGET).ins $(DEMO).*
+	rm -f $(TARGET).aux $(TARGET).glo $(TARGET).gls $(TARGET).idx $(TARGET).ilg $(TARGET).log $(TARGET).out $(TARGET).toc $(TARGET).tmp $(TARGET).hd $(TARGET).dvi
+
+# Run regression tests (3 pdflatex passes each)
+TESTS = $(wildcard tests/*.tex)
+
+test: all
+	@cp $(OUTPUT)/$(TARGET).sty . && \
+	pass=true; \
+	for f in $(TESTS); do \
+	  echo "=== $$f ===" && \
+	  name=$$(basename $$f .tex) && \
+	  rm -f $(OUTPUT)/$$name.aux $(OUTPUT)/$$name.toc \
+	        $(OUTPUT)/$$name.lof $(OUTPUT)/$$name.lot $(OUTPUT)/$$name.out && \
+	  for i in 1 2 3; do \
+	    if pdflatex -halt-on-error -interaction=nonstopmode \
+	         -output-directory=$(OUTPUT) $$f 2>&1 \
+	       | grep -qi 'undefined.*zebranote\|error!'; then \
+	      echo "  FAIL (pass $$i)" && pass=false; \
+	    fi; \
+	  done; \
+	done; \
+	$$pass && echo "All tests passed." || (echo "Some tests FAILED." && exit 1)
 
 dist-clean: clean
 	rm -rf $(TARGET) $(TARGET).zip
 
-.PHONY: all view ctan clean dist-clean
+.PHONY: all view ctan clean dist-clean test

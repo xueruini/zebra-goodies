@@ -197,6 +197,7 @@ This work consists of the file  zebra.dtx
 %\changes{v1.3.0}{2026/03/25}{Rename the page-link option to \opt{pagelinks}/\opt{nopagelinks}.}
 %\changes{v1.3.0}{2026/03/25}{Rename the microtype expansion option to \opt{font-expansion}.}
 %\changes{v1.4.0}{2026/04/03}{Support note labels via \cs{label}, \cs{ref}, and \cs{zebraref}.}
+%\changes{v1.5.0}{2026/04/14}{Fix notes numbering in moving arguments.}
 %
 %\title{^^A
 %  \pkg{zebra} --- Writing Revision Toolkit^^A
@@ -248,8 +249,6 @@ This work consists of the file  zebra.dtx
 % detailed note list at the end of the document serve as a gentle reminder to
 % address them before the final version.
 %
-% The package requires \LaTeX{} 2022-06-01 or later.
-%
 %\section{Installation}
 %
 %\changes{v0.7.0}{2019/07/01}{Move to docstrip}
@@ -286,16 +285,17 @@ This work consists of the file  zebra.dtx
 % document. Default: \texttt{none} (document order).
 % |sort=type| groups them by note type.
 %
-%\DescribeOption{font-expansion}
-% Controls \pkg{microtype} font expansion, which usually improves the
-% appearance of the document. Disable it if it conflicts with your
-% engine or another package. Default: \texttt{true}. \pkg{microtype}
-% remains loaded when expansion is disabled.
-%
 %\DescribeOption{pagelinks}
 % Controls whether page numbers in the detailed note list are clickable.
-% Default: \texttt{true}. Set |pagelinks=false| or use the complementary
-% option \opt{nopagelinks} to suppress them.
+% Default: \texttt{true}. Set |pagelinks=false| to disable these links. The
+% complementary option \opt{nopagelinks} is also accepted.
+%
+%\DescribeOption{font-expansion}
+% Controls \pkg{microtype} font expansion. This usually improves the
+% appearance of the document. Disable it if it conflicts with your engine
+% or another package by setting |font-expansion=false|. The complementary
+% option \opt{nofont-expansion} is also accepted. Default: \texttt{true}.
+% \pkg{microtype} remains loaded when expansion is disabled.
 %
 %\subsection{Notes Macros}
 %
@@ -336,16 +336,21 @@ This work consists of the file  zebra.dtx
 %   source code and update any outdated entries and let's check afterwards}.
 % \end{LaTeXdemo}
 
-% Because notes are set as inline text, they work inside moving arguments
-% such as \cs{section} and \cs{caption} without issues.
+% Because notes are set as inline text, they can appear inside moving
+% arguments such as \cs{section} and \cs{caption}.  Adding a \cs{label}
+% inside the note gives it a stable identity across contexts:
 %
 % \begin{LaTeXdemo}[code only]
-%   \section{Introduction\todo[jerry]{please figure out a better name}}
+%   \section{Introduction\todo[jerry]{\label{zebra:heading}fix the name}}
 %   \begin{figure}
-%     \centering
 %     \caption{Speed vs distance. \todo{need to insert the figure}}
 %   \end{figure}
 % \end{LaTeXdemo}
+%
+% A labeled note in a heading is counted exactly once; the table of
+% contents and the note list link to the correct page after two
+% compilations.  Notes without a label still work but may be counted
+% separately in each context (TOC, running headers).
 %
 %\begin{function}{\note, \zebranote}
 %  \begin{syntax}
@@ -493,14 +498,14 @@ This work consists of the file  zebra.dtx
 % Version data to start with.
 %    \begin{macrocode}
 \ProvidesExplPackage{zebra}
-  {2026/04/03}
-  {1.4.0}
+  {2026/04/15}
+  {1.5.0}
   {Writing Revision Toolkit}
 %    \end{macrocode}
 %
 %\subsection{Package options}
 %
-% Package options \opt{draft}, \opt{font-expansion}, \opt{pagelinks},
+% Package options \opt{draft}, \opt{pagelinks}, \opt{font-expansion},
 % and \opt{sort} are created using
 % the kernel key--value interface available since \LaTeX{} 2022-06-01.
 % Post-load configuration (\cs{zebrasetup}) uses a separate
@@ -531,6 +536,9 @@ This work consists of the file  zebra.dtx
   }
 \msg_new:nnn { zebra } { invalid-note-label }
   { Label~'#1'~is~not~a~zebra~note~label. }
+\msg_new:nnn { zebra } { duplicate-note-label }
+  { Note~label~'#1'~used~by~a~different~note;~second~note~gets~
+    its~own~identity. }
 
 \prg_new_conditional:Npnn \@@_if_package_loaded:n #1 { T , F , TF }
   {
@@ -591,9 +599,138 @@ This work consists of the file  zebra.dtx
         \hypersetup { pdfborder = { 0~0~0 } }
       }
   }
+%    \end{macrocode}
+%
+% \subsection{Moving-argument deduplication}
+%
+% Notes inside moving arguments (\cs{section}, \cs{caption}, etc.) may be
+% processed more than once per compilation pass.  Two separate problems
+% are handled independently:
+%
+% \paragraph{Problem A --- \cs{sbox} re-measurement.}
+% \cs{@makecaption} typesets the caption in an \cs{sbox} for width
+% measurement, then typesets it again if it is long.  Both executions
+% share the same \cs{inputlineno}, so the \emph{instance key}
+% (\meta{type}\verb"|"\meta{author}\verb"|"\meta{body}\verb"|"\cs{inputlineno})
+% catches the replay.  The second execution reuses the first's allocation
+% and re-renders, so writes that were lost inside the discarded \cs{sbox}
+% are re-emitted by the actual typesetting pass.
+%
+% \paragraph{Problem B --- TOC/LOF/header replay.}
+% The note token is written verbatim to \texttt{.toc}/\texttt{.lof}/marks
+% and re-executed in a secondary context with a different
+% \cs{inputlineno}.  For \emph{labeled} notes the replay is caught by
+% two mechanisms:
+% \begin{enumerate}
+%   \item A \emph{stable key} (\meta{type}\verb"|"\meta{label name})
+%     stored alongside the allocation; a later encounter from
+%     marks/headers that still carries the \cs{label} finds this key
+%     and suppresses.
+%   \item A \emph{content signature}
+%     (\meta{type}\verb"|"\meta{author}\verb"|"\meta{sanitised body})
+%     written to the \texttt{.aux} file; on the next pass, TOC/LOF
+%     encounters whose \cs{label} was consumed by
+%     \cs{protected@write}'s \cs{edef} match the signature and
+%     suppress.
+% \end{enumerate}
+% Unlabeled notes in moving arguments receive independent allocations
+% (cosmetic duplicate); adding \cs{label} is the recommended fix.
+%
+%    \begin{macrocode}
 \RequirePackage{xcolor}
 \RequirePackage{marginnote}
 \cs_new_eq:NN \@@_kernel_label:n \label
+%% -- dedup data structures --
+%% Maps any key (instance, stable, or content-sig) to the allocation.
+\prop_new:N \g@@_note_target_prop
+\prop_new:N \g@@_note_display_prop
+%% Content signatures of labeled notes from previous pass (.aux).
+\prop_new:N \g@@_note_sig_known_prop
+%% Content signatures written this pass (dedup aux writes).
+\prop_new:N \g@@_note_sig_written_prop
+%% Content signature stored per stable key (for label-conflict detection).
+\prop_new:N \g@@_note_stable_sig_prop
+\tl_new:N \l@@_note_display_tl
+\tl_new:N \l@@_note_key_tl
+%% Instance key: unique per source location.
+\cs_new:Npn \@@_instance_key:nnn #1#2#3
+  {
+    \tl_to_str:n {#1}
+    | \tl_to_str:n {#2}
+    | \tl_to_str:n {#3}
+    | \int_eval:n { \tex_inputlineno:D }
+  }
+%% Content signature: body stringified with ALL \label{...} stripped.
+%% Matches across body (has labels) and TOC (labels consumed by \edef).
+%% The optional \protect prefix covers marks and \protected@write paths.
+%% Uses replace_all so that multiple labels are all stripped.
+\cs_new_protected:Npn \@@_content_sig:nnnN #1#2#3#4
+  {
+    \tl_set:Nx \l_tmpa_tl { \tl_to_str:n {#3} }
+    \regex_replace_all:nnN
+      { (?: \\protect \s* )? \\label \s* \{ [^{}]* \} } { } \l_tmpa_tl
+    \tl_set:Nx #4
+      {
+        \tl_to_str:n {#1}
+        | \tl_to_str:n {#2}
+        | \l_tmpa_tl
+      }
+  }
+%% Extract the first \label name from the stringified body.
+%% Sets #2 to the label name, or clears it if none found.
+%% The optional \protect prefix covers marks and \protected@write paths.
+\cs_new_protected:Npn \@@_extract_label:nN #1#2
+  {
+    \tl_set:Nx \l_tmpb_tl { \tl_to_str:n {#1} }
+    \tl_set_eq:NN \l_tmpc_tl \l_tmpb_tl
+    \regex_replace_once:nnN
+      { \A .* (?: \\protect \s* )? \\label \s* \{ ([^{}]*) \} .* \Z }
+      { \1 } \l_tmpb_tl
+    \tl_if_eq:NNTF \l_tmpb_tl \l_tmpc_tl
+      { \tl_clear:N #2 }
+      { \tl_set_eq:NN #2 \l_tmpb_tl }
+  }
+%% Stable key for labeled notes.
+%% #2 is expected to be already stringified (from regex extraction),
+%% so no \tl_to_str is applied — otherwise an unexpanded variable
+%% token would be stringified instead of its value.
+\cs_new:Npn \@@_stable_key:nn #1#2
+  { \tl_to_str:n {#1} | label | #2 }
+%% Allocate a fresh note: increment the type counter, generate
+%% a unique hypertarget name, and record the note in the list body.
+\cs_new_protected:Npn \@@_allocate_note:nnn #1#2#3
+  {
+    \int_gincr:c { g@@_note_count_#1_int }
+    \tl_set:Nx \l@@_note_display_tl { \@@_note_count:n {#1} }
+    \int_gincr:N \g@@_note_id_int
+    \tl_set:Nx \l@@_note_target_tl
+      { zebranote.\int_use:N \g@@_note_id_int }
+    \@@_record_note:nnnnn
+      {#1}
+      { \l@@_note_display_tl }
+      {#2}
+      {#3}
+      { \l@@_note_target_tl }
+  }
+%% Aux-file interface: record a content signature together with the
+%% originating instance key.  A later encounter whose instance key
+%% differs from the stored one is a replay and is suppressed.
+%% Re-stringify for catcode normalisation.
+\cs_new_protected:Npn \zebra@sig #1#2
+  {
+    \tl_set:Nx \l_tmpa_tl { \tl_to_str:n {#1} }
+    \tl_set:Nx \l_tmpb_tl { \tl_to_str:n {#2} }
+    \prop_gput:NVV \g@@_note_sig_known_prop \l_tmpa_tl \l_tmpb_tl
+  }
+\cs_new_protected:Npn \@@_write_sig:NN #1#2
+  {
+    \prop_if_in:NVF \g@@_note_sig_written_prop #1
+      {
+        \immediate\write \@auxout
+          { \string\zebra@sig { \tl_use:N #1 } { \tl_use:N #2 } }
+        \prop_gput:NVn \g@@_note_sig_written_prop #1 { 1 }
+      }
+  }
 \cs_if_exist:NTF \dbend
   {
     \cs_set_eq:NN \@@_saved_dbend: \dbend
@@ -733,40 +870,129 @@ This work consists of the file  zebra.dtx
         {#5}
       }
   }
+%% \@@_note:nnn {type}{author}{body}
+%% Main entry point.  Four cases:
+%%   Case 1 — sbox reuse:   instance_key found → reuse, render
+%%   Case 2 — stable key:   label found, stable_key in prop → suppress
+%%   Case 3 — content sig:  sig in .aux data → suppress
+%%   Case 4 — new note:     allocate, render
 \cs_new_protected:Npn \@@_note:nnn #1#2#3
   {
     \bool_if:NT \l@@_draft_bool
       {
-      \tl_set:Nx \l@@_note_color_tl { \@@_note_color:n {#1} }
-      \int_gincr:c { g@@_note_count_#1_int }
-      \int_gincr:N \g@@_note_id_int
-      \tl_set:Nx \l@@_note_target_tl
-        { zebranote.\int_use:N \g@@_note_id_int }
-      \@@_record_note:nnnnn
-        {#1}
-        { \@@_note_count:n {#1} }
-        {#2}
-        {#3}
-        { \l@@_note_target_tl }
-      \group_begin:
-        \protected@edef \@currentlabel { \@@_note_count:n {#1} }
-        \@@_if_package_loaded:nT { hyperref }
-          { \tl_set:Nx \@currentHref { \l@@_note_target_tl } }
-        \tl_set:Nx \l@@_note_ref_type_tl { \@@_capitalize_type:n {#1} }
-        \@@_target:nn { \l@@_note_target_tl } {}
-        \exp_args:NV \@@_kernel_label:n \l@@_note_target_tl
-        \@@_margin_note:nn
-          {\textcolor{\l@@_note_color_tl}{%
-            {\bfseries\@@_note_count:n {#1}}\kern1pt\@@_note_symbol:n {#1}}}
-          {\textcolor{\l@@_note_color_tl}{%
-            \@@_note_symbol:n {#1}\kern1pt{\bfseries\@@_note_count:n {#1}}}}%
-        \cs_set_eq:NN \label \@@_note_label:n
-        \textcolor{\l@@_note_color_tl}{[\colorbox[gray]{0.97}{%
-            \textcolor{\l@@_note_color_tl !70!black}{%
-              \textsc{\MakeLowercase{\MakeUppercase#1}}~%
-              \@@_note_count:n {#1}\texttt{\@@_prepend:nn {@}{#2}}:}} #3]}%
-      \group_end:
+        \tl_set:Nx \l@@_note_color_tl { \@@_note_color:n {#1} }
+        %% Case 1: sbox reuse (same \inputlineno)
+        \tl_set:Nx \l@@_note_key_tl
+          { \@@_instance_key:nnn {#1} {#2} {#3} }
+        \prop_get:NVNTF \g@@_note_target_prop \l@@_note_key_tl
+            \l@@_note_target_tl
+          {
+            \prop_get:NVN \g@@_note_display_prop \l@@_note_key_tl
+              \l@@_note_display_tl
+            \@@_render_note:nnn {#1} {#2} {#3}
+          }
+          {
+            %% Extract label and compute content signature
+            \@@_extract_label:nN {#3} \l_tmpb_tl
+            \@@_content_sig:nnnN {#1} {#2} {#3} \l_tmpa_tl
+            %% Case 2: stable-key suppress (labeled, marks/headers).
+            %% If the stable key exists AND the content signature
+            %% matches, this encounter is a replay → suppress.
+            %% Different content signature = label reuse → warn and
+            %% let Case 4 allocate independently.
+            \bool_set_false:N \l_tmpa_bool
+            \tl_if_empty:NF \l_tmpb_tl
+              {
+                \tl_set:Nx \l@@_note_key_tl
+                  { \@@_stable_key:nn {#1} { \l_tmpb_tl } }
+                \prop_get:NVNT \g@@_note_stable_sig_prop
+                    \l@@_note_key_tl \l_tmpc_tl
+                  {
+                    \tl_if_eq:NNTF \l_tmpa_tl \l_tmpc_tl
+                      { \bool_set_true:N \l_tmpa_bool }
+                      {
+                        \msg_warning:nnV { zebra }
+                          { duplicate-note-label } \l_tmpb_tl
+                      }
+                  }
+              }
+            %% Case 3: content-sig suppress (labeled, TOC replay).
+            %% Only suppress if the stored instance key differs from
+            %% the current one — same key means it is the original
+            %% note, not a replay.
+            \bool_if:NF \l_tmpa_bool
+              {
+                \prop_get:NVNT \g@@_note_sig_known_prop
+                    \l_tmpa_tl \l_tmpc_tl
+                  {
+                    \tl_set:Nx \l_tmpd_tl
+                      { \@@_instance_key:nnn {#1} {#2} {#3} }
+                    \tl_if_eq:NNF \l_tmpc_tl \l_tmpd_tl
+                      { \bool_set_true:N \l_tmpa_bool }
+                  }
+              }
+            \bool_if:NF \l_tmpa_bool
+              {
+                %% Case 4: new note — allocate and render
+                \tl_set:Nx \l@@_note_key_tl
+                  { \@@_instance_key:nnn {#1} {#2} {#3} }
+                \@@_allocate_note:nnn {#1} {#2} {#3}
+                \prop_gput:NVV \g@@_note_target_prop
+                  \l@@_note_key_tl \l@@_note_target_tl
+                \prop_gput:NVV \g@@_note_display_prop
+                  \l@@_note_key_tl \l@@_note_display_tl
+                %% For labeled notes: register stable key + write sig,
+                %% but only if the stable key is not already claimed by
+                %% an earlier note (label-conflict case).
+                \tl_if_empty:NF \l_tmpb_tl
+                  {
+                    \tl_set:Nx \l@@_note_key_tl
+                      { \@@_stable_key:nn {#1} { \l_tmpb_tl } }
+                    \prop_if_in:NVF \g@@_note_stable_sig_prop
+                        \l@@_note_key_tl
+                      {
+                        \prop_gput:NVV \g@@_note_target_prop
+                          \l@@_note_key_tl \l@@_note_target_tl
+                        \prop_gput:NVV \g@@_note_display_prop
+                          \l@@_note_key_tl \l@@_note_display_tl
+                        \prop_gput:NVV \g@@_note_stable_sig_prop
+                          \l@@_note_key_tl \l_tmpa_tl
+                        \tl_set:Nx \l_tmpc_tl
+                          { \@@_instance_key:nnn {#1} {#2} {#3} }
+                        \@@_write_sig:NN \l_tmpa_tl \l_tmpc_tl
+                      }
+                  }
+                \@@_render_note:nnn {#1} {#2} {#3}
+              }
+            %% Cases 2–3: suppress — no output
+          }
       }
+  }
+%% Full render: hypertarget, target label, margin note, inline text.
+\cs_new_protected:Npn \@@_render_note:nnn #1#2#3
+  {
+    \group_begin:
+      \protected@edef \@currentlabel { \l@@_note_display_tl }
+      \@@_if_package_loaded:nT { hyperref }
+        { \tl_set:Nx \@currentHref { \l@@_note_target_tl } }
+      \tl_set:Nx \l@@_note_ref_type_tl
+        { \@@_capitalize_type:n {#1} }
+      \@@_target:nn { \l@@_note_target_tl } {}
+      \exp_args:NV \@@_kernel_label:n \l@@_note_target_tl
+      \@@_margin_note:nn
+        {\textcolor{\l@@_note_color_tl}{%
+          {\bfseries\l@@_note_display_tl}\kern1pt
+          \@@_note_symbol:n {#1}}}
+        {\textcolor{\l@@_note_color_tl}{%
+          \@@_note_symbol:n {#1}\kern1pt
+          {\bfseries\l@@_note_display_tl}}}%
+      \cs_set_eq:NN \label \@@_note_label:n
+      \textcolor{\l@@_note_color_tl}{[\colorbox[gray]{0.97}{%
+          \textcolor{\l@@_note_color_tl !70!black}{%
+            \textsc{\MakeLowercase{\MakeUppercase#1}}~%
+            \l@@_note_display_tl
+            \texttt{\@@_prepend:nn {@}{#2}}:}} #3]}%
+    \group_end:
   }
 \cs_new_protected:Npn \@@_new_note_type:nn #1#2
   { \@@_new_note_type:nnn {#1} {#2} {} }
@@ -855,7 +1081,7 @@ This work consists of the file  zebra.dtx
         \begin{center}
           \begin{tabular}{lr}
             \hline
-            \textbf{Type} & \textbf{Number} \\\hline
+            \textbf{Type} & \textbf{Count} \\\hline
             \tl_use:N \l@@_summary_rows_tl
             \hline
             \textbf{Total} & \textbf{\int_use:N \l@@_total_notes_int} \\
@@ -928,6 +1154,9 @@ This work consists of the file  zebra.dtx
 % its colour and count, followed by notes in document order or grouped by type.
 %
 %    \begin{macrocode}
+%% At end of document: print the note summary and list.
+%% Content signatures are written to .aux inline (at allocation time),
+%% so no additional end-of-document aux writes are needed.
 \hook_gput_code:nnn { enddocument } { zebra }
   {
     \bool_if:NT \l@@_draft_bool
@@ -947,7 +1176,7 @@ This work consists of the file  zebra.dtx
 %<*compat>
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{zebra-goodies}
-  [2026/04/03 v1.4.0 Deprecated: use zebra instead]
+  [2026/04/15 v1.5.0 Deprecated: use zebra instead]
 \PackageWarningNoLine{zebra-goodies}
   {Package 'zebra-goodies' is deprecated.\MessageBreak
    Use \string\usepackage{zebra} instead}
@@ -962,34 +1191,42 @@ This work consists of the file  zebra.dtx
 % docstrip and compiled during the build.
 %    \begin{macrocode}
 %<*demo-twocol>
-\documentclass[twocolumn,a4paper]{article}
-\usepackage[margin=2cm]{geometry}
+\documentclass[twocolumn]{article}
+\usepackage[paperwidth=16cm,paperheight=13cm,margin=1.2cm]{geometry}
 \usepackage{zebra}
 \zebrasetup{symbol/comment=$\clubsuit$}
-\usepackage{lipsum}
 \pagestyle{empty}
 \begin{document}
 \section{Demo name\comment{revise the name}}
-\lipsum[1][2-] \todo[alice]{\label{zebra:intro}revise the introduction}
+This draft still needs work
+\todo[alice]{\label{zebra:intro}revise the introduction}. The
+opening paragraph should also explain the main goal more plainly.
+Add one more citation here \note[bob]{support this claim}. A
+brief roadmap sentence would also make the structure easier to
+scan.
 
-\lipsum[2] \note[bob]{add a reference here}
+The issue raised in Todo~\ref{zebra:intro} still applies in
+the conclusion. The table now looks fine
+\fixed[carol]{alignment corrected}, but one figure is still
+missing \placeholder[eve]{insert the overview figure}. A short
+transition would also help the flow. The middle section should
+probably end with a clearer summary sentence before the
+discussion begins. That summary can stay compact, but it should
+signal why the next section matters.
 
-\lipsum[3] \fixed[carol]{looks good now}
+Please verify the totals \note[frank]{check the numbers} and
+confirm the wording in the last paragraph
+\comment[tom]{is this sentence too strong?}. A small typo has
+already been fixed \fixed[heidi]{typo corrected}. The ending
+should stay short. The final sentence should return to the main
+claim rather than repeat background material. You can place
+\todo[judy]{summarise the findings} anywhere once the narrative
+is stable.
 
-\noindent The issue raised in Todo~\ref{zebra:intro} still applies here.
-
-\lipsum[4] \todo[dave]{needs more data}
-
-\lipsum[5] \placeholder[eve]{insert figure}
-
-\lipsum[6] \note[frank]{check the numbers}
-
-\lipsum[7] \comment[tom]{is it you, jerry?}
-
-\lipsum[8] \fixed[heidi]{typo corrected}
-
-You can place \todo[judy]{summarise the findings} anywhere.
-\lipsum[9][10-11]
+One more short paragraph is enough to show how the markers stay
+readable in a compact two-column layout. The example is
+intentionally small, but it should still look like a realistic
+revision pass.
 \end{document}
 %</demo-twocol>
 %    \end{macrocode}

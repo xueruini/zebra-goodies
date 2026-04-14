@@ -1,0 +1,20 @@
+% Regression: labeled note in a long caption.
+% \@makecaption typesets long captions twice (sbox measurement + actual).
+% The sbox's deferred writes are lost when the box is discarded.
+% The instance-key dedup must let the second (actual) render re-emit
+% the writes without producing multiply-defined labels.
+\documentclass{article}
+\usepackage{zebra}
+
+\begin{document}
+
+\begin{figure}
+  \caption{This is a deliberately long caption that should exceed the
+    column width and trigger the sbox measurement path in makecaption
+    so that we can verify no multiply-defined labels appear.
+    \todo{\label{zebra:long}check this long caption for correctness}}
+\end{figure}
+
+Reference: \zebraref{zebra:long} on p.~\pageref{zebra:long}.
+
+\end{document}
