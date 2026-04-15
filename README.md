@@ -63,8 +63,13 @@ See \zebraref{zebra:intro} for the full reference.
 ```
 
 Labels inside notes are unavailable in `final` mode because the notes
-themselves are suppressed. For notes in moving arguments such as `\section`
-and `\caption`, add a `\label` inside the note for stable cross-references.
+themselves are suppressed.
+
+Notes can appear inside moving arguments such as `\section` and `\caption`.
+To ensure stable numbering, add a `\label` inside the note — the note is
+then counted once regardless of how many times the heading appears (TOC,
+running headers, etc.). Notes without a `\label` in moving arguments are
+still safe but may receive a separate number in each context.
 
 ## Define New Notes
 

@@ -336,9 +336,9 @@ This work consists of the file  zebra.dtx
 %   source code and update any outdated entries and let's check afterwards}.
 % \end{LaTeXdemo}
 
-% Because notes are set as inline text, they can appear inside moving
-% arguments such as \cs{section} and \cs{caption}.  Adding a \cs{label}
-% inside the note gives it a stable identity across contexts:
+% Notes can appear inside moving arguments such as \cs{section} and
+% \cs{caption}.  To ensure stable numbering and cross-references, add a
+% \cs{label} inside the note:
 %
 % \begin{LaTeXdemo}[code only]
 %   \section{Introduction\todo[jerry]{\label{zebra:heading}fix the name}}
@@ -347,10 +347,10 @@ This work consists of the file  zebra.dtx
 %   \end{figure}
 % \end{LaTeXdemo}
 %
-% A labeled note in a heading is counted exactly once; the table of
-% contents and the note list link to the correct page after two
-% compilations.  Notes without a label still work but may be counted
-% separately in each context (TOC, running headers).
+% With a \cs{label}, the note is counted once regardless of how many
+% times the heading appears (table of contents, running headers, etc.).
+% Notes without a \cs{label} in moving arguments are still safe but may
+% receive a separate number in each context.
 %
 %\begin{function}{\note, \zebranote}
 %  \begin{syntax}
