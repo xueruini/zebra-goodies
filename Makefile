@@ -3,8 +3,7 @@ OUTPUT = out
 DEMO   = $(TARGET)-demo-twocol
 
 all:
-	@latexmk $(TARGET).dtx 2>/dev/null \
-	  || (rm -f $(OUTPUT)/*.fdb_latexmk && latexmk $(TARGET).dtx)
+	latexmk $(TARGET).dtx
 
 # Package for CTAN upload
 ctan: all
