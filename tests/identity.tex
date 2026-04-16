@@ -1,0 +1,30 @@
+% Regression: note identity edge cases.
+% - Duplicate body text at different lines -> distinct allocations.
+% - Special characters in body (@, ?) -> no catcode mismatch with .aux.
+% - Duplicate label, different body -> warning + independent allocation.
+% - Same label + same body at different lines -> treated as same identity.
+\documentclass{article}
+\usepackage{zebra}
+
+\begin{document}
+
+%% Two notes with identical body text must get distinct numbers.
+\todo{remove}
+Some text.
+\todo{remove}
+
+%% Special characters must not cause catcode mismatches between
+%% .aux reading (\makeatletter active) and runtime key computation.
+\todo{check recall@10?}
+
+%% Duplicate label on different notes: second note must NOT be
+%% silently suppressed; zebra warning expected, both notes render.
+\todo{\label{zebra:dup}first note}
+\todo{\label{zebra:dup}second note with same label}
+
+%% Same label + same body at different lines: second is suppressed
+%% because same \label = same identity.
+\note{\label{zebra:id}identical}
+\note{\label{zebra:id}identical}
+
+\end{document}

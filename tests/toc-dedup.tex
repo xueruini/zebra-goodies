@@ -1,0 +1,15 @@
+% Regression: labeled note in \section with \tableofcontents.
+% TOC replay (label stripped by \protected@write) must be suppressed.
+% \zebraref cross-reference must resolve after two passes.
+\documentclass{article}
+\usepackage{zebra}
+
+\begin{document}
+
+\tableofcontents
+
+\section{Intro \todo{\label{zebra:toc}check heading wording}}
+
+Reference: \zebraref{zebra:toc} on p.~\pageref{zebra:toc}.
+
+\end{document}

@@ -1,0 +1,23 @@
+% Regression: notes inside \caption with \listoffigures.
+% - Labeled note in short figure caption: LOF replay suppressed.
+% - Unlabeled notes in long table caption: sbox re-measurement dedup.
+% - \zebraref for the labeled caption note.
+\documentclass{article}
+\usepackage{zebra}
+
+\begin{document}
+
+\listoffigures
+
+\begin{figure}
+  \caption{Caption note \todo{\label{zebra:caption}check wording}}
+\end{figure}
+
+\begin{table}
+  \caption{Long table caption note \todo{check wording in caption} for
+    deduplication behavior during re-measurement\todo{confirm note text}}
+\end{table}
+
+Reference: \zebraref{zebra:caption} on p.~\pageref{zebra:caption}.
+
+\end{document}

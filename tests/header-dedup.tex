@@ -1,0 +1,30 @@
+% Regression: labeled notes in \section with running headers + TOC.
+% Both mark/header replays and TOC replays must be suppressed.
+% \zebraref cross-references must resolve correctly.
+\documentclass{article}
+\usepackage[margin=2cm]{geometry}
+\usepackage{zebra}
+
+\pagestyle{headings}
+
+\begin{document}
+
+\tableofcontents
+\clearpage
+
+\section{Introduction\todo[alice]{\label{zebra:intro-heading}revise the title}}
+
+Some body text to fill the page.
+
+\note[bob]{add a reference here}
+
+\section{Background\comment[carol]{\label{zebra:background-heading}this section is too long}}
+
+More body text.
+
+\fixed[dave]{typo corrected}
+
+Heading references: \zebraref{zebra:intro-heading} on p.~\pageref{zebra:intro-heading},
+\zebraref{zebra:background-heading} on p.~\pageref{zebra:background-heading}.
+
+\end{document}
