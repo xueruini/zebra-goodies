@@ -198,6 +198,7 @@ This work consists of the file  zebra.dtx
 %\changes{v1.3.0}{2026/03/25}{Rename the microtype expansion option to \opt{font-expansion}.}
 %\changes{v1.4.0}{2026/04/03}{Support note labels via \cs{label}, \cs{ref}, and \cs{zebraref}.}
 %\changes{v1.5.0}{2026/04/14}{Fix notes numbering in moving arguments.}
+%\changes{v1.6.0}{2026/04/16}{Numbering in moving arguments is hard.}
 %
 %\title{^^A
 %  \pkg{zebra} --- Writing Revision Toolkit^^A
@@ -498,8 +499,8 @@ This work consists of the file  zebra.dtx
 % Version data to start with.
 %    \begin{macrocode}
 \ProvidesExplPackage{zebra}
-  {2026/04/15}
-  {1.5.0}
+  {2026/04/19}
+  {1.6.0}
   {Writing Revision Toolkit}
 %    \end{macrocode}
 %
@@ -1176,7 +1177,7 @@ This work consists of the file  zebra.dtx
 %<*compat>
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{zebra-goodies}
-  [2026/04/15 v1.5.0 Deprecated: use zebra instead]
+  [2026/04/19 v1.6.0 Deprecated: use zebra instead]
 \PackageWarningNoLine{zebra-goodies}
   {Package 'zebra-goodies' is deprecated.\MessageBreak
    Use \string\usepackage{zebra} instead}
