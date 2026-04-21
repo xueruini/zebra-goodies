@@ -199,6 +199,7 @@ This work consists of the file  zebra.dtx
 %\changes{v1.4.0}{2026/04/03}{Support note labels via \cs{label}, \cs{ref}, and \cs{zebraref}.}
 %\changes{v1.5.0}{2026/04/14}{Fix notes numbering in moving arguments.}
 %\changes{v1.6.0}{2026/04/16}{Numbering in moving arguments is hard.}
+%\changes{v1.6.1}{2026/04/21}{Do not force single-column for detailed list.}
 %
 %\title{^^A
 %  \pkg{zebra} --- Writing Revision Toolkit^^A
@@ -209,7 +210,7 @@ This work consists of the file  zebra.dtx
 %    }^^A
 %}
 %\author{^^A
-%  Ruini Xue\thanks{xueruini@gmail.com}^^A
+%  Ruini Xue\thanks{Email: xueruini@gmail.com}^^A
 %}
 %\date{\fileversion~(\filedate)}
 %
@@ -499,8 +500,8 @@ This work consists of the file  zebra.dtx
 % Version data to start with.
 %    \begin{macrocode}
 \ProvidesExplPackage{zebra}
-  {2026/04/19}
-  {1.6.0}
+  {2026/04/21}
+  {1.6.1}
   {Writing Revision Toolkit}
 %    \end{macrocode}
 %
@@ -1089,12 +1090,7 @@ This work consists of the file  zebra.dtx
             \hline
           \end{tabular}
         \end{center}
-        \legacy_if:nTF { @twocolumn }
-          {
-            \clearpage
-            \onecolumn
-          }
-          { \par \medskip }
+        \par \medskip
         \begingroup
           \small
           \noindent{\bfseries List~of~notes}\par
@@ -1177,7 +1173,7 @@ This work consists of the file  zebra.dtx
 %<*compat>
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{zebra-goodies}
-  [2026/04/19 v1.6.0 Deprecated: use zebra instead]
+  [2026/04/21 v1.6.1 Deprecated: use zebra instead]
 \PackageWarningNoLine{zebra-goodies}
   {Package 'zebra-goodies' is deprecated.\MessageBreak
    Use \string\usepackage{zebra} instead}
@@ -1193,7 +1189,7 @@ This work consists of the file  zebra.dtx
 %    \begin{macrocode}
 %<*demo-twocol>
 \documentclass[twocolumn]{article}
-\usepackage[paperwidth=16cm,paperheight=13cm,margin=1.2cm]{geometry}
+\usepackage[paperwidth=16cm,paperheight=15cm,margin=1.2cm]{geometry}
 \usepackage{zebra}
 \zebrasetup{symbol/comment=$\clubsuit$}
 \pagestyle{empty}
