@@ -1,0 +1,49 @@
+% Template smoke test: ACM acmart sigconf (twocolumn).
+% Exercises notes in title, abstract, CCS-style metadata, sections,
+% captions, and figure/table floats.
+\documentclass[sigconf,nonacm]{acmart}
+\usepackage{lipsum}
+\usepackage{zebra}
+
+\title{ACM Smoke Test\todo{acm title}}
+\author{A. Author}
+\affiliation{%
+  \institution{University}
+  \city{City}
+  \country{Country}}
+\email{a@example.com}
+
+\begin{document}
+\begin{abstract}
+\todo{acm abs} Abstract paragraph for the ACM smoke test. \lipsum[1][1-3]
+\end{abstract}
+
+\maketitle
+
+\section{Introduction\todo{acm sec}}
+\subsection{First Subsection\todo{acm subsec}}
+Body text with \todo{acm inline} an inline annotation. \lipsum[1]
+
+\begin{figure}[t]
+  \centering Placeholder
+  \caption{Single-column caption that wraps to multiple lines so the
+    parbox-based caption layout is exercised.\todo{acm cap}}
+  \label{fig:acm}
+\end{figure}
+
+\begin{figure*}[t]
+  \centering Placeholder
+  \caption{A wider caption spanning both columns, also long enough to
+    wrap; the inline note must not lose the float.\todo{acm wide cap}}
+  \label{fig:acm-wide}
+\end{figure*}
+
+\begin{table}[t]
+  \centering
+  \caption{Table caption with inline note\todo{acm tab}.}
+  \label{tab:acm}
+  \begin{tabular}{ll}\hline a & b \\ c & d \\\hline\end{tabular}
+\end{table}
+
+\lipsum[2-3]
+\end{document}

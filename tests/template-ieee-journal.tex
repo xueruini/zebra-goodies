@@ -1,0 +1,39 @@
+% Template smoke test: IEEEtran journal (twoside, twocolumn) with
+% running heads. Exercises notes in section / subsection (which feed
+% into \markboth/\markright), in long captions, and in the body.
+\documentclass[journal]{IEEEtran}
+\usepackage{lipsum}
+\usepackage{zebra}
+
+\begin{document}
+\title{Journal Smoke Test\todo{journal title}}
+\author{A.~Author,~\IEEEmembership{Member,~IEEE}}
+
+\markboth{IEEE Transactions Smoke, Vol.~X, No.~Y, Month~Year}
+  {Author: Journal Smoke Test}
+
+\maketitle
+
+\begin{abstract}
+\todo{j abs} Abstract for journal layout. \lipsum[1][1-3]
+\end{abstract}
+
+\begin{IEEEkeywords}
+journal, regression\todo{j kw}
+\end{IEEEkeywords}
+
+\IEEEpeerreviewmaketitle
+
+\section{Body\todo{j sec}}
+\subsection{Subsection With Note\todo{j subsec}}
+Body text with \todo{j inline} an inline note. \lipsum[1]
+
+\begin{figure}[t]
+  \centering Placeholder
+  \caption{Caption that wraps because it is reasonably long, exercising
+    the parbox path in twocolumn journal layout.\todo{j cap}}
+  \label{fig:journal}
+\end{figure}
+
+\lipsum[2-4]
+\end{document}

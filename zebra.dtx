@@ -199,6 +199,7 @@ This work consists of the file  zebra.dtx
 %\changes{v1.4.0}{2026/04/03}{Support note labels via \cs{label}, \cs{ref}, and \cs{zebraref}.}
 %\changes{v1.5.0}{2026/04/14}{Fix notes numbering in moving arguments.}
 %\changes{v1.6.0}{2026/04/16}{Numbering in moving arguments is hard.}
+%\changes{v1.7.0}{2026/04/25}{Robust margin notes in twocolumn captions, titles and headings.}
 %
 %\title{^^A
 %  \pkg{zebra} --- Writing Revision Toolkit^^A
@@ -209,7 +210,7 @@ This work consists of the file  zebra.dtx
 %    }^^A
 %}
 %\author{^^A
-%  Ruini Xue\thanks{xueruini@gmail.com}^^A
+%  Ruini Xue\thanks{Email: xueruini@gmail.com}^^A
 %}
 %\date{\fileversion~(\filedate)}
 %
@@ -499,8 +500,8 @@ This work consists of the file  zebra.dtx
 % Version data to start with.
 %    \begin{macrocode}
 \ProvidesExplPackage{zebra}
-  {2026/04/19}
-  {1.6.0}
+  {2026/04/25}
+  {1.7.0}
   {Writing Revision Toolkit}
 %    \end{macrocode}
 %
@@ -817,23 +818,21 @@ This work consists of the file  zebra.dtx
 % Place the margin note on the nearest margin. Takes two arguments:
 % |#1| for the left margin (number then symbol) and |#2| for the right
 % margin (symbol then number), so the symbol always sits closest to the
-% text column. In twocolumn mode, \cs{marginpar}'s optional argument
-% selects the left-margin variant automatically. In single-column mode,
-% \cs{marginnote} is used with the right-margin variant as default.
+% text column. \cs{marginnote} (from the \pkg{marginnote} package)
+% picks the appropriate side automatically in twocolumn mode and avoids
+% the ``Float(s) lost'' errors that \cs{marginpar} triggers when notes
+% appear inside captions, \cs{title}, or other restricted contexts that
+% are typeset through a \cs{vbox}/\cs{parbox}. Unlike \cs{marginpar},
+% \cs{marginnote} does not reset paragraph parameters or the font, so
+% we replicate \cs{@marginparreset} ourselves --- \cs{@parboxrestore}
+% normalises paragraph parameters and \cs{normalfont}\cs{normalsize}
+% drop oversized fonts inherited from \cs{title} or \cs{section}.
 %    \begin{macrocode}
 \cs_new_protected:Npn \@@_margin_note:nn #1#2
   {
-    \legacy_if:nTF { @twocolumn }
-      {
-        \mode_if_inner:TF
-          { \marginnote{#2} }
-          {
-            \marginpar
-              [ { \makebox[\marginparwidth]{#1} } ]
-              { \makebox[\marginparwidth]{#2} }
-          }
-      }
-      { \marginnote[#1]{#2} }
+    \marginnote
+      [ { \@parboxrestore \normalfont \normalsize #1 } ]
+      { \@parboxrestore \normalfont \normalsize #2 }
   }
 \cs_new:Npn \@@_prepend:nn #1#2
   { \tl_if_blank:nTF {#2} {} {#1#2} }
@@ -1089,12 +1088,7 @@ This work consists of the file  zebra.dtx
             \hline
           \end{tabular}
         \end{center}
-        \legacy_if:nTF { @twocolumn }
-          {
-            \clearpage
-            \onecolumn
-          }
-          { \par \medskip }
+        \par \medskip
         \begingroup
           \small
           \noindent{\bfseries List~of~notes}\par
@@ -1177,7 +1171,7 @@ This work consists of the file  zebra.dtx
 %<*compat>
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{zebra-goodies}
-  [2026/04/19 v1.6.0 Deprecated: use zebra instead]
+  [2026/04/25 v1.7.0 Deprecated: use zebra instead]
 \PackageWarningNoLine{zebra-goodies}
   {Package 'zebra-goodies' is deprecated.\MessageBreak
    Use \string\usepackage{zebra} instead}
@@ -1193,7 +1187,7 @@ This work consists of the file  zebra.dtx
 %    \begin{macrocode}
 %<*demo-twocol>
 \documentclass[twocolumn]{article}
-\usepackage[paperwidth=16cm,paperheight=13cm,margin=1.2cm]{geometry}
+\usepackage[paperwidth=16cm,paperheight=15cm,margin=1.2cm]{geometry}
 \usepackage{zebra}
 \zebrasetup{symbol/comment=$\clubsuit$}
 \pagestyle{empty}

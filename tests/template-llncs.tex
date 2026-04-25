@@ -1,0 +1,45 @@
+% Template smoke test: Springer LLNCS (single column).
+% Exercises notes in title, author/institute, abstract, section,
+% captions, and the end-of-document zebra summary in single-column
+% layout.
+\documentclass{llncs}
+\usepackage{lipsum}
+\usepackage{zebra}
+
+\begin{document}
+
+\title{LLNCS Smoke Test\todo{llncs title}}
+\author{A. Author\inst{1}}
+\institute{University, City, Country\\\email{a@example.com}}
+
+\maketitle
+
+\begin{abstract}
+\todo{llncs abs} Abstract for the LLNCS template smoke test, including
+an inline note to make sure single-column rendering of the summary
+list still works.
+\keywords{zebra \and regression \and llncs\todo{llncs kw}}
+\end{abstract}
+
+\section{Introduction\todo{llncs sec}}
+\label{sec:intro}
+\subsection{Subsection\todo{llncs subsec}}
+Body paragraph with \todo{llncs inline} an inline note. \lipsum[1]
+
+\begin{figure}[t]
+  \centering Placeholder
+  \caption{LLNCS caption that is long enough to wrap onto multiple
+    lines, exercising the parbox path; the inline note must remain
+    stable.\todo{llncs cap}}
+  \label{fig:llncs}
+\end{figure}
+
+\begin{table}[t]
+  \centering
+  \caption{Table caption with note\todo{llncs tab}.}
+  \label{tab:llncs}
+  \begin{tabular}{ll}\hline a & b \\ c & d \\\hline\end{tabular}
+\end{table}
+
+\lipsum[2-4]
+\end{document}
