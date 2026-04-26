@@ -1,0 +1,25 @@
+% Regression: labeled note in a table \caption with \listoftables.
+% LOT replay (label stripped by \protected@write) must be suppressed.
+% \zebraref cross-reference must resolve correctly after two passes.
+\documentclass{article}
+\usepackage{zebra}
+
+\begin{document}
+
+\listoftables
+
+\begin{table}
+  \caption{Table caption note \todo{\label{zebra:lot}check wording}}
+\end{table}
+
+\begin{table}
+  \caption{Long table caption that wraps so the sbox measurement path
+    is taken inside \texttt{\textbackslash @makecaption} and dedup
+    must allow the actual render to re-emit writes after the measurement
+    box is discarded.\todo{\label{zebra:lot-long}verify long table caption}}
+\end{table}
+
+Reference: \zebraref{zebra:lot} on p.~\pageref{zebra:lot},
+\zebraref{zebra:lot-long} on p.~\pageref{zebra:lot-long}.
+
+\end{document}
