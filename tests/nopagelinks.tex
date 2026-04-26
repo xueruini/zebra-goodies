@@ -1,0 +1,21 @@
+% Regression: [nopagelinks] option prevents zebra from auto-loading
+% hyperref.  Notes and the end-of-document summary must render correctly
+% without hyperref, and no errors or spurious zebra warnings must appear.
+\documentclass{article}
+\usepackage[nopagelinks]{zebra}
+
+\begin{document}
+
+\section{Introduction}
+
+\todo[alice]{check this section}
+\note[bob]{add a reference}
+\fixed{typo corrected}
+\comment{double-check wording}
+
+\section{Related Work}
+
+\todo{expand this section}
+\placeholder[eve]{figure goes here}
+
+\end{document}

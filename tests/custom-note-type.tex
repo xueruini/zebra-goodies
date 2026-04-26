@@ -1,0 +1,32 @@
+% Regression: \zebranewnote creates a working custom note type;
+% \zebrasetup overrides the colour and margin symbol of both built-in
+% and custom note types after loading.  All notes and the end-of-document
+% summary must render without errors or spurious zebra warnings.
+\documentclass{article}
+\usepackage{zebra}
+
+%% Define a custom note type before \begin{document}.
+\colorlet{myorange}{orange!80!black}
+\zebranewnote{question}{myorange}[?]
+
+%% Override colour and symbol of built-in types via \zebrasetup.
+\zebrasetup{color/todo=red}
+\zebrasetup{symbol/fixed=!}
+
+\begin{document}
+
+\question[alice]{is this case covered?}
+\todo[bob]{red-coloured todo with overridden colour}
+\fixed[carol]{symbol overridden to exclamation mark}
+\note{unchanged built-in note}
+
+%% Custom note type defined inside the document body.
+\colorlet{myteal}{teal!80!black}
+\zebranewnote{review}{myteal}
+\review[dave]{post-load custom type must also work}
+
+%% Override the symbol of the custom type.
+\zebrasetup{symbol/question=??}
+\question{symbol now double question mark}
+
+\end{document}

@@ -1,0 +1,14 @@
+% Smoke test for the deprecated zebra-goodies compatibility shim.
+% Loading zebra-goodies must emit a deprecation warning from the shim
+% (Package zebra-goodies Warning, not Package zebra Warning) and then
+% provide fully working notes via the underlying zebra package.
+\documentclass{article}
+\usepackage{zebra-goodies}
+
+\begin{document}
+
+\todo{loaded via deprecated package name}
+\note[alice]{notes still work through the compat shim}
+\fixed{also works}
+
+\end{document}

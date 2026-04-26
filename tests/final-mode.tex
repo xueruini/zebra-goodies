@@ -1,0 +1,18 @@
+% Regression: [final] option suppresses all notes and the end-of-document
+% summary.  The document must compile without errors, undefined references,
+% or spurious zebra warnings.
+\documentclass{article}
+\usepackage[final]{zebra}
+
+\begin{document}
+
+\section{Introduction}
+
+Some text that would normally have notes.
+\todo{this note must be suppressed}
+\note[alice]{also suppressed}
+\fixed{corrected -- but suppressed}
+\comment[bob]{silenced in final mode}
+\placeholder{removed in final}
+
+\end{document}
