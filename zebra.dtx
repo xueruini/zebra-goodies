@@ -200,7 +200,8 @@ This work consists of the file  zebra.dtx
 %\changes{v1.5.0}{2026/04/14}{Fix notes numbering in moving arguments.}
 %\changes{v1.6.0}{2026/04/16}{Numbering in moving arguments is hard.}
 %\changes{v1.7.0}{2026/04/25}{Robust margin notes in twocolumn captions, titles and headings.}
-%\changes{v1.7.1}{2026/04/25}{Fix margin symbol distance.}
+%\changes{v1.8.0}{2026/04/25}{Fix margin symbol distance.}
+%\changes{v1.8.0}{2026/04/26}{Add \opt{unnumbered} option for lightweight mode.}
 %
 %\title{^^A
 %  \pkg{zebra} --- Writing Revision Toolkit^^A
@@ -256,14 +257,10 @@ This work consists of the file  zebra.dtx
 %
 %\changes{v0.7.0}{2019/07/01}{Move to docstrip}
 %
-% The package is supplied in \file{dtx} format and as a pre-extracted zip file.
-% The latter is the most convenient option for most users: simply unzip it into
-% your local texmf directory and run \texttt{texhash} to update the file-name
-% database, or unzip the files directly into your working directory. To unpack
-% the \file{dtx} yourself, run \texttt{tex \jobname.dtx} to extract the package,
-% or \texttt{pdflatex \jobname.dtx} to extract it and typeset the documentation at
-% the same time.\footnote{Running \texttt{latexmk \jobname.dtx} is even more
-% convenient as it handles multiple compilation passes automatically.}
+% \pkg{zebra} is available on CTAN; install it through your \LaTeX{}
+% distribution's package manager. To build from source, run
+% \texttt{latexmk \jobname.dtx} to extract the package and typeset the
+% documentation in one step.
 %
 %\section{Using the package}
 %
@@ -299,6 +296,14 @@ This work consists of the file  zebra.dtx
 % or another package by setting |font-expansion=false|. The complementary
 % option \opt{nofont-expansion} is also accepted. Default: \texttt{true}.
 % \pkg{microtype} remains loaded when expansion is disabled.
+%
+%\DescribeOption{unnumbered}
+% Turns off note numbering. Inline markers become \texttt{[todo: \dots]}
+% (no number), the margin symbol carries no number, the end-of-document
+% detailed note list is omitted (the per-type summary table remains),
+% and \cs{zebraref} falls back to \cs{ref}. Useful as a workaround if
+% numbered notes interact badly with a particular class; the summary
+% table count is then an upper-bound estimate. Default: \texttt{false}.
 %
 %\subsection{Notes Macros}
 %
@@ -501,15 +506,15 @@ This work consists of the file  zebra.dtx
 % Version data to start with.
 %    \begin{macrocode}
 \ProvidesExplPackage{zebra}
-  {2026/04/25}
-  {1.7.1}
+  {2026/04/26}
+  {1.8.0}
   {Writing Revision Toolkit}
 %    \end{macrocode}
 %
 %\subsection{Package options}
 %
 % Package options \opt{draft}, \opt{pagelinks}, \opt{font-expansion},
-% and \opt{sort} are created using
+% \opt{sort}, and \opt{unnumbered} are created using
 % the kernel key--value interface available since \LaTeX{} 2022-06-01.
 % Post-load configuration (\cs{zebrasetup}) uses a separate
 % \texttt{zebra-setup} key family with \texttt{color/\meta{type}} and
@@ -519,6 +524,7 @@ This work consists of the file  zebra.dtx
 \bool_new:N \l@@_microtype_expansion_bool
 \bool_new:N \l@@_pagelinks_bool
 \bool_new:N \l@@_sort_none_bool
+\bool_new:N \l@@_unnumbered_bool
 \seq_new:N \g@@_note_types_seq
 \prop_new:N \g@@_note_colors_prop
 \prop_new:N \g@@_note_public_alias_prop
@@ -565,6 +571,8 @@ This work consists of the file  zebra.dtx
     sort / type .code:n = { \bool_set_false:N \l@@_sort_none_bool },
     sort / none .code:n = { \bool_set_true:N \l@@_sort_none_bool },
     sort .initial:n = none,
+    unnumbered .bool_set:N = \l@@_unnumbered_bool,
+    unnumbered .initial:n = false,
   }
 \ProcessKeyOptions [ zebra ]
 \keys_define:nn { zebra-setup / color }
@@ -778,7 +786,11 @@ This work consists of the file  zebra.dtx
       }
   }
 \NewDocumentCommand \zebraref { m }
-  { \@@_zebra_ref:n {#1} }
+  {
+    \bool_if:NTF \l@@_unnumbered_bool
+      { \ref{#1} }
+      { \@@_zebra_ref:n {#1} }
+  }
 \cs_new_protected:Npn \@@_apply_pdfstring_defs:
   {
     \pdfstringdefDisableCommands
@@ -893,6 +905,21 @@ This work consists of the file  zebra.dtx
         {#5}
       }
   }
+%% \@@_note_unnumbered:nnn {type}{author}{body}
+%% Fast path for the \opt{unnumbered} option: skip dedup, .aux
+%% signatures and list registration entirely.  The counter is still
+%% bumped on every call (so the summary table reflects rough counts;
+%% notes inside captions/TOC/marks may be over-counted, which is the
+%% accepted trade-off for cutting out the fragile bookkeeping).
+\cs_new_protected:Npn \@@_note_unnumbered:nnn #1#2#3
+  {
+    \bool_if:NT \l@@_draft_bool
+      {
+        \tl_set:Nx \l@@_note_color_tl { \@@_note_color:n {#1} }
+        \int_gincr:c { g@@_note_count_#1_int }
+        \@@_render_note:nnn {#1} {#2} {#3}
+      }
+  }
 %% \@@_note:nnn {type}{author}{body}
 %% Main entry point.  Four cases:
 %%   Case 1 — sbox reuse:   instance_key found → reuse, render
@@ -900,6 +927,12 @@ This work consists of the file  zebra.dtx
 %%   Case 3 — content sig:  sig in .aux data → suppress
 %%   Case 4 — new note:     allocate, render
 \cs_new_protected:Npn \@@_note:nnn #1#2#3
+  {
+    \bool_if:NTF \l@@_unnumbered_bool
+      { \@@_note_unnumbered:nnn {#1} {#2} {#3} }
+      { \@@_note_numbered:nnn {#1} {#2} {#3} }
+  }
+\cs_new_protected:Npn \@@_note_numbered:nnn #1#2#3
   {
     \bool_if:NT \l@@_draft_bool
       {
@@ -992,28 +1025,39 @@ This work consists of the file  zebra.dtx
       }
   }
 %% Full render: hypertarget, target label, margin note, inline text.
+%% In \opt{unnumbered} mode the label/hypertarget setup is skipped so a
+%% \cs{label} inside the note body falls through to the surrounding
+%% \cs{@currentlabel} (e.g.\ the section number), and \cs{zebraref}
+%% degrades cleanly to \cs{ref}.
 \cs_new_protected:Npn \@@_render_note:nnn #1#2#3
   {
     \group_begin:
-      \protected@edef \@currentlabel { \l@@_note_display_tl }
-      \@@_if_package_loaded:nT { hyperref }
-        { \tl_set:Nx \@currentHref { \l@@_note_target_tl } }
-      \tl_set:Nx \l@@_note_ref_type_tl
-        { \@@_capitalize_type:n {#1} }
-      \@@_target:nn { \l@@_note_target_tl } {}
-      \exp_args:NV \@@_kernel_label:n \l@@_note_target_tl
+      \bool_if:NF \l@@_unnumbered_bool
+        {
+          \protected@edef \@currentlabel { \l@@_note_display_tl }
+          \@@_if_package_loaded:nT { hyperref }
+            { \tl_set:Nx \@currentHref { \l@@_note_target_tl } }
+          \tl_set:Nx \l@@_note_ref_type_tl
+            { \@@_capitalize_type:n {#1} }
+          \@@_target:nn { \l@@_note_target_tl } {}
+          \exp_args:NV \@@_kernel_label:n \l@@_note_target_tl
+        }
       \@@_margin_note:nn
         {\textcolor{\l@@_note_color_tl}{%
-          {\bfseries\l@@_note_display_tl}\kern1pt
+          \bool_if:NF \l@@_unnumbered_bool
+            { {\bfseries\l@@_note_display_tl}\kern1pt }%
           \@@_note_symbol:n {#1}}}
         {\textcolor{\l@@_note_color_tl}{%
-          \@@_note_symbol:n {#1}\kern1pt
-          {\bfseries\l@@_note_display_tl}}}%
-      \cs_set_eq:NN \label \@@_note_label:n
+          \@@_note_symbol:n {#1}%
+          \bool_if:NF \l@@_unnumbered_bool
+            { \kern1pt {\bfseries\l@@_note_display_tl} }}}%
+      \bool_if:NF \l@@_unnumbered_bool
+        { \cs_set_eq:NN \label \@@_note_label:n }
       \textcolor{\l@@_note_color_tl}{[\colorbox[gray]{0.97}{%
           \textcolor{\l@@_note_color_tl !70!black}{%
-            \textsc{\MakeLowercase{\MakeUppercase#1}}~%
-            \l@@_note_display_tl
+            \textsc{\MakeLowercase{\MakeUppercase#1}}%
+            \bool_if:NF \l@@_unnumbered_bool
+              { ~\l@@_note_display_tl }%
             \texttt{\@@_prepend:nn {@}{#2}}:}} #3]}%
     \group_end:
   }
@@ -1111,18 +1155,21 @@ This work consists of the file  zebra.dtx
             \hline
           \end{tabular}
         \end{center}
-        \par \medskip
-        \begingroup
-          \small
-          \noindent{\bfseries List~of~notes}\par
-          \nobreak
-          \bool_if:NTF \l@@_sort_none_bool
-            { \@@_print_notes_inorder: }
-            {
-              \seq_map_inline:Nn \g@@_note_types_seq
-                { \@@_print_note_group:n {##1} }
-            }
-        \endgroup
+        \bool_if:NF \l@@_unnumbered_bool
+          {
+            \par \medskip
+            \begingroup
+              \small
+              \noindent{\bfseries List~of~notes}\par
+              \nobreak
+              \bool_if:NTF \l@@_sort_none_bool
+                { \@@_print_notes_inorder: }
+                {
+                  \seq_map_inline:Nn \g@@_note_types_seq
+                    { \@@_print_note_group:n {##1} }
+                }
+            \endgroup
+          }
       }
   }
 %    \end{macrocode}
@@ -1194,7 +1241,7 @@ This work consists of the file  zebra.dtx
 %<*compat>
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{zebra-goodies}
-  [2026/04/25 v1.7.1 Deprecated: use zebra instead]
+  [2026/04/26 v1.8.0 Deprecated: use zebra instead]
 \PackageWarningNoLine{zebra-goodies}
   {Package 'zebra-goodies' is deprecated.\MessageBreak
    Use \string\usepackage{zebra} instead}
@@ -1210,7 +1257,7 @@ This work consists of the file  zebra.dtx
 %    \begin{macrocode}
 %<*demo-twocol>
 \documentclass[twocolumn]{article}
-\usepackage[paperwidth=20cm,paperheight=15cm,margin=1.1cm]{geometry}
+\usepackage[paperwidth=21cm,paperheight=15cm,margin=1.1cm]{geometry}
 \usepackage{zebra}
 \zebrasetup{symbol/comment=$\clubsuit$}
 \pagestyle{empty}
