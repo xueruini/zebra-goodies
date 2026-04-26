@@ -202,6 +202,7 @@ This work consists of the file  zebra.dtx
 %\changes{v1.7.0}{2026/04/25}{Robust margin notes in twocolumn captions, titles and headings.}
 %\changes{v1.8.0}{2026/04/25}{Fix margin symbol distance.}
 %\changes{v1.8.0}{2026/04/26}{Add \opt{unnumbered} option for lightweight mode.}
+%\changes{v1.8.0}{2026/04/26}{Stabilise labeled notes replayed through uppercased running heads.}
 %
 %\title{^^A
 %  \pkg{zebra} --- Writing Revision Toolkit^^A
@@ -672,7 +673,8 @@ This work consists of the file  zebra.dtx
     | \int_eval:n { \tex_inputlineno:D }
   }
 %% Content signature: body stringified with ALL \label{...} stripped.
-%% Matches across body (has labels) and TOC (labels consumed by \edef).
+%% Matches across body (has labels), TOC (labels consumed by \edef),
+%% and running heads (which may uppercase the author/body text).
 %% The optional \protect prefix covers marks and \protected@write paths.
 %% Uses replace_all so that multiple labels are all stripped.
 \cs_new_protected:Npn \@@_content_sig:nnnN #1#2#3#4
@@ -683,8 +685,8 @@ This work consists of the file  zebra.dtx
     \tl_set:Nx #4
       {
         \tl_to_str:n {#1}
-        | \tl_to_str:n {#2}
-        | \l_tmpa_tl
+        | \str_lowercase:f { \tl_to_str:n {#2} }
+        | \str_lowercase:f { \l_tmpa_tl }
       }
   }
 %% Extract the first \label name from the stringified body.
