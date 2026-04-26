@@ -867,7 +867,11 @@ This work consists of the file  zebra.dtx
               { \makebox[\marginparwidth][l]{#2} }
           }
       }
-      { \marginnote[#1]{#2} }
+      {
+        \marginnote
+          [ { \@parboxrestore \normalfont \normalsize #1 } ]
+          { \@parboxrestore \normalfont \normalsize #2 }
+      }
   }
 \cs_new:Npn \@@_prepend:nn #1#2
   { \tl_if_blank:nTF {#2} {} {#1#2} }
