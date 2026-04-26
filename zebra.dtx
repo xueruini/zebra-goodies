@@ -927,17 +927,19 @@ This work consists of the file  zebra.dtx
       }
   }
 %% \@@_note:nnn {type}{author}{body}
-%% Main entry point.  Four cases:
-%%   Case 1 — sbox reuse:   instance_key found → reuse, render
-%%   Case 2 — stable key:   label found, stable_key in prop → suppress
-%%   Case 3 — content sig:  sig in .aux data → suppress
-%%   Case 4 — new note:     allocate, render
+%% Main entry point: dispatch to the lightweight unnumbered path or to
+%% the numbered path with deduplication/bookkeeping.
 \cs_new_protected:Npn \@@_note:nnn #1#2#3
   {
     \bool_if:NTF \l@@_unnumbered_bool
       { \@@_note_unnumbered:nnn {#1} {#2} {#3} }
       { \@@_note_numbered:nnn {#1} {#2} {#3} }
   }
+%% Numbered path.  Four cases:
+%%   Case 1 — sbox reuse:   instance_key found → reuse, render
+%%   Case 2 — stable key:   label found, stable_key in prop → suppress
+%%   Case 3 — content sig:  sig in .aux data → suppress
+%%   Case 4 — new note:     allocate, render
 \cs_new_protected:Npn \@@_note_numbered:nnn #1#2#3
   {
     \bool_if:NT \l@@_draft_bool
