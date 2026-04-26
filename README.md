@@ -28,6 +28,10 @@ output.
     ```latex
     \usepackage[font-expansion=false]{zebra}
     ```
+- `unnumbered`: turns off note numbering. Inline markers become `[todo: ...]` (no number), the margin symbol carries no number, the end-of-document detailed note list is omitted (the summary table remains), and `\zebraref` falls back to `\ref`. Useful as a workaround if numbered notes interact badly with a particular class; the summary table count is then an upper-bound estimate. Default: disabled.
+    ```latex
+    \usepackage[unnumbered]{zebra}
+    ```
 
 ## Take Notes
 
