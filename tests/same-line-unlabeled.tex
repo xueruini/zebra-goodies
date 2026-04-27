@@ -1,0 +1,22 @@
+% Documented limitation: two unlabeled notes with identical body on a
+% single source line collapse to one (instance-key collision with sbox
+% replay).  Workarounds: split across lines, vary the body, or add
+% \label.  This test pins the collapse behaviour so future changes
+% don't silently shift it.
+\documentclass{article}
+\usepackage{zebra}
+
+\begin{document}
+
+\todo{x}\todo{x}
+
+\ExplSyntaxOn
+\int_compare:nNnF { \int_use:c { g__zebra_note_count_todo_int } } = { 1 }
+  {
+    \PackageError { zebra-test }
+      { Same-line~unlabeled~collapse~changed }
+      { Expected~exactly~one~todo~note~from~same-line~same-body~pair. }
+  }
+\ExplSyntaxOff
+
+\end{document}

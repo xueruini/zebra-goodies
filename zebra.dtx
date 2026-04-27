@@ -203,6 +203,8 @@ This work consists of the file  zebra.dtx
 %\changes{v1.8.0}{2026/04/25}{Fix margin symbol distance.}
 %\changes{v1.8.0}{2026/04/26}{Add \opt{unnumbered} option for lightweight mode.}
 %\changes{v1.8.0}{2026/04/26}{Stabilise labeled notes replayed through uppercased running heads.}
+%\changes{v1.8.1}{2026/04/27}{Drop note bodies from PDF bookmarks.}
+%\changes{v1.8.1}{2026/04/27}{Fix multiply-defined labels for repeated unlabeled notes.}
 %
 %\title{^^A
 %  \pkg{zebra} --- Writing Revision Toolkit^^A
@@ -507,8 +509,8 @@ This work consists of the file  zebra.dtx
 % Version data to start with.
 %    \begin{macrocode}
 \ProvidesExplPackage{zebra}
-  {2026/04/26}
-  {1.8.0}
+  {2026/04/27}
+  {1.8.1}
   {Writing Revision Toolkit}
 %    \end{macrocode}
 %
@@ -522,6 +524,7 @@ This work consists of the file  zebra.dtx
 % \texttt{symbol/\meta{type}} sub-families.
 %    \begin{macrocode}
 \bool_new:N \l@@_draft_bool
+\bool_new:N \l@@_emit_label_bool
 \bool_new:N \l@@_microtype_expansion_bool
 \bool_new:N \l@@_pagelinks_bool
 \bool_new:N \l@@_sort_none_bool
@@ -624,9 +627,10 @@ This work consists of the file  zebra.dtx
 % measurement, then typesets it again if it is long.  Both executions
 % share the same \cs{inputlineno}, so the \emph{instance key}
 % (\meta{type}\verb"|"\meta{author}\verb"|"\meta{body}\verb"|"\cs{inputlineno})
-% catches the replay.  The second execution reuses the first's allocation
-% and re-renders, so writes that were lost inside the discarded \cs{sbox}
-% are re-emitted by the actual typesetting pass.
+% catches the replay for both labeled and unlabeled notes.  The second
+% execution reuses the first's allocation and re-renders, so writes
+% that were lost inside the discarded \cs{sbox} are re-emitted by the
+% actual typesetting pass.
 %
 % \paragraph{Problem B --- TOC/LOF/header replay.}
 % The note token is written verbatim to \texttt{.toc}/\texttt{.lof}/marks
@@ -646,7 +650,20 @@ This work consists of the file  zebra.dtx
 %     suppress.
 % \end{enumerate}
 % Unlabeled notes in moving arguments receive independent allocations
-% (cosmetic duplicate); adding \cs{label} is the recommended fix.
+% on each replay (cosmetic duplicate on TOC/LOF/marks); adding
+% \cs{label} is the recommended fix when stable replay behaviour is
+% required.
+%
+% \paragraph{Limitation --- same-line same-body unlabeled.}
+% Two unlabeled notes with identical body on the same source line
+% (e.g.\ \cs{todo}\verb"{x}"\cs{todo}\verb"{x}") share an instance key
+% with a single \cs{sbox} replay of the same source location and are
+% indistinguishable from it at the TeX level.  Case~1 collapses the
+% second occurrence into the first.  Workarounds: split across lines,
+% vary the body, or add \cs{label}.  Notes inside \cs{fbox},
+% \texttt{tabular} cells, \cs{parbox}, \texttt{minipage}, footnotes,
+% and other inner-mode containers are unaffected --- a single source
+% encounter records normally regardless of the surrounding mode.
 %
 %    \begin{macrocode}
 \RequirePackage{xcolor}
@@ -662,6 +679,12 @@ This work consists of the file  zebra.dtx
 \prop_new:N \g@@_note_sig_written_prop
 %% Content signature stored per stable key (for label-conflict detection).
 \prop_new:N \g@@_note_stable_sig_prop
+%% Group-local set of targets whose \label has been emitted.  Sbox
+%% boundaries reset it (so caption replay re-emits after the sbox is
+%% discarded), while a same-source-line repeat in body text sees the
+%% prior emission and skips the redundant \label, avoiding
+%% multiply-defined labels.
+\prop_new:N \l@@_label_emitted_prop
 \tl_new:N \l@@_note_display_tl
 \tl_new:N \l@@_note_key_tl
 %% Instance key: unique per source location.
@@ -752,9 +775,13 @@ This work consists of the file  zebra.dtx
     \cs_set_eq:NN \dbend \@@_saved_dbend:
   }
   { \RequirePackage{manfnt} }
-\cs_new_protected:Npn \@@_pdfstring_note:
-  { \@ifnextchar [ { \@@_pdfstring_note_opt:w } { \use_none:n } }
-\cs_new_protected:Npn \@@_pdfstring_note_opt:w [#1] #2 { }
+\cs_new:Npn \@@_pdfstring_note:
+  #1
+  {
+    \str_if_eq:eeT { \tl_to_str:n {#1} } { [ }
+      { \@@_pdfstring_note_opt:w }
+  }
+\cs_new:Npn \@@_pdfstring_note_opt:w #1 ] #2 { }
 \cs_new:Npn \@@_target:nn #1#2 {#2}
 \cs_new:Npn \@@_link:nn #1#2 {#2}
 \cs_new:Npn \@@_pageref:n #1 { \pageref {#1} }
@@ -936,6 +963,11 @@ This work consists of the file  zebra.dtx
 %%   Case 2 — stable key:   label found, stable_key in prop → suppress
 %%   Case 3 — content sig:  sig in .aux data → suppress
 %%   Case 4 — new note:     allocate, render
+%% Case 1 also catches an unlabeled same-source-line same-body pair
+%% (\todo{x}\todo{x}); the second is collapsed.  Two such notes are
+%% indistinguishable at TeX level from a single note replayed by an
+%% sbox/moving argument, so this collision is documented and resolved
+%% by adding \label or splitting the line.
 \cs_new_protected:Npn \@@_note_numbered:nnn #1#2#3
   {
     \bool_if:NT \l@@_draft_bool
@@ -976,7 +1008,7 @@ This work consists of the file  zebra.dtx
                       }
                   }
               }
-            %% Case 3: content-sig suppress (labeled, TOC replay).
+            %% Case 3: content-sig suppress (TOC/LOF/marks replay).
             %% Only suppress if the stored instance key differs from
             %% the current one — same key means it is the original
             %% note, not a replay.
@@ -1035,6 +1067,20 @@ This work consists of the file  zebra.dtx
 %% degrades cleanly to \cs{ref}.
 \cs_new_protected:Npn \@@_render_note:nnn #1#2#3
   {
+    %% Decide outside render's group whether to emit the kernel label.
+    %% The flag lives in the caller's group: sbox/parbox boundaries reset
+    %% it (so caption replay re-emits), but a same-line repeat in body
+    %% text sees the prior emission and skips the redundant \label.
+    \bool_set_false:N \l@@_emit_label_bool
+    \bool_if:NF \l@@_unnumbered_bool
+      {
+        \prop_if_in:NVF \l@@_label_emitted_prop \l@@_note_target_tl
+          {
+            \bool_set_true:N \l@@_emit_label_bool
+            \prop_put:NVn \l@@_label_emitted_prop
+              \l@@_note_target_tl { 1 }
+          }
+      }
     \group_begin:
       \bool_if:NF \l@@_unnumbered_bool
         {
@@ -1044,7 +1090,8 @@ This work consists of the file  zebra.dtx
           \tl_set:Nx \l@@_note_ref_type_tl
             { \@@_capitalize_type:n {#1} }
           \@@_target:nn { \l@@_note_target_tl } {}
-          \exp_args:NV \@@_kernel_label:n \l@@_note_target_tl
+          \bool_if:NT \l@@_emit_label_bool
+            { \exp_args:NV \@@_kernel_label:n \l@@_note_target_tl }
         }
       \@@_margin_note:nn
         {\textcolor{\l@@_note_color_tl}{%
@@ -1081,14 +1128,14 @@ This work consists of the file  zebra.dtx
     \@@_new_listbody:n {#1}
     \exp_args:Nc \NewDocumentCommand { zebra#1 } { O{} m }
       { \@@_note:nnn {#1}{##1}{##2} }
-    \@@_if_package_loaded:nT { hyperref }
-      { \@@_apply_pdfstring_defs: }
     \cs_if_exist:cTF {#1}
       { \msg_warning:nnn { zebra } { command-taken } {#1} }
       {
         \cs_set_eq:cc {#1} {zebra#1}
         \prop_gput:Nnn \g@@_note_public_alias_prop {#1} { true }
       }
+    \@@_if_package_loaded:nT { hyperref }
+      { \@@_apply_pdfstring_defs: }
   }
 \cs_new_protected:Npn \@@_list_entry:nnnnn #1#2#3#4#5
   {

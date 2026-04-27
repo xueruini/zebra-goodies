@@ -1,0 +1,20 @@
+% Regression: note commands are no-ops in PDF strings/bookmarks.
+\documentclass{article}
+\usepackage{zebra}
+
+\zebranewnote{aside}{red}
+
+\begin{document}
+
+\tableofcontents
+
+\section{PDF strings
+  \todo[alice]{PDFSTRING-TODO-BODY}
+  \zebratodo{PDFSTRING-ZEBRATODO-BODY}
+  \note{PDFSTRING-NOTE-BODY}
+  \zebraaside{PDFSTRING-ZEBRAASIDE-BODY}
+  \aside{PDFSTRING-ASIDE-BODY}}
+
+Body text.
+
+\end{document}
