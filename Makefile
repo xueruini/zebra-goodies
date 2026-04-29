@@ -65,7 +65,7 @@ test: all
 	  fi && \
 	  if grep -q 'Package zebra Warning' $(OUTPUT)/$$name.log; then \
 	    case "$$name" in \
-	      identity|template-acm-sigconf|template-ieee-conference|template-llncs) ;; \
+	      identity|template-acm-sigconf|template-llncs) ;; \
 	      *) echo "  FAIL (unexpected zebra warning)" && pass=false ;; \
 	    esac; \
 	  fi; \

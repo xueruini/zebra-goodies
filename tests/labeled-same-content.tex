@@ -1,0 +1,26 @@
+% Regression: labels are strong note identities.
+% Two labeled notes with identical type/author/body must remain distinct,
+% while their TOC replays must not create extra notes.
+\documentclass{article}
+\usepackage{zebra}
+
+\begin{document}
+
+\tableofcontents
+
+\section{First \todo{\label{zebra:first-same}same}}
+\section{Second \todo{\label{zebra:second-same}same}}
+
+References:
+\zebraref{zebra:first-same} and \zebraref{zebra:second-same}.
+
+\ExplSyntaxOn
+\int_compare:nNnF { \int_use:c { g__zebra_note_count_todo_int } } = { 2 }
+  {
+    \PackageError { zebra-test }
+      { Labeled~same-content~notes~were~not~kept~distinct }
+      { Expected~exactly~two~todo~notes. }
+  }
+\ExplSyntaxOff
+
+\end{document}
