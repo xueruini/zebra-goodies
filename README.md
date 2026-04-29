@@ -87,7 +87,10 @@ still safe but may receive a separate number in each context.
 
 ## Customise Existing Types
 
-Use `\zebrasetup` to change the colour or symbol of any note type after loading:
+Use `\zebrasetup` to change the colour or symbol of any note type after loading. Accepted keys:
+
+- `color/<type>=<colour>` — override the colour of a note type.
+- `symbol/<type>=<symbol>` — override the margin symbol of a note type.
 
 ```latex
 \zebrasetup{color/todo=red}                 % red todos

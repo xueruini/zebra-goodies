@@ -206,7 +206,7 @@ This work consists of the file  zebra.dtx
 %\changes{v1.8.1}{2026/04/27}{Drop note bodies from PDF bookmarks.}
 %\changes{v1.8.1}{2026/04/27}{Fix multiply-defined labels for repeated unlabeled notes.}
 %\changes{v1.8.1}{2026/04/27}{Keep labeled notes with shared content distinct.}
-%\changes{v1.8.1}{2026/04/27}{Silence pass-1 warning from \cs{zebraref}.}
+%\changes{v1.8.1}{2026/04/29}{Silence pass-1 warning from \cs{zebraref}.}
 %
 %\title{^^A
 %  \pkg{zebra} --- Writing Revision Toolkit^^A
@@ -511,7 +511,7 @@ This work consists of the file  zebra.dtx
 % Version data to start with.
 %    \begin{macrocode}
 \ProvidesExplPackage{zebra}
-  {2026/04/27}
+  {2026/04/29}
   {1.8.1}
   {Writing Revision Toolkit}
 %    \end{macrocode}
@@ -712,7 +712,10 @@ This work consists of the file  zebra.dtx
         | \str_lowercase:f { \l_tmpa_tl }
       }
   }
-%% Extract the first \label name from the stringified body.
+%% Extract the last \label name from the stringified body
+%% (the greedy \A.* consumes up to the rightmost \label).  Both the
+%% original encounter and any replay run through this same regex,
+%% so they agree on which label to use as the stable key.
 %% Sets #2 to the label name, or clears it if none found.
 %% The optional \protect prefix covers marks and \protected@write paths.
 \cs_new_protected:Npn \@@_extract_label:nN #1#2
@@ -1294,7 +1297,7 @@ This work consists of the file  zebra.dtx
 %<*compat>
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{zebra-goodies}
-  [2026/04/27 v1.8.1 Deprecated: use zebra instead]
+  [2026/04/29 v1.8.1 Deprecated: use zebra instead]
 \PackageWarningNoLine{zebra-goodies}
   {Package 'zebra-goodies' is deprecated.\MessageBreak
    Use \string\usepackage{zebra} instead}
