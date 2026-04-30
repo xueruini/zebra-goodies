@@ -48,13 +48,24 @@ test: all
 	  if grep -qi 'undefined references' $(OUTPUT)/$$name.log; then \
 	    echo "  FAIL (undefined references after 3 passes)" && pass=false; \
 	  fi && \
+	  if grep -qi 'has been referenced but does not exist\|missing destination' \
+	       $(OUTPUT)/$$name.log; then \
+	    echo "  FAIL (missing destination in final log)" && pass=false; \
+	  fi && \
+	  if grep -qi 'Token not allowed in a PDF string' $(OUTPUT)/$$name.log; then \
+	    echo "  FAIL (PDF-string warning in final log)" && pass=false; \
+	  fi && \
+	  if test "$$name" = "pdfstring" && test -f $(OUTPUT)/$$name.out && \
+	       grep -q 'PDFSTRING-' $(OUTPUT)/$$name.out; then \
+	    echo "  FAIL (note body leaked into PDF bookmark)" && pass=false; \
+	  fi && \
 	  if grep -qi 'multiply-defined labels' $(OUTPUT)/$$name.log && \
 	       test "$$name" != "identity"; then \
 	    echo "  FAIL (unexpected multiply-defined labels)" && pass=false; \
 	  fi && \
 	  if grep -q 'Package zebra Warning' $(OUTPUT)/$$name.log; then \
 	    case "$$name" in \
-	      identity|template-acm-sigconf|template-ieee-conference|template-llncs) ;; \
+	      identity|template-acm-sigconf|template-llncs) ;; \
 	      *) echo "  FAIL (unexpected zebra warning)" && pass=false ;; \
 	    esac; \
 	  fi; \
