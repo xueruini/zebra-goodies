@@ -207,6 +207,7 @@ This work consists of the file  zebra.dtx
 %\changes{v1.8.1}{2026/04/27}{Fix multiply-defined labels for repeated unlabeled notes.}
 %\changes{v1.8.1}{2026/04/27}{Keep labeled notes with shared content distinct.}
 %\changes{v1.8.1}{2026/04/29}{Silence pass-1 warning from \cs{zebraref}.}
+%\changes{v1.9.0}{2026/05/01}{Document known limitations.}
 %
 %\title{^^A
 %  \pkg{zebra} --- Writing Revision Toolkit^^A
@@ -492,6 +493,25 @@ This work consists of the file  zebra.dtx
 %   \fbox{\includegraphics[width=\linewidth,page=1]{zebra-demo-twocol}}
 % \end{center}
 %
+% \subsection{Limitations}
+%
+% \begin{itemize}
+%   \item Notes in moving arguments such as \cs{section} and \cs{caption}
+%     should use \cs{label} for stable numbering.  Unlabelled notes there may
+%     be counted again when replayed in contents lists or running heads.
+%   \item A labelled note and an unlabelled note with the same type, author,
+%     and body may be treated as the same replay.  Add a \cs{label}, vary the
+%     text, or avoid identical note bodies.
+%   \item Identical unlabelled notes on the same source line, such as
+%     |\todo{x}\todo{x}|, collapse to one note.
+%   \item In \opt{final} mode, labels inside notes are unavailable.  In
+%     \opt{unnumbered} mode, the detailed list is omitted and summary counts
+%     are only an upper-bound estimate.
+%   \item \cs{zebranewnote} expects command-name-safe note names and colours
+%     already known to \pkg{xcolor}; invalid values are left to \TeX{} or
+%     \pkg{xcolor} errors.
+% \end{itemize}
+%
 %
 %
 %\end{documentation}
@@ -511,8 +531,8 @@ This work consists of the file  zebra.dtx
 % Version data to start with.
 %    \begin{macrocode}
 \ProvidesExplPackage{zebra}
-  {2026/04/29}
-  {1.8.1}
+  {2026/05/01}
+  {1.9.0}
   {Writing Revision Toolkit}
 %    \end{macrocode}
 %
@@ -1297,7 +1317,7 @@ This work consists of the file  zebra.dtx
 %<*compat>
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{zebra-goodies}
-  [2026/04/29 v1.8.1 Deprecated: use zebra instead]
+  [2026/05/01 v1.9.0 Deprecated: use zebra instead]
 \PackageWarningNoLine{zebra-goodies}
   {Package 'zebra-goodies' is deprecated.\MessageBreak
    Use \string\usepackage{zebra} instead}

@@ -98,6 +98,14 @@ Use `\zebrasetup` to change the colour or symbol of any note type after loading.
 \zebrasetup{color/todo=red, symbol/fixed=$\surd$}  % combine several keys
 ```
 
+## Limitations
+
+- Use `\label` for notes in `\section`, `\caption`, and similar moving arguments; unlabelled notes there may be counted again in contents lists or running heads.
+- A labelled note and an unlabelled note with the same type, author, and body may be treated as the same replay. Add a label, vary the text, or avoid identical note bodies.
+- Identical unlabelled notes on the same source line, such as `\todo{x}\todo{x}`, collapse to one note.
+- In `final` mode, labels inside notes are unavailable. In `unnumbered` mode, the detailed list is omitted and summary counts are only an upper-bound estimate.
+- `\zebranewnote` expects command-name-safe note names and colours already known to `xcolor`; invalid values are left to TeX or `xcolor` errors.
+
 ## Author
 
 Ruini Xue <xueruini@gmail.com>
