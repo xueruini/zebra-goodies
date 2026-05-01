@@ -492,6 +492,25 @@ This work consists of the file  zebra.dtx
 %   \fbox{\includegraphics[width=\linewidth,page=1]{zebra-demo-twocol}}
 % \end{center}
 %
+% \subsection{Limitations}
+%
+% \begin{itemize}
+%   \item Notes in moving arguments such as \cs{section} and \cs{caption}
+%     should use \cs{label} for stable numbering.  Unlabelled notes there may
+%     be counted again when replayed in contents lists or running heads.
+%   \item A labelled note and an unlabelled note with the same type, author,
+%     and body may be treated as the same replay.  Add a \cs{label}, vary the
+%     text, or avoid identical note bodies.
+%   \item Identical unlabelled notes on the same source line, such as
+%     |\todo{x}\todo{x}|, collapse to one note.
+%   \item In \opt{final} mode, labels inside notes are unavailable.  In
+%     \opt{unnumbered} mode, the detailed list is omitted and summary counts
+%     are only an upper-bound estimate.
+%   \item \cs{zebranewnote} expects command-name-safe note names and colours
+%     already known to \pkg{xcolor}; invalid values are left to \TeX{} or
+%     \pkg{xcolor} errors.
+% \end{itemize}
+%
 %
 %
 %\end{documentation}
