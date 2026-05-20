@@ -1,0 +1,15 @@
+% Regression: zebra with hyperref/cleveref.
+\documentclass{article}
+\usepackage{zebra}
+\usepackage{hyperref}
+\usepackage{cleveref}
+
+\begin{document}
+
+\section{Clever Section}
+\label{sec:clever}
+Body text \todo{\label{zebra:cleveref}check cleveref compatibility}.
+
+See \cref{sec:clever} and \zebraref{zebra:cleveref}.
+
+\end{document}

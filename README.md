@@ -3,9 +3,9 @@
 A writing revision toolkit for LaTeX. The current release focuses on inline
 note-taking, providing macros (`\todo`, `\comment`, `\fixed`, `\note`,
 `\placeholder`) for collaborative writing. Notes are colour-coded, numbered,
-and marked in the margin. A summary table and clickable note list are appended
-at the end of the document. The `final` option suppresses all notes for clean
-output.
+and marked in the margin. A summary table and note list are appended at the
+end of the document. If `hyperref` is loaded, note-list page references link
+back to the notes. The `final` option suppresses all notes for clean output.
 
 > **Migration:** This package was previously distributed as `zebra-goodies`.
 > The old name still works but prints a deprecation warning.
@@ -20,18 +20,17 @@ output.
     ```latex
     \usepackage[sort=type]{zebra}
     ```
-- `pagelinks`: enable or disable clickable page-number links in the detailed note list. Default: enabled. Set `pagelinks=false` to disable them. The alias `nopagelinks` is also accepted.
-    ```latex
-    \usepackage[pagelinks=false]{zebra}
-    ```
-- `font-expansion`: control `microtype` font expansion, which usually improves the appearance of the document. Disable it if it conflicts with your engine or another package by setting `font-expansion=false`. The alias `nofont-expansion` is also accepted. Default: enabled. `microtype` remains loaded when expansion is disabled.
-    ```latex
-    \usepackage[font-expansion=false]{zebra}
-    ```
 - `unnumbered`: turns off note numbering. Inline markers become `[todo: ...]` (no number), the margin symbol carries no number, the end-of-document detailed note list is omitted (the summary table remains), and `\zebraref` falls back to `\ref`. Useful as a workaround if numbered notes interact badly with a particular class; the summary table count is then an upper-bound estimate. Default: disabled.
     ```latex
     \usepackage[unnumbered]{zebra}
     ```
+
+Load `hyperref` explicitly if you want clickable note-list page references:
+
+```latex
+\usepackage{zebra}
+\usepackage{hyperref}
+```
 
 ## Take Notes
 

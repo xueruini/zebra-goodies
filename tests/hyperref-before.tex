@@ -1,0 +1,15 @@
+% Regression: hyperref loaded before zebra.
+% Page links in the note list should be enabled without zebra loading
+% hyperref itself, and zebra labels should resolve normally.
+\documentclass{article}
+\usepackage{hyperref}
+\usepackage{zebra}
+
+\begin{document}
+
+\section{Intro}
+Body text \todo{\label{zebra:href-before}check hyperlink target}.
+
+See \zebraref{zebra:href-before} on p.~\pageref{zebra:href-before}.
+
+\end{document}
