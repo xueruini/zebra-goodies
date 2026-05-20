@@ -208,6 +208,7 @@ This work consists of the file  zebra.dtx
 %\changes{v1.8.1}{2026/04/27}{Keep labeled notes with shared content distinct.}
 %\changes{v1.8.1}{2026/04/29}{Silence pass-1 warning from \cs{zebraref}.}
 %\changes{v1.9.0}{2026/05/01}{Document known limitations.}
+%\changes{v2.0.0}{2026/05/20}{Stop loading \pkg{hyperref} and \pkg{microtype}.}
 %
 %\title{^^A
 %  \pkg{zebra} --- Writing Revision Toolkit^^A
@@ -234,7 +235,8 @@ This work consists of the file  zebra.dtx
 %  automatically numbered per type, marked with a customisable
 %  symbol\marginnote{\textdbend} (default: \cs{textdbend}) in the nearest
 %  margin, and summarised with a summary table plus a detailed note list at the
-%  end of the document. Passing the \opt{final} option suppresses all notes for
+%  end of the document. If \pkg{hyperref} is loaded, the detailed list links
+%  back to the notes. Passing the \opt{final} option suppresses all notes for
 %  production output.
 %\end{abstract}
 %
@@ -291,17 +293,10 @@ This work consists of the file  zebra.dtx
 % document. Default: \texttt{none} (document order).
 % |sort=type| groups them by note type.
 %
-%\DescribeOption{pagelinks}
-% Controls whether page numbers in the detailed note list are clickable.
-% Default: \texttt{true}. Set |pagelinks=false| to disable these links. The
-% complementary option \opt{nopagelinks} is also accepted.
-%
-%\DescribeOption{font-expansion}
-% Controls \pkg{microtype} font expansion. This usually improves the
-% appearance of the document. Disable it if it conflicts with your engine
-% or another package by setting |font-expansion=false|. The complementary
-% option \opt{nofont-expansion} is also accepted. Default: \texttt{true}.
-% \pkg{microtype} remains loaded when expansion is disabled.
+% If \pkg{hyperref} is loaded by the document, page numbers in the detailed
+% note list link back to the corresponding notes. \pkg{zebra} does not load
+% \pkg{hyperref} itself; load it explicitly if links are desired. Without
+% \pkg{hyperref}, the list uses ordinary page references.
 %
 %\DescribeOption{unnumbered}
 % Turns off note numbering. Inline markers become \texttt{[todo: \dots]}
@@ -530,16 +525,16 @@ This work consists of the file  zebra.dtx
 %
 % Version data to start with.
 %    \begin{macrocode}
+\NeedsTeXFormat{LaTeX2e}[2022-06-01]
 \ProvidesExplPackage{zebra}
-  {2026/05/01}
-  {1.9.0}
+  {2026/05/20}
+  {2.0.0}
   {Writing Revision Toolkit}
 %    \end{macrocode}
 %
 %\subsection{Package options}
 %
-% Package options \opt{draft}, \opt{pagelinks}, \opt{font-expansion},
-% \opt{sort}, and \opt{unnumbered} are created using
+% Package options \opt{draft}, \opt{sort}, and \opt{unnumbered} are created using
 % the kernel key--value interface available since \LaTeX{} 2022-06-01.
 % Post-load configuration (\cs{zebrasetup}) uses a separate
 % \texttt{zebra-setup} key family with \texttt{color/\meta{type}} and
@@ -547,8 +542,6 @@ This work consists of the file  zebra.dtx
 %    \begin{macrocode}
 \bool_new:N \l@@_draft_bool
 \bool_new:N \l@@_emit_label_bool
-\bool_new:N \l@@_microtype_expansion_bool
-\bool_new:N \l@@_pagelinks_bool
 \bool_new:N \l@@_sort_none_bool
 \bool_new:N \l@@_unnumbered_bool
 \seq_new:N \g@@_note_types_seq
@@ -585,12 +578,6 @@ This work consists of the file  zebra.dtx
     draft .bool_set:N = \l@@_draft_bool,
     draft .initial:n = true,
     final .meta:n = { draft = false },
-    font-expansion .bool_set:N = \l@@_microtype_expansion_bool,
-    font-expansion .initial:n = true,
-    nofont-expansion .meta:n = { font-expansion = false },
-    pagelinks .bool_set:N = \l@@_pagelinks_bool,
-    pagelinks .initial:n = true,
-    nopagelinks .meta:n = { pagelinks = false },
     sort .choice:,
     sort / type .code:n = { \bool_set_false:N \l@@_sort_none_bool },
     sort / none .code:n = { \bool_set_true:N \l@@_sort_none_bool },
@@ -608,31 +595,6 @@ This work consists of the file  zebra.dtx
   {
     unknown .code:n =
       { \prop_gput:NVn \g@@_note_symbols_prop \l_keys_key_str {#1} }
-  }
-\sys_if_engine_xetex:T
-  { \bool_set_false:N \l@@_microtype_expansion_bool }
-
-\cs_new_protected:Npn \@@_setup_microtype:
-  {
-    \@@_if_package_loaded:nTF { microtype }
-      {
-        \bool_if:NF \l@@_microtype_expansion_bool
-          { \microtypesetup { expansion = false } }
-      }
-      {
-        \bool_if:NTF \l@@_microtype_expansion_bool
-          { \RequirePackage{microtype} }
-          { \RequirePackage[expansion=false]{microtype} }
-      }
-  }
-\@@_setup_microtype:
-\@@_if_package_loaded:nF { hyperref }
-  {
-    \bool_if:NT \l@@_pagelinks_bool
-      {
-        \RequirePackage{hyperref}
-        \hypersetup { pdfborder = { 0~0~0 } }
-      }
   }
 %    \end{macrocode}
 %
@@ -853,7 +815,7 @@ This work consists of the file  zebra.dtx
           }
       }
   }
-\cs_new_protected:Npn \@@_setup_pagelinks:
+\cs_new_protected:Npn \@@_setup_hyperref:
   {
     \cs_set:Npn \@@_target:nn ##1##2 {##2}
     \cs_set:Npn \@@_link:nn ##1##2 {##2}
@@ -861,16 +823,13 @@ This work consists of the file  zebra.dtx
     \@@_if_package_loaded:nT { hyperref }
       {
         \cs_set:Npn \@@_pageref:n ##1 { \pageref* {##1} }
-        \bool_if:NT \l@@_pagelinks_bool
-          {
-            \cs_set:Npn \@@_target:nn ##1##2 { \hypertarget{##1}{##2} }
-            \cs_set:Npn \@@_link:nn ##1##2 { \hyperlink{##1}{##2} }
-          }
+        \cs_set:Npn \@@_target:nn ##1##2 { \hypertarget{##1}{##2} }
+        \cs_set:Npn \@@_link:nn ##1##2 { \hyperlink{##1}{##2} }
         \@@_apply_pdfstring_defs:
       }
   }
 \hook_gput_code:nnn { begindocument } { zebra }
-  { \@@_setup_pagelinks: }
+  { \@@_setup_hyperref: }
 %    \end{macrocode}
 %
 % \subsection{Main notes macros}
@@ -1317,7 +1276,7 @@ This work consists of the file  zebra.dtx
 %<*compat>
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{zebra-goodies}
-  [2026/05/01 v1.9.0 Deprecated: use zebra instead]
+  [2026/05/20 v2.0.0 Deprecated: use zebra instead]
 \PackageWarningNoLine{zebra-goodies}
   {Package 'zebra-goodies' is deprecated.\MessageBreak
    Use \string\usepackage{zebra} instead}

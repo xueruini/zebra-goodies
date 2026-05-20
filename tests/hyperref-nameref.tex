@@ -1,0 +1,15 @@
+% Regression: zebra with hyperref/nameref.
+\documentclass{article}
+\usepackage{zebra}
+\usepackage{hyperref}
+\usepackage{nameref}
+
+\begin{document}
+
+\section{Named Section}
+\label{sec:named}
+Body text \todo{\label{zebra:nameref}check nameref compatibility}.
+
+See \nameref{sec:named} and \zebraref{zebra:nameref}.
+
+\end{document}
