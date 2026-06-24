@@ -5,6 +5,7 @@
 % the writes without producing multiply-defined labels.
 \documentclass{article}
 \usepackage{zebra}
+\input{zebra-test}
 
 \begin{document}
 
@@ -16,5 +17,9 @@
 \end{figure}
 
 Reference: \zebraref{zebra:long} on p.~\pageref{zebra:long}.
+
+% One labeled todo; sbox re-measurement must not double-count it.
+\ZebraAssertCount{todo}{1}
+\ZebraAssertTotal{1}
 
 \end{document}

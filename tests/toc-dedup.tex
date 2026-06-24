@@ -3,6 +3,7 @@
 % \zebraref cross-reference must resolve after two passes.
 \documentclass{article}
 \usepackage{zebra}
+\input{zebra-test}
 
 \begin{document}
 
@@ -11,5 +12,9 @@
 \section{Intro \todo{\label{zebra:toc}check heading wording}}
 
 Reference: \zebraref{zebra:toc} on p.~\pageref{zebra:toc}.
+
+% One section todo; its TOC replay must be suppressed.
+\ZebraAssertCount{todo}{1}
+\ZebraAssertTotal{1}
 
 \end{document}

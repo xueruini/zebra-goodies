@@ -4,6 +4,7 @@
 \documentclass{article}
 \usepackage{hyperref}
 \usepackage{zebra}
+\input{zebra-test}
 
 \begin{document}
 
@@ -11,5 +12,8 @@
 Body text \todo{\label{zebra:href-before}check hyperlink target}.
 
 See \zebraref{zebra:href-before} on p.~\pageref{zebra:href-before}.
+
+\ZebraAssertCount{todo}{1}
+\ZebraAssertTotal{1}
 
 \end{document}

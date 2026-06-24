@@ -2,6 +2,7 @@
 \documentclass{article}
 \usepackage{zebra}
 \usepackage{hyperref}
+\input{zebra-test}
 
 \zebranewnote{aside}{red}
 
@@ -15,5 +16,11 @@
   \aside{PDFSTRING-ASIDE-BODY}}
 
 Body text.
+
+% Heading renders each note once; the bookmark/pdfstring replay is a no-op.
+\ZebraAssertCount{todo}{2}
+\ZebraAssertCount{note}{1}
+\ZebraAssertCount{aside}{2}
+\ZebraAssertTotal{5}
 
 \end{document}

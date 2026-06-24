@@ -209,6 +209,7 @@ This work consists of the file  zebra.dtx
 %\changes{v1.8.1}{2026/04/29}{Silence pass-1 warning from \cs{zebraref}.}
 %\changes{v1.9.0}{2026/05/01}{Document known limitations.}
 %\changes{v2.0.0}{2026/05/20}{Stop loading \pkg{hyperref} and \pkg{microtype}.}
+%\changes{v2.1.0}{2026/06/24}{Accept any \pkg{xcolor} colour expression in \cs{zebranewnote}.}
 %
 %\title{^^A
 %  \pkg{zebra} --- Writing Revision Toolkit^^A
@@ -414,9 +415,10 @@ This work consists of the file  zebra.dtx
 %\end{function}
 % Creates a new note type. The \meta{note name} becomes the command name
 % (e.g.\ passing |question| creates \cs{question} and \cs{zebraquestion}), and
-% \meta{xcolor name} sets its colour. The colour must be a named colour already
-% known to \pkg{xcolor}; define it with \cs{definecolor} or \cs{colorlet}
-% beforehand if needed. The optional \meta{symbol} overrides the default margin
+% \meta{xcolor name} sets its colour. Any colour expression accepted by
+% \pkg{xcolor} works here, including mixes such as |green!50!black| or
+% |teal!60!black|, so a bare \cs{definecolor}/\cs{colorlet} beforehand is not
+% required. The optional \meta{symbol} overrides the default margin
 % symbol (\cs{textdbend}) for this note type only. Per-type symbols can also be
 % changed after loading via
 % |\zebrasetup{symbol/|\meta{type}|=|\meta{symbol}|}|.
@@ -502,8 +504,8 @@ This work consists of the file  zebra.dtx
 %   \item In \opt{final} mode, labels inside notes are unavailable.  In
 %     \opt{unnumbered} mode, the detailed list is omitted and summary counts
 %     are only an upper-bound estimate.
-%   \item \cs{zebranewnote} expects command-name-safe note names and colours
-%     already known to \pkg{xcolor}; invalid values are left to \TeX{} or
+%   \item \cs{zebranewnote} expects command-name-safe note names and a colour
+%     expression valid for \pkg{xcolor}; invalid values are left to \TeX{} or
 %     \pkg{xcolor} errors.
 % \end{itemize}
 %
@@ -527,8 +529,8 @@ This work consists of the file  zebra.dtx
 %    \begin{macrocode}
 \NeedsTeXFormat{LaTeX2e}[2022-06-01]
 \ProvidesExplPackage{zebra}
-  {2026/05/20}
-  {2.0.0}
+  {2026/06/24}
+  {2.1.0}
   {Writing Revision Toolkit}
 %    \end{macrocode}
 %
@@ -733,16 +735,30 @@ This work consists of the file  zebra.dtx
       {#3}
       { \l@@_note_target_tl }
   }
-%% Aux-file interface: record a content signature together with the
-%% originating instance key.  A later encounter whose instance key
-%% differs from the stored one is a replay and is suppressed.
-%% Re-stringify for catcode normalisation.
+%% --- .aux callback interface (read back on the next compilation) ---
+%% \zebra@sig is the ONE macro zebra writes into the .aux file (see
+%% \@@_write_sig:NN below) and re-reads at \begin{document} on the next
+%% run.  It records a content signature together with the originating
+%% instance key; a later encounter whose instance key differs from the
+%% stored one is a replay and is suppressed.
+%%
+%% Its name MUST stay in the traditional \zebra@... ("@" catcode 11)
+%% namespace and MUST NOT be renamed to an expl3 internal such as
+%% \@@_sig:nn / \__zebra_sig:nn.  The .aux is read back with normal
+%% catcodes, where "_" and ":" are catcode 12 (other), so an expl3 name
+%% written verbatim into the .aux would not parse back as a single
+%% control sequence and the cross-compilation dedup would silently break.
+%% This is deliberate: do not "tidy" it into the @@ namespace.
+%% Re-stringify the arguments for catcode normalisation.
 \cs_new_protected:Npn \zebra@sig #1#2
   {
     \tl_set:Nx \l_tmpa_tl { \tl_to_str:n {#1} }
     \tl_set:Nx \l_tmpb_tl { \tl_to_str:n {#2} }
     \prop_gput:NVV \g@@_note_sig_known_prop \l_tmpa_tl \l_tmpb_tl
   }
+%% Writes one \zebra@sig record to the .aux.  Because that token reaches
+%% the .aux verbatim, the callback above is the only safe spelling — keep
+%% the two in sync if the payload ever changes.
 \cs_new_protected:Npn \@@_write_sig:NN #1#2
   {
     \prop_if_in:NVF \g@@_note_sig_written_prop #1
@@ -1235,8 +1251,7 @@ This work consists of the file  zebra.dtx
 % Built-in note types, defined with \cs{zebranewnote}.
 %    \begin{macrocode}
 \zebranewnote{todo}{purple}
-\colorlet{zebra@fixed@color}{green!50!black}
-\zebranewnote{fixed}{zebra@fixed@color}
+\zebranewnote{fixed}{green!50!black}
 \zebranewnote{comment}{blue}
 \zebranewnote{note}{violet}
 \zebranewnote{placeholder}{gray}
@@ -1276,7 +1291,7 @@ This work consists of the file  zebra.dtx
 %<*compat>
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesPackage{zebra-goodies}
-  [2026/05/20 v2.0.0 Deprecated: use zebra instead]
+  [2026/06/24 v2.1.0 Deprecated: use zebra instead]
 \PackageWarningNoLine{zebra-goodies}
   {Package 'zebra-goodies' is deprecated.\MessageBreak
    Use \string\usepackage{zebra} instead}

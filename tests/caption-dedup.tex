@@ -4,6 +4,7 @@
 % - \zebraref for the labeled caption note.
 \documentclass{article}
 \usepackage{zebra}
+\input{zebra-test}
 
 \begin{document}
 
@@ -19,5 +20,9 @@
 \end{table}
 
 Reference: \zebraref{zebra:caption} on p.~\pageref{zebra:caption}.
+
+% 1 labeled fig-caption todo + 2 unlabeled long-table-caption todos.
+\ZebraAssertCount{todo}{3}
+\ZebraAssertTotal{3}
 
 \end{document}

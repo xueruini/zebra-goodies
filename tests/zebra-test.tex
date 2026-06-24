@@ -1,0 +1,43 @@
+% tests/zebra-test.tex
+%
+% Shared assertion helpers for zebra's behavioural regression tests.
+%
+% Rather than diffing golden log files (fragile across TeX
+% distributions and kernel versions), each test asserts the *semantic*
+% outcome of the dedup machinery: how many distinct notes were actually
+% allocated.  \g__zebra_note_id_int counts one per real allocation
+% (Case 4 in \@@_note_numbered:nnn); sbox reuse, stable-key suppression
+% and content-signature suppression do NOT bump it.  The per-type
+% counter g__zebra_note_count_<type>_int behaves the same way.  So these
+% two numbers are exactly what a dedup regression (over- or
+% under-collapsing) would move.
+%
+% A failed assertion raises a LaTeX error, which the test runner
+% (tests/runtests.lua, and the legacy Makefile target) already treats as
+% a failure -- this reuses the existing \PackageError pattern that a few
+% tests spelt out by hand.  The error message reports got/want.
+%
+% Counts only converge once the .aux signatures from the previous pass
+% are read back, so call these at end of document and let the runner
+% read the last of its three pdflatex passes.
+\ExplSyntaxOn
+\msg_new:nnn { zebra-test } { count-mismatch }
+  { Behavioural~regression:~#1. }
+\cs_new_protected:Npn \__zebra_test_assert:nnn #1#2#3
+  {
+    \int_compare:nNnF {#2} = {#3}
+      {
+        \msg_error:nnx { zebra-test } { count-mismatch }
+          { #1~got~\int_eval:n {#2},~want~#3 }
+      }
+  }
+% \ZebraAssertTotal{<n>}: total distinct allocations across all types.
+\NewDocumentCommand \ZebraAssertTotal { m }
+  { \__zebra_test_assert:nnn { total } { \g__zebra_note_id_int } {#1} }
+% \ZebraAssertCount{<type>}{<n>}: distinct notes of <type>.
+\NewDocumentCommand \ZebraAssertCount { m m }
+  {
+    \__zebra_test_assert:nnn { count[#1] }
+      { \int_use:c { g__zebra_note_count_#1_int } } {#2}
+  }
+\ExplSyntaxOff

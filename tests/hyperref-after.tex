@@ -3,6 +3,7 @@
 \documentclass{article}
 \usepackage{zebra}
 \usepackage{hyperref}
+\input{zebra-test}
 
 \begin{document}
 
@@ -10,5 +11,8 @@
 Body text \todo{\label{zebra:href-after}check hyperlink target}.
 
 See \zebraref{zebra:href-after} on p.~\pageref{zebra:href-after}.
+
+\ZebraAssertCount{todo}{1}
+\ZebraAssertTotal{1}
 
 \end{document}
