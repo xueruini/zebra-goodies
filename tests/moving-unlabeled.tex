@@ -1,6 +1,7 @@
 % Regression: unlabeled moving-argument notes may replay, but must compile cleanly.
 \documentclass{article}
 \usepackage{zebra}
+\input{zebra-test}
 
 \pagestyle{headings}
 
@@ -11,5 +12,11 @@
 \section{Intro \todo{x}\todo{x}}
 
 Body text.
+
+% Pins current behaviour: the same-line pair collapses to one in the
+% typeset heading, but the unlabelled TOC replay (no content signature)
+% adds one cosmetic duplicate -> 2.  Labelling is the documented fix.
+\ZebraAssertCount{todo}{2}
+\ZebraAssertTotal{2}
 
 \end{document}

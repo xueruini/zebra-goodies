@@ -4,6 +4,7 @@
 % so they don't collide via Case 1.
 \documentclass{article}
 \usepackage{zebra}
+\input{zebra-test}
 
 \begin{document}
 
@@ -19,13 +20,8 @@
 
 Body \todo{plain}.
 
-\ExplSyntaxOn
-\int_compare:nNnF { \int_use:c { g__zebra_note_count_todo_int } } = { 5 }
-  {
-    \PackageError { zebra-test }
-      { Inner-mode~unlabeled~not~recorded }
-      { Expected~5~todo~notes:~fbox,~parbox,~tabular,~footnote,~plain. }
-  }
-\ExplSyntaxOff
+% fbox, parbox, tabular cell, footnote, plain -- five distinct todos.
+\ZebraAssertCount{todo}{5}
+\ZebraAssertTotal{5}
 
 \end{document}

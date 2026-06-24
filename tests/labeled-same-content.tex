@@ -3,6 +3,7 @@
 % while their TOC replays must not create extra notes.
 \documentclass{article}
 \usepackage{zebra}
+\input{zebra-test}
 
 \begin{document}
 
@@ -14,13 +15,8 @@
 References:
 \zebraref{zebra:first-same} and \zebraref{zebra:second-same}.
 
-\ExplSyntaxOn
-\int_compare:nNnF { \int_use:c { g__zebra_note_count_todo_int } } = { 2 }
-  {
-    \PackageError { zebra-test }
-      { Labeled~same-content~notes~were~not~kept~distinct }
-      { Expected~exactly~two~todo~notes. }
-  }
-\ExplSyntaxOff
+% Two labeled notes stay distinct; their TOC replays add nothing.
+\ZebraAssertCount{todo}{2}
+\ZebraAssertTotal{2}
 
 \end{document}

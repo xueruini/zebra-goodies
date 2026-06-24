@@ -1,0 +1,28 @@
+name: test
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+jobs:
+  test:
+    name: Build & regression tests
+    runs-on: ubuntu-latest
+    # Full TeX Live image: ships latexmk, texlua and every third-party
+    # class the template tests load (IEEEtran, acmart, llncs, ...).
+    # Tracking :latest is intentional -- it surfaces upstream breakage
+    # early, which is the main reason this CI exists.
+    container: texlive/texlive:latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Builds out/zebra.pdf (documentation) and extracts out/zebra.sty
+      # in one go, so this also guards the documentation build chain.
+      - name: Build package and documentation
+        run: latexmk zebra.dtx
+
+      # Compiles every tests/*.tex three times and checks behaviour
+      # (note counts) plus error signatures -- no golden-log diffing.
+      - name: Run behavioural regression suite
+        run: texlua tests/runtests.lua

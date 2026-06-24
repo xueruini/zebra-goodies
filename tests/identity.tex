@@ -5,6 +5,7 @@
 % - Same label + same body at different lines -> treated as same identity.
 \documentclass{article}
 \usepackage{zebra}
+\input{zebra-test}
 
 \begin{document}
 
@@ -26,5 +27,11 @@ Some text.
 %% because same \label = same identity.
 \note{\label{zebra:id}identical}
 \note{\label{zebra:id}identical}
+
+% 5 todos (2 "remove" + recall + 2 dup-label) and 1 note (same label+body
+% collapses).
+\ZebraAssertCount{todo}{5}
+\ZebraAssertCount{note}{1}
+\ZebraAssertTotal{6}
 
 \end{document}

@@ -3,6 +3,7 @@
 % \zebraref cross-reference must resolve correctly after two passes.
 \documentclass{article}
 \usepackage{zebra}
+\input{zebra-test}
 
 \begin{document}
 
@@ -21,5 +22,9 @@
 
 Reference: \zebraref{zebra:lot} on p.~\pageref{zebra:lot},
 \zebraref{zebra:lot-long} on p.~\pageref{zebra:lot-long}.
+
+% Two labeled table-caption todos; LOT/sbox replays suppressed.
+\ZebraAssertCount{todo}{2}
+\ZebraAssertTotal{2}
 
 \end{document}

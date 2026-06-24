@@ -4,6 +4,7 @@
 \documentclass{article}
 \usepackage[margin=2cm]{geometry}
 \usepackage{zebra}
+\input{zebra-test}
 
 \pagestyle{headings}
 
@@ -26,5 +27,12 @@ More body text.
 
 Heading references: \zebraref{zebra:intro-heading} on p.~\pageref{zebra:intro-heading},
 \zebraref{zebra:background-heading} on p.~\pageref{zebra:background-heading}.
+
+% One note of each type; header/mark and TOC replays add nothing.
+\ZebraAssertCount{todo}{1}
+\ZebraAssertCount{note}{1}
+\ZebraAssertCount{comment}{1}
+\ZebraAssertCount{fixed}{1}
+\ZebraAssertTotal{4}
 
 \end{document}

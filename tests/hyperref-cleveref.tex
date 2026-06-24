@@ -3,6 +3,7 @@
 \usepackage{zebra}
 \usepackage{hyperref}
 \usepackage{cleveref}
+\input{zebra-test}
 
 \begin{document}
 
@@ -11,5 +12,8 @@
 Body text \todo{\label{zebra:cleveref}check cleveref compatibility}.
 
 See \cref{sec:clever} and \zebraref{zebra:cleveref}.
+
+\ZebraAssertCount{todo}{1}
+\ZebraAssertTotal{1}
 
 \end{document}
