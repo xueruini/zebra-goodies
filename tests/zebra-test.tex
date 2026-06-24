@@ -17,18 +17,28 @@
 % a failure -- this reuses the existing \PackageError pattern that a few
 % tests spelt out by hand.  The error message reports got/want.
 %
-% Counts only converge once the .aux signatures from the previous pass
-% are read back, so call these at end of document and let the runner
-% read the last of its three pdflatex passes.
+% Counts only converge once generated files from the previous pass
+% (.aux signatures, .toc replays, etc.) are read back.  The first cold
+% pass writes a marker and deliberately skips assertions; later passes
+% enforce them.
+\makeatletter
+\AtBeginDocument{%
+  \protected@write\@auxout{}%
+    {\string\gdef\string\ZebraTestPreviousRun{1}}%
+}
+\makeatother
 \ExplSyntaxOn
 \msg_new:nnn { zebra-test } { count-mismatch }
   { Behavioural~regression:~#1. }
 \cs_new_protected:Npn \__zebra_test_assert:nnn #1#2#3
   {
-    \int_compare:nNnF {#2} = {#3}
+    \cs_if_exist:NT \ZebraTestPreviousRun
       {
-        \msg_error:nnx { zebra-test } { count-mismatch }
-          { #1~got~\int_eval:n {#2},~want~#3 }
+        \int_compare:nNnF {#2} = {#3}
+          {
+            \msg_error:nnx { zebra-test } { count-mismatch }
+              { #1~got~\int_eval:n {#2},~want~#3 }
+          }
       }
   }
 % \ZebraAssertTotal{<n>}: total distinct allocations across all types.
